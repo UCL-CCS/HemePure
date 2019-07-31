@@ -1,0 +1,40 @@
+<?xml version="1.0" ?>
+<hemelbsettings version="3">
+  <simulation>
+    <stresstype value="1" />
+    <steps value="4000" units="lattice" />
+    <step_length value="0.001" units="s" />
+    <voxel_size value="0.01" units="m" />
+    <origin value="(0.0,0.0,0.0)" units="m" />
+  </simulation>
+  <geometry>
+    <datafile path="./config.gmy" />
+  </geometry>
+  <initialconditions>
+    <pressure>
+      <uniform value="80.0" units="mmHg"/>
+    </pressure>
+  </initialconditions>
+  <inlets>
+    <inlet>
+      <condition type="velocity" subtype="file">
+        <path value="./velocity_inlet.txt" />
+        <radius value="0.2" units="m"/>
+      </condition>
+      <normal value="(0.0,0.0,1.0)" units="dimensionless" />
+      <position value="(0,0,-0.05)" units="m" />
+    </inlet>
+  </inlets>
+  <outlets>
+    <outlet>
+      <condition type="pressure" subtype="cosine">
+        <amplitude value="0.0" units="mmHg" />
+        <mean value="0.0" units="mmHg" />
+        <phase value="0.0" units="rad" />
+        <period value="0.0" units="s" />
+      </condition>
+      <normal value="(0.0,0.0,-1.0)" units="dimensionless" />
+      <position value="(0.0,0.0,0.05)" units="m" />
+    </outlet>
+  </outlets>
+</hemelbsettings>

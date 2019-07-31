@@ -1,0 +1,15 @@
+
+// This file is part of HemeLB and is Copyright (C)
+// the HemeLB team and/or their institutions, as detailed in the
+// file AUTHORS. This software is provided under the terms of the
+// license in the file LICENSE.
+
+#ifndef HEMELB_RESOURCES_PATH_PARAMETERS_H_IN
+#define HEMELB_RESOURCES_PATH_PARAMETERS_H_IN
+namespace hemelb{
+	namespace resources{
+		static const std::string build_resource_path="@BUILD_RESOURCE_PATH@";
+		static const std::string install_resource_path="@INSTALL_RESOURCE_PATH@";
+	}
+}
+#endif // HEMELB_RESOURCES_PATH_PARAMETERS_H_IN

@@ -1,0 +1,7 @@
+*.ignore
+*.ignore/
+build/
+dep/src/loadbalancing*
+fluidAndLinks*
+install/
+results/

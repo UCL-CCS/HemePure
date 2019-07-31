@@ -1,0 +1,69 @@
+
+// This file is part of HemeLB and is Copyright (C)
+// the HemeLB team and/or their institutions, as detailed in the
+// file AUTHORS. This software is provided under the terms of the
+// license in the file LICENSE.
+
+#ifndef HEMELB_GEOMETRY_DECOMPOSITION_DECOMPOSITIONWEIGHTS_H_IN
+#define HEMELB_GEOMETRY_DECOMPOSITION_DECOMPOSITIONWEIGHTS_H_IN
+namespace hemelb
+{
+  namespace geometry
+  {
+    namespace decomposition
+    {
+      /**
+      * Defining the proper weights of each site depending on the wall collision type
+      * The array hold the weight of each site type, which changes with different wall type
+      * The SiteWeights is an array with 6 integers which respectively contains the weights of
+      * each bulk flow, wall, inlet, outlet, wall/inlet and wall/outlet site.
+      *
+      * These weights were determined by testing and are defined for Simple Bounce Back (SIMPLEBOUNCEBACK),
+      * Bouzidi Firdaous and Lallement (BFL, set as default), and Gou Zheng Shi walls(GZS).
+      * The weights does not yet differ on different architectures.
+      */
+      
+      static const int hemelbSiteWeightsAMDBULLDOZER = 4;
+      static const int hemelbSiteWeightsSIMPLEBOUNCEBACK_AMDBULLDOZER = 5;
+      static const int hemelbSiteWeightsBFL_AMDBULLDOZER = 8;
+      static const int hemelbSiteWeightsGZS_AMDBULLDOZER = 28;
+      static const int hemelbSiteWeightsJUNKYANG_AMDBULLDOZER = 40; 
+      static const int hemelbSiteWeightsNASHZEROTHORDERPRESSUREIOLET_AMDBULLDOZER = 16;
+      static const int hemelbSiteWeightsLADDIOLET_AMDBULLDOZER = 16;
+      
+      static const int hemelbSiteWeightsINTELSANDYBRIDGE = 4;
+      static const int hemelbSiteWeightsSIMPLEBOUNCEBACK_INTELSANDYBRIDGE = 5;
+      static const int hemelbSiteWeightsBFL_INTELSANDYBRIDGE = 8;
+      static const int hemelbSiteWeightsGZS_INTELSANDYBRIDGE = 28;
+      static const int hemelbSiteWeightsJUNKYANG_INTELSANDYBRIDGE = 40; 
+      static const int hemelbSiteWeightsNASHZEROTHORDERPRESSUREIOLET_INTELSANDYBRIDGE = 16;
+      static const int hemelbSiteWeightsLADDIOLET_INTELSANDYBRIDGE = 16;
+      
+      static const int hemelbSiteWeightsNEUTRAL = 1;
+      static const int hemelbSiteWeightsSIMPLEBOUNCEBACK_NEUTRAL = 1;
+      static const int hemelbSiteWeightsBFL_NEUTRAL = 1;
+      static const int hemelbSiteWeightsGZS_NEUTRAL = 1;
+      static const int hemelbSiteWeightsJUNKYANG_NEUTRAL = 1; 
+      static const int hemelbSiteWeightsNASHZEROTHORDERPRESSUREIOLET_NEUTRAL = 1;
+      static const int hemelbSiteWeightsLADDIOLET_NEUTRAL = 1;
+      
+      static const int hemelbSiteWeightsISBFILEVELOCITYINLET = 4;
+      static const int hemelbSiteWeightsSIMPLEBOUNCEBACK_ISBFILEVELOCITYINLET = 5;
+      static const int hemelbSiteWeightsBFL_ISBFILEVELOCITYINLET = 8;
+      static const int hemelbSiteWeightsGZS_ISBFILEVELOCITYINLET = 28;
+      static const int hemelbSiteWeightsJUNKYANG_ISBFILEVELOCITYINLET = 40; 
+      static const int hemelbSiteWeightsNASHZEROTHORDERPRESSUREIOLET_ISBFILEVELOCITYINLET = 16;
+      static const int hemelbSiteWeightsLADDIOLET_ISBFILEVELOCITYINLET = 48;
+
+      static const int hemelbSiteWeights[6] = { hemelbSiteWeights@HEMELB_COMPUTE_ARCHITECTURE@, 
+                                                hemelbSiteWeights@HEMELB_WALL_BOUNDARY@_@HEMELB_COMPUTE_ARCHITECTURE@, 
+                                                hemelbSiteWeights@HEMELB_INLET_BOUNDARY@_@HEMELB_COMPUTE_ARCHITECTURE@, 
+                                                hemelbSiteWeights@HEMELB_OUTLET_BOUNDARY@_@HEMELB_COMPUTE_ARCHITECTURE@, 
+                                                hemelbSiteWeights@HEMELB_INLET_BOUNDARY@_@HEMELB_COMPUTE_ARCHITECTURE@, 
+                                                hemelbSiteWeights@HEMELB_OUTLET_BOUNDARY@_@HEMELB_COMPUTE_ARCHITECTURE@ };
+                                                
+      static const int hemelbCoresPerNode = 32;
+    }
+  } 
+}  
+#endif //HEMELB_GEOMETRY_DECOMPOSITION_DECOMPOSITIONWEIGHTS_H_IN

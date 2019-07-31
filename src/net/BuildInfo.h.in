@@ -1,0 +1,24 @@
+
+// This file is part of HemeLB and is Copyright (C)
+// the HemeLB team and/or their institutions, as detailed in the
+// file AUTHORS. This software is provided under the terms of the
+// license in the file LICENSE.
+
+#ifndef HEMELB_NET_BUILDINFO_H_IN
+#define HEMELB_NET_BUILDINFO_H_IN
+namespace hemelb
+{
+  namespace net
+  {
+    typedef @HEMELB_POINTPOINT_IMPLEMENTATION@PointPoint PointPointImpl ;
+    typedef @HEMELB_GATHERS_IMPLEMENTATION@Gathers GathersImpl ;
+    typedef @HEMELB_ALLTOALL_IMPLEMENTATION@AllToAll AllToAllImpl ;
+    #cmakedefine HEMELB_SEPARATE_CONCERNS
+    #ifdef HEMELB_SEPARATE_CONCERNS
+    static const bool separate_communications = true;
+    #else
+    static const bool separate_communications = false;
+    #endif
+  }
+}
+#endif // HEMELB_NET_BUILDINFO_H_IN
