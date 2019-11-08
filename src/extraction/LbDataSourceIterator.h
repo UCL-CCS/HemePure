@@ -136,6 +136,8 @@ namespace hemelb
 
         bool IsInletSite(const util::Vector3D<site_t>& location) const;
 
+        bool IsOutletSite(const util::Vector3D<site_t>& location) const;
+
       private:
         /**
          * The cache of properties for each site, which we iterate through.

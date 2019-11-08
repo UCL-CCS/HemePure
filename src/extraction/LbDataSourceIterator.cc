@@ -115,5 +115,12 @@ namespace hemelb
 
       return data.GetSite(localSiteId).GetSiteType() == hemelb::geometry::INLET_TYPE;
     }
+
+    bool LbDataSourceIterator::IsOutletSite(const util::Vector3D<site_t>& location) const
+    {
+      site_t localSiteId = data.GetContiguousSiteId(location);
+
+      return data.GetSite(localSiteId).GetSiteType() == hemelb::geometry::OUTLET_TYPE;
+    }
   }
 }

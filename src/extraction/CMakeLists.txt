@@ -12,6 +12,7 @@ add_library(hemelb_extraction
 	PropertyActor.cc
 	PropertyWriter.cc
 	InletSelector.cc
+	OutletSelector.cc
 	WholeGeometrySelector.cc
 	LbDataSourceIterator.cc
 	GeometrySurfaceSelector.cc

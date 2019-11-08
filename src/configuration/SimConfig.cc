@@ -303,6 +303,8 @@ namespace hemelb
       io::xml::Element geometryEl = propertyoutputEl.GetChildOrThrow("geometry");
       const std::string& type = geometryEl.GetAttributeOrThrow("type");
 
+      bool iolet = false;
+
       if (type == "plane")
       {
         file->geometry = DoIOForPlaneGeometry(geometryEl);
@@ -314,6 +316,12 @@ namespace hemelb
       else if (type == "inlet")
       {
         file->geometry = new extraction::InletSelector();
+        iolet = true;
+      }
+      else if (type == "outlet")
+      {
+	file->geometry = new extraction::OutletSelector();
+	iolet = true;
       }
       else if (type == "whole")
       {

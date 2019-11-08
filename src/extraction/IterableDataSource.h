@@ -134,6 +134,8 @@ namespace hemelb
         virtual bool IsWallSite(const util::Vector3D<site_t>& location) const = 0;
 
         virtual bool IsInletSite(const util::Vector3D<site_t>& location) const = 0;
+        
+	virtual bool IsOutletSite(const util::Vector3D<site_t>& location) const = 0;
     };
   }
 }
