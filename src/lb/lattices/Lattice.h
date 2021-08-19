@@ -11,7 +11,7 @@
 #define HEMELB_LB_LATTICES_LATTICE_H
 
 #include <cmath>
-#ifdef HEMELB_USE_SSE3
+#if defined(HEMELB_USE_SSE3) || defined(HEMELB_USE_AVX2) || defined(HEMELB_USE_AVX512)
 #include <immintrin.h>
 #endif
 
@@ -109,9 +109,202 @@ namespace hemelb
 
 						}
 
+#elif defined HEMELB_USE_AVX2
+						/**
+						 * Calculates density and momentum using AVX512 intrinsics.
+						 * If the lattice has an odd number of vectors (directions),
+						 * the last element is processed first
+						 *
+						 * The reductions are calculated in two streams (the loop is virtually
+						 * twice unrolled), followed by horizontal adds to sum two partial results together
+						 *
+						 * @param f
+						 * @param density
+						 * @param momentum_x
+						 * @param momentum_y
+						 * @param momentum_z
+						 */
+						inline static void CalculateDensityAndMomentum(const distribn_t f[],
+								distribn_t &density,
+								distribn_t &momentum_x,
+								distribn_t &momentum_y,
+								distribn_t &momentum_z)
+						{	
+							// AVX2 accumulator registers containing a four of double values
+							__m256d density_AVX2;
+							__m256d momentum_x_AVX2;
+							__m256d momentum_y_AVX2;
+							__m256d momentum_z_AVX2;
+
+							// set the loop boundary to the highest multiple of 4 number  =< DmQn::NUMVECTORS
+							Direction numVect2 = ((DmQn::NUMVECTORS >> 2) << 2);
+
+							// process the 15/19/27th element first
+							if (DmQn::NUMVECTORS != numVect2)
+							{
+								// the first double is set to the result of the last element, the second double to zero
+								density_AVX2 = _mm256_set_pd(f[DmQn::NUMVECTORS - 3], f[DmQn::NUMVECTORS - 2], f[DmQn::NUMVECTORS - 1], 0.0);
+								momentum_x_AVX2 = _mm256_set_pd(DmQn::CXD[DmQn::NUMVECTORS - 3] * f[DmQn::NUMVECTORS - 3], DmQn::CXD[DmQn::NUMVECTORS - 2] * f[DmQn::NUMVECTORS - 2], DmQn::CXD[DmQn::NUMVECTORS - 1] * f[DmQn::NUMVECTORS - 1], 0.0);
+								momentum_y_AVX2 = _mm256_set_pd(DmQn::CYD[DmQn::NUMVECTORS - 3] * f[DmQn::NUMVECTORS - 3], DmQn::CYD[DmQn::NUMVECTORS - 2] * f[DmQn::NUMVECTORS - 2], DmQn::CYD[DmQn::NUMVECTORS - 1] * f[DmQn::NUMVECTORS - 1], 0.0);
+								momentum_z_AVX2 = _mm256_set_pd(DmQn::CZD[DmQn::NUMVECTORS - 3] * f[DmQn::NUMVECTORS - 3], DmQn::CZD[DmQn::NUMVECTORS - 2] * f[DmQn::NUMVECTORS - 2], DmQn::CZD[DmQn::NUMVECTORS - 1] * f[DmQn::NUMVECTORS - 1], 0.0);
+
+							}
+							else
+							{
+								// set the AVX accumulators to zero
+								density_AVX2 = _mm256_set1_pd(0.0);
+								momentum_x_AVX2 = _mm256_set1_pd(0.0);
+								momentum_y_AVX2 = _mm256_set1_pd(0.0);
+								momentum_z_AVX2 = _mm256_set1_pd(0.0);
+							}
+
+							//SSE loop processing two elements at once
+							for (Direction direction = 0; direction < numVect2; direction += 4)
+							{
+
+								// f is not aligned, loadu has to be used,
+								// CXD, CYD, CZD are supposed to be 16B aligned
+								const __m256d f_AVX2 = _mm256_loadu_pd(&f[direction]);
+								const __m256d CX_AVX2 = _mm256_loadu_pd(&DmQn::CXD[direction]);
+								const __m256d CY_AVX2 = _mm256_loadu_pd(&DmQn::CYD[direction]);
+								const __m256d CZ_AVX2 = _mm256_loadu_pd(&DmQn::CZD[direction]);
+
+								// density += f[i]
+								density_AVX2 = _mm256_add_pd(density_AVX2, f_AVX2);
+
+								// momentum_x += CX[i] * f[i]]
+								momentum_x_AVX2 = _mm256_add_pd(momentum_x_AVX2, _mm256_mul_pd(CX_AVX2, f_AVX2));
+								momentum_y_AVX2 = _mm256_add_pd(momentum_y_AVX2, _mm256_mul_pd(CY_AVX2, f_AVX2));
+								momentum_z_AVX2 = _mm256_add_pd(momentum_z_AVX2, _mm256_mul_pd(CZ_AVX2, f_AVX2));
+							}
+
+							// horizontal adds to sum partial results and store them back to memory
+							//_mm_store_sd(&density, _mm256_castpd256_pd128 ( _mm256_hadd_pd(density_AVX2, density_AVX2)));
+							//_mm_store_sd(&momentum_x,  _mm256_castpd256_pd128 (_mm256_hadd_pd(momentum_x_AVX2, momentum_x_AVX2)));
+							//_mm_store_sd(&momentum_y,  _mm256_castpd256_pd128 (_mm256_hadd_pd(momentum_y_AVX2, momentum_y_AVX2)));
+							//_mm_store_sd(&momentum_z,  _mm256_castpd256_pd128 (_mm256_hadd_pd(momentum_z_AVX2, momentum_z_AVX2)));
+
+							density = hsum_double_avx(density_AVX2);		
+						
+							momentum_x =  hsum_double_avx(momentum_x_AVX2);
+							momentum_y =  hsum_double_avx(momentum_y_AVX2);
+							momentum_z =  hsum_double_avx(momentum_z_AVX2);
+
+
+						}
+
+
+inline static double hsum_double_avx(__m256d v) {
+    __m128d vlow  = _mm256_castpd256_pd128(v);
+    __m128d vhigh = _mm256_extractf128_pd(v, 1); // high 128
+            vlow  = _mm_add_pd(vlow, vhigh);     // reduce down to 128
+
+    __m128d high64 = _mm_unpackhi_pd(vlow, vlow);
+    return  _mm_cvtsd_f64(_mm_add_sd(vlow, high64));  // reduce to scalar
+}
+
+#elif defined HEMELB_USE_AVX512
+						/**
+						 * Calculates density and momentum using AVX512 intrinsics.
+						 * If the lattice has an odd number of vectors (directions),
+						 * the last element is processed first
+						 *
+						 * The reductions are calculated in two streams (the loop is virtually
+						 * twice unrolled), followed by horizontal adds to sum two partial results together
+						 *
+						 * @param f
+						 * @param density
+						 * @param momentum_x
+						 * @param momentum_y
+						 * @param momentum_z
+						 */
+						inline static void CalculateDensityAndMomentum(const distribn_t f[],
+								distribn_t &density,
+								distribn_t &momentum_x,
+								distribn_t &momentum_y,
+								distribn_t &momentum_z)
+						{	
+							// AVX2 accumulator registers containing a four of double values
+							__m512d density_AVX2;
+							__m512d momentum_x_AVX2;
+							__m512d momentum_y_AVX2;
+							__m512d momentum_z_AVX2;
+
+							// set the loop boundary to the highest multiple of 8 number  =< DmQn::NUMVECTORS
+							Direction numVect2 = ((DmQn::NUMVECTORS >> 3) << 3);
+
+							// process the 15/19/27th element first
+							if (DmQn::NUMVECTORS != numVect2)
+							{
+								//N.B. This WON'T work for D3Q15
+								// the first double is set to the result of the last element, the second double to zero
+								density_AVX2 = _mm512_set_pd(f[DmQn::NUMVECTORS - 3], f[DmQn::NUMVECTORS - 2], f[DmQn::NUMVECTORS - 1], 0.0, 0.0, 0.0, 0.0, 0.0);
+								momentum_x_AVX2 = _mm512_set_pd(DmQn::CXD[DmQn::NUMVECTORS - 3] * f[DmQn::NUMVECTORS - 3], DmQn::CXD[DmQn::NUMVECTORS - 2] * f[DmQn::NUMVECTORS - 2], DmQn::CXD[DmQn::NUMVECTORS - 1] * f[DmQn::NUMVECTORS - 1], 0.0, 0.0, 0.0, 0.0, 0.0);
+								momentum_y_AVX2 = _mm512_set_pd(DmQn::CYD[DmQn::NUMVECTORS - 3] * f[DmQn::NUMVECTORS - 3], DmQn::CYD[DmQn::NUMVECTORS - 2] * f[DmQn::NUMVECTORS - 2], DmQn::CYD[DmQn::NUMVECTORS - 1] * f[DmQn::NUMVECTORS - 1], 0.0, 0.0, 0.0, 0.0, 0.0);
+								momentum_z_AVX2 = _mm512_set_pd(DmQn::CZD[DmQn::NUMVECTORS - 3] * f[DmQn::NUMVECTORS - 3], DmQn::CZD[DmQn::NUMVECTORS - 2] * f[DmQn::NUMVECTORS - 2], DmQn::CZD[DmQn::NUMVECTORS - 1] * f[DmQn::NUMVECTORS - 1], 0.0, 0.0, 0.0, 0.0, 0.0);
+
+							}
+							else
+							{
+								// set the AVX accumulators to zero
+								density_AVX2 = _mm512_set1_pd(0.0);
+								momentum_x_AVX2 = _mm512_set1_pd(0.0);
+								momentum_y_AVX2 = _mm512_set1_pd(0.0);
+								momentum_z_AVX2 = _mm512_set1_pd(0.0);
+							}
+
+							//SSE loop processing two elements at once
+							for (Direction direction = 0; direction < numVect2; direction += 8)
+							{
+
+								// f is not aligned, loadu has to be used,
+								// CXD, CYD, CZD are supposed to be 16B aligned
+								const __m512d f_AVX2 = _mm512_loadu_pd(&f[direction]);
+								const __m512d CX_AVX2 = _mm512_loadu_pd(&DmQn::CXD[direction]);
+								const __m512d CY_AVX2 = _mm512_loadu_pd(&DmQn::CYD[direction]);
+								const __m512d CZ_AVX2 = _mm512_loadu_pd(&DmQn::CZD[direction]);
+
+								// density += f[i]
+								density_AVX2 = _mm512_add_pd(density_AVX2, f_AVX2);
+
+								// momentum_x += CX[i] * f[i]]
+								momentum_x_AVX2 = _mm512_add_pd(momentum_x_AVX2, _mm512_mul_pd(CX_AVX2, f_AVX2));
+								momentum_y_AVX2 = _mm512_add_pd(momentum_y_AVX2, _mm512_mul_pd(CY_AVX2, f_AVX2));
+								momentum_z_AVX2 = _mm512_add_pd(momentum_z_AVX2, _mm512_mul_pd(CZ_AVX2, f_AVX2));
+							}
+
+							// horizontal adds to sum partial results and store them back to memory
+							//_mm_store_sd(&density, _mm512_castpd256_pd128 ( _mm512_hadd_pd(density_AVX2, density_AVX2)));
+							//_mm_store_sd(&momentum_x,  _mm512_castpd256_pd128 (_mm512_hadd_pd(momentum_x_AVX2, momentum_x_AVX2)));
+							//_mm_store_sd(&momentum_y,  _mm512_castpd256_pd128 (_mm512_hadd_pd(momentum_y_AVX2, momentum_y_AVX2)));
+							//_mm_store_sd(&momentum_z,  _mm512_castpd256_pd128 (_mm512_hadd_pd(momentum_z_AVX2, momentum_z_AVX2)));
+
+							density = hsum_double_avx512(density_AVX2);		
+						
+							momentum_x =  hsum_double_avx512(momentum_x_AVX2);
+							momentum_y =  hsum_double_avx512(momentum_y_AVX2);
+							momentum_z =  hsum_double_avx512(momentum_z_AVX2);
+
+
+						}
+
+
+inline static double hsum_double_avx512(__m512d v) {
+    __m128d vlow  = _mm512_castpd512_pd128(v);
+    __m128d vmlow = _mm512_extractf64x2_pd(v, 1); // high 128
+    __m128d vmhigh = _mm512_extractf64x2_pd(v, 2); // high 128
+    __m128d vhigh = _mm512_extractf64x2_pd(v, 3); // high 128
+            vlow  = _mm_add_pd(_mm_add_pd(vlow,vmlow), _mm_add_pd(vmhigh,vhigh));     // reduce down to 128
+
+    __m128d high64 = _mm_unpackhi_pd(vlow, vlow);
+    return  _mm_cvtsd_f64(_mm_add_sd(vlow, high64));  // reduce to scalar
+}
+
+
 #else
 
 						/**
+						 * Calculates density and momentum, the original non-SSE version
 						 * Calculates density and momentum, the original non-SSE version
 						 * @param f
 						 * @param density
@@ -253,6 +446,190 @@ namespace hemelb
 
 							}
 						}
+
+#elif defined HEMELB_USE_AVX2
+						/**
+						 * Calculates Feq using AVX2 intrinsics.
+						 * If the lattice has an odd number of vectors (directions),
+						 * the last element is processed using scalar arithmetics
+						 *
+						 * The reductions are calculated in two streams (the loop is virtually
+						 * twice unrolled). Some invariants are merged together
+						 *
+						 * @param density
+						 * @param momentum_x
+						 * @param momentum_y
+						 * @param momentum_z
+						 * @param f_eq
+						 */
+						inline static void CalculateFeq(const distribn_t &density,
+								const distribn_t &momentum_x,
+								const distribn_t &momentum_y,
+								const distribn_t &momentum_z,
+								distribn_t f_eq[])
+						{
+
+							// merge some constants and invariants and populate SSE registers by them
+							const distribn_t threeHalvesOfMomentumMagnitudeSquared = (3./2.) * (momentum_x * momentum_x + momentum_y * momentum_y
+									+ momentum_z * momentum_z);
+							const __m256d threeHalvesOfMomentumMagnitudeSquared_AVX2 = _mm256_set1_pd(threeHalvesOfMomentumMagnitudeSquared);
+
+							const distribn_t density_1 = 1. / density;
+							const __m256d density_1_AVX2 = _mm256_set1_pd(density_1);
+							const __m256d density_AVX2 = _mm256_set1_pd(density);
+
+							const __m256d momentum_x_AVX2 = _mm256_set1_pd(momentum_x);
+							const __m256d momentum_y_AVX2 = _mm256_set1_pd(momentum_y);
+							const __m256d momentum_z_AVX2 = _mm256_set1_pd(momentum_z);
+
+							const distribn_t nineHalvesOfDensity_1 = (9. / 2.) * density_1;
+							const __m256d nineOnTwoDensity_1_AVX2 = _mm256_set1_pd(nineHalvesOfDensity_1);
+							const __m256d three_AVX2 = _mm256_set1_pd(3.);
+
+							// sse loop (the loop is virtually twice unrolled)
+							Direction numVect2 = ((DmQn::NUMVECTORS >> 2) << 2);
+							for (Direction i = 0; i < numVect2; i+=4)
+							{
+								// mom_dot_ei = DmQn::CX[i] * momentum_x + DmQn::CY[i] * momentum_y + DmQn::CZ[i] * momentum_z;
+								const __m256d CXD_momentum_x_AVX2 = _mm256_mul_pd(_mm256_loadu_pd(&DmQn::CXD[i]),momentum_x_AVX2);
+								const __m256d CYD_momentum_y_AVX2 = _mm256_mul_pd(_mm256_loadu_pd(&DmQn::CYD[i]),momentum_y_AVX2);
+								const __m256d CZD_momentum_z_AVX2 = _mm256_mul_pd(_mm256_loadu_pd(&DmQn::CZD[i]),momentum_z_AVX2);
+
+								const __m256d EQMWEIGHTS_AVX2 = _mm256_loadu_pd(&DmQn::EQMWEIGHTS[i]);
+
+								const __m256d mom_dot_ei_AVX2 = _mm256_add_pd(
+										_mm256_add_pd(CXD_momentum_x_AVX2, CYD_momentum_y_AVX2),
+										CZD_momentum_z_AVX2
+										);
+
+								//  (density - (3. / 2.) * momentumMagnitudeSquared * density_1
+								const __m256d tmp1 = _mm256_sub_pd(density_AVX2,
+										_mm256_mul_pd(threeHalvesOfMomentumMagnitudeSquared_AVX2, density_1_AVX2 )
+										);
+
+								// (9. / 2.) * density_1 * mom_dot_ei * mom_dot_ei
+								const __m256d tmp2 = (_mm256_mul_pd(
+											nineOnTwoDensity_1_AVX2,
+											_mm256_mul_pd(mom_dot_ei_AVX2, mom_dot_ei_AVX2)
+											)
+										);
+								// 3. * mom_dot_ei);
+								const __m256d tmp3 = _mm256_mul_pd(three_AVX2, mom_dot_ei_AVX2);
+
+								__m256d tmp4 = _mm256_add_pd(tmp1, tmp2);
+								tmp4 = _mm256_add_pd(tmp4, tmp3);
+
+								// f_eq is not 16B aligned
+								_mm256_storeu_pd(&f_eq[i],_mm256_mul_pd(EQMWEIGHTS_AVX2,tmp4));
+							}
+
+							// do the odd element (15/19/27)
+							if (DmQn::NUMVECTORS != numVect2)// constants are reduced, could be vectorised and FMA adjusted
+							{
+
+								for ( Direction tail=1; tail < 4; tail +=1) { 
+									const distribn_t mom_dot_ei = DmQn::CX[DmQn::NUMVECTORS-tail] * momentum_x
+										+ DmQn::CY[DmQn::NUMVECTORS-tail] * momentum_y + DmQn::CZ[DmQn::NUMVECTORS-tail] * momentum_z;
+
+									f_eq[DmQn::NUMVECTORS-tail] = DmQn::EQMWEIGHTS[DmQn::NUMVECTORS - tail]
+										* (density - threeHalvesOfMomentumMagnitudeSquared * density_1
+												+ nineHalvesOfDensity_1 * (mom_dot_ei * mom_dot_ei)
+												+ 3. * mom_dot_ei);
+								}
+							}
+						}
+
+#elif defined HEMELB_USE_AVX512
+						/**
+						 * Calculates Feq using AVX512 intrinsics.
+						 * If the lattice has an odd number of vectors (directions),
+						 * the last element is processed using scalar arithmetics
+						 *
+						 * The reductions are calculated in two streams (the loop is virtually
+						 * twice unrolled). Some invariants are merged together
+						 *
+						 * @param density
+						 * @param momentum_x
+						 * @param momentum_y
+						 * @param momentum_z
+						 * @param f_eq
+						 */
+						inline static void CalculateFeq(const distribn_t &density,
+								const distribn_t &momentum_x,
+								const distribn_t &momentum_y,
+								const distribn_t &momentum_z,
+								distribn_t f_eq[])
+						{
+
+							// merge some constants and invariants and populate SSE registers by them
+							const distribn_t threeHalvesOfMomentumMagnitudeSquared = (3./2.) * (momentum_x * momentum_x + momentum_y * momentum_y
+									+ momentum_z * momentum_z);
+							const __m512d threeHalvesOfMomentumMagnitudeSquared_AVX2 = _mm512_set1_pd(threeHalvesOfMomentumMagnitudeSquared);
+
+							const distribn_t density_1 = 1. / density;
+							const __m512d density_1_AVX2 = _mm512_set1_pd(density_1);
+							const __m512d density_AVX2 = _mm512_set1_pd(density);
+
+							const __m512d momentum_x_AVX2 = _mm512_set1_pd(momentum_x);
+							const __m512d momentum_y_AVX2 = _mm512_set1_pd(momentum_y);
+							const __m512d momentum_z_AVX2 = _mm512_set1_pd(momentum_z);
+
+							const distribn_t nineHalvesOfDensity_1 = (9. / 2.) * density_1;
+							const __m512d nineOnTwoDensity_1_AVX2 = _mm512_set1_pd(nineHalvesOfDensity_1);
+							const __m512d three_AVX2 = _mm512_set1_pd(3.);
+
+							// sse loop (the loop is virtually twice unrolled)
+							Direction numVect2 = ((DmQn::NUMVECTORS >> 3) << 3);
+							for (Direction i = 0; i < numVect2; i+=8)
+							{
+								// mom_dot_ei = DmQn::CX[i] * momentum_x + DmQn::CY[i] * momentum_y + DmQn::CZ[i] * momentum_z;
+								const __m512d CXD_momentum_x_AVX2 = _mm512_mul_pd(_mm512_loadu_pd(&DmQn::CXD[i]),momentum_x_AVX2);
+								const __m512d CYD_momentum_y_AVX2 = _mm512_mul_pd(_mm512_loadu_pd(&DmQn::CYD[i]),momentum_y_AVX2);
+								const __m512d CZD_momentum_z_AVX2 = _mm512_mul_pd(_mm512_loadu_pd(&DmQn::CZD[i]),momentum_z_AVX2);
+
+								const __m512d EQMWEIGHTS_AVX2 = _mm512_loadu_pd(&DmQn::EQMWEIGHTS[i]);
+
+								const __m512d mom_dot_ei_AVX2 = _mm512_add_pd(
+										_mm512_add_pd(CXD_momentum_x_AVX2, CYD_momentum_y_AVX2),
+										CZD_momentum_z_AVX2
+										);
+
+								//  (density - (3. / 2.) * momentumMagnitudeSquared * density_1
+								const __m512d tmp1 = _mm512_sub_pd(density_AVX2,
+										_mm512_mul_pd(threeHalvesOfMomentumMagnitudeSquared_AVX2, density_1_AVX2 )
+										);
+
+								// (9. / 2.) * density_1 * mom_dot_ei * mom_dot_ei
+								const __m512d tmp2 = (_mm512_mul_pd(
+											nineOnTwoDensity_1_AVX2,
+											_mm512_mul_pd(mom_dot_ei_AVX2, mom_dot_ei_AVX2)
+											)
+										);
+								// 3. * mom_dot_ei);
+								const __m512d tmp3 = _mm512_mul_pd(three_AVX2, mom_dot_ei_AVX2);
+
+								__m512d tmp4 = _mm512_add_pd(tmp1, tmp2);
+								tmp4 = _mm512_add_pd(tmp4, tmp3);
+
+								// f_eq is not 16B aligned
+								_mm512_storeu_pd(&f_eq[i],_mm512_mul_pd(EQMWEIGHTS_AVX2,tmp4));
+							}
+
+							// do the odd elements (17-19/25-27) WON'T work for D3Q15
+							if (DmQn::NUMVECTORS != numVect2)// constants are reduced, could be vectorised and FMA adjusted
+							{
+
+								for ( Direction tail=1; tail < 4; tail +=1) { 
+									const distribn_t mom_dot_ei = DmQn::CX[DmQn::NUMVECTORS-tail] * momentum_x
+										+ DmQn::CY[DmQn::NUMVECTORS-tail] * momentum_y + DmQn::CZ[DmQn::NUMVECTORS-tail] * momentum_z;
+
+									f_eq[DmQn::NUMVECTORS-tail] = DmQn::EQMWEIGHTS[DmQn::NUMVECTORS - tail]
+										* (density - threeHalvesOfMomentumMagnitudeSquared * density_1
+												+ nineHalvesOfDensity_1 * (mom_dot_ei * mom_dot_ei)
+												+ 3. * mom_dot_ei);
+								}
+							}
+						}
 #else
 
 						/**
@@ -310,6 +687,9 @@ namespace hemelb
 							const __m128d vz = _mm_set1_pd(velocity_z);
 
 							const __m128d fx = _mm_set1_pd(force_x);
+							const __m128d vz = _mm_set1_pd(velocity_z);
+
+							const __m128d fx = _mm_set1_pd(force_x);
 							const __m128d fy = _mm_set1_pd(force_y);
 							const __m128d fz = _mm_set1_pd(force_z);
 
@@ -353,6 +733,159 @@ namespace hemelb
 								const distribn_t FScalarProductDirection = force_x * DmQn::CX[i] + force_y * DmQn::CY[i]
 									+ force_z * DmQn::CZ[i];
 								forceDist[i] = prefactor * DmQn::EQMWEIGHTS[i]
+									* ( invCs2 * (FScalarProductDirection - vScalarProductF)
+											+ invCs4 * (FScalarProductDirection * vScalarProductDirection));
+							}
+
+						}
+
+
+#elif defined HEMELB_USE_AVX2
+
+						/**
+						 * Calculate Force using AVX2 intrinsics.
+						 * @param tau
+						 * @param force_x
+						 * @param force_y
+						 * @param force_z
+						 * @param forceDist
+						 */
+						inline static void CalculateForceDistribution(const distribn_t &tau,
+								const distribn_t &velocity_x,
+								const distribn_t &velocity_y,
+								const distribn_t &velocity_z,
+								const LatticeForce &force_x,
+								const LatticeForce &force_y,
+								const LatticeForce &force_z,
+								distribn_t forceDist[])
+						{
+
+							auto const invCs2 = 1e0 / Cs2;
+							auto const invCs4 = invCs2 * invCs2;
+							const __m256d vx = _mm256_set1_pd(velocity_x);
+							const __m256d vy = _mm256_set1_pd(velocity_y);
+							const __m256d vz = _mm256_set1_pd(velocity_z);
+
+							const __m256d fx = _mm256_set1_pd(force_x);
+							const __m256d fy = _mm256_set1_pd(force_y);
+							const __m256d fz = _mm256_set1_pd(force_z);
+
+							const distribn_t prefactor = 1.0 - (1.0 / (2.0 * tau));
+							const distribn_t vScalarProductF = velocity_x * force_x +
+								velocity_y * force_y + velocity_z * force_z;
+
+							const __m256d pf = _mm256_set1_pd(prefactor);
+							const __m256d velocity_spf = _mm256_set1_pd(vScalarProductF);
+
+							const __m256d r3 = _mm256_set1_pd(invCs2);
+							const __m256d r9 = _mm256_set1_pd(invCs4);
+
+							const Direction numAVX2vectors = (DmQn::NUMVECTORS >> 2) << 2;
+							Direction i = 0;
+							for (i = 0; i < numAVX2vectors; i+=4)
+							{
+								const __m256d cx = _mm256_loadu_pd(&DmQn::CXD[i]);
+								const __m256d cy = _mm256_loadu_pd(&DmQn::CYD[i]);
+								const __m256d cz = _mm256_loadu_pd(&DmQn::CZD[i]);
+								const __m256d w  = _mm256_loadu_pd(&DmQn::EQMWEIGHTS[i]);
+
+								const __m256d velocity_spd = _mm256_add_pd(
+										_mm256_add_pd(_mm256_mul_pd(vx, cx), _mm256_mul_pd(vy, cy)),
+										_mm256_mul_pd(vz, cz));
+								const __m256d force_spd = _mm256_add_pd(
+										_mm256_add_pd(_mm256_mul_pd(fx, cx), _mm256_mul_pd(fy, cy)),
+										_mm256_mul_pd(fz, cz));
+
+								const __m256d fd = _mm256_mul_pd(_mm256_mul_pd(pf, w),
+										_mm256_add_pd(_mm256_mul_pd(r3, _mm256_sub_pd(force_spd, velocity_spf)),
+											_mm256_mul_pd(r9, _mm256_mul_pd(force_spd, velocity_spd))));
+
+								_mm256_storeu_pd(&forceDist[i], fd);
+							}
+
+							for (i=1;i < 4; i+=1) //could be vectorised
+							{
+								const distribn_t vScalarProductDirection = velocity_x * DmQn::CX[DmQn::NUMVECTORS - i]
+									+ velocity_y * DmQn::CY[DmQn::NUMVECTORS - i] + velocity_z * DmQn::CZ[DmQn::NUMVECTORS - i];
+								const distribn_t FScalarProductDirection = force_x * DmQn::CX[DmQn::NUMVECTORS - i] + force_y * DmQn::CY[DmQn::NUMVECTORS - i]
+									+ force_z * DmQn::CZ[DmQn::NUMVECTORS - i];
+								forceDist[DmQn::NUMVECTORS - i] = prefactor * DmQn::EQMWEIGHTS[DmQn::NUMVECTORS - i]
+									* ( invCs2 * (FScalarProductDirection - vScalarProductF)
+											+ invCs4 * (FScalarProductDirection * vScalarProductDirection));
+							}
+
+						}
+
+#elif defined HEMELB_USE_AVX512
+
+						/**
+						 * Calculate Force using AVX2 intrinsics.
+						 * @param tau
+						 * @param force_x
+						 * @param force_y
+						 * @param force_z
+						 * @param forceDist
+						 */
+						inline static void CalculateForceDistribution(const distribn_t &tau,
+								const distribn_t &velocity_x,
+								const distribn_t &velocity_y,
+								const distribn_t &velocity_z,
+								const LatticeForce &force_x,
+								const LatticeForce &force_y,
+								const LatticeForce &force_z,
+								distribn_t forceDist[])
+						{
+
+							auto const invCs2 = 1e0 / Cs2;
+							auto const invCs4 = invCs2 * invCs2;
+							const __m512d vx = _mm512_set1_pd(velocity_x);
+							const __m512d vy = _mm512_set1_pd(velocity_y);
+							const __m512d vz = _mm512_set1_pd(velocity_z);
+
+							const __m512d fx = _mm512_set1_pd(force_x);
+							const __m512d fy = _mm512_set1_pd(force_y);
+							const __m512d fz = _mm512_set1_pd(force_z);
+
+							const distribn_t prefactor = 1.0 - (1.0 / (2.0 * tau));
+							const distribn_t vScalarProductF = velocity_x * force_x +
+								velocity_y * force_y + velocity_z * force_z;
+
+							const __m512d pf = _mm512_set1_pd(prefactor);
+							const __m512d velocity_spf = _mm512_set1_pd(vScalarProductF);
+
+							const __m512d r3 = _mm512_set1_pd(invCs2);
+							const __m512d r9 = _mm512_set1_pd(invCs4);
+
+							const Direction numAVX2vectors = (DmQn::NUMVECTORS >> 3) << 3;
+							Direction i = 0;
+							for (i = 0; i < numAVX2vectors; i+=8)
+							{
+								const __m512d cx = _mm512_loadu_pd(&DmQn::CXD[i]);
+								const __m512d cy = _mm512_loadu_pd(&DmQn::CYD[i]);
+								const __m512d cz = _mm512_loadu_pd(&DmQn::CZD[i]);
+								const __m512d w  = _mm512_loadu_pd(&DmQn::EQMWEIGHTS[i]);
+
+								const __m512d velocity_spd = _mm512_add_pd(
+										_mm512_add_pd(_mm512_mul_pd(vx, cx), _mm512_mul_pd(vy, cy)),
+										_mm512_mul_pd(vz, cz));
+								const __m512d force_spd = _mm512_add_pd(
+										_mm512_add_pd(_mm512_mul_pd(fx, cx), _mm512_mul_pd(fy, cy)),
+										_mm512_mul_pd(fz, cz));
+
+								const __m512d fd = _mm512_mul_pd(_mm512_mul_pd(pf, w),
+										_mm512_add_pd(_mm512_mul_pd(r3, _mm512_sub_pd(force_spd, velocity_spf)),
+											_mm512_mul_pd(r9, _mm512_mul_pd(force_spd, velocity_spd))));
+
+								_mm512_storeu_pd(&forceDist[i], fd);
+							}
+
+							for (i=1;i < 4; i+=1) //could be vectorised, only works for D3Q19/27
+							{
+								const distribn_t vScalarProductDirection = velocity_x * DmQn::CX[DmQn::NUMVECTORS - i]
+									+ velocity_y * DmQn::CY[DmQn::NUMVECTORS - i] + velocity_z * DmQn::CZ[DmQn::NUMVECTORS - i];
+								const distribn_t FScalarProductDirection = force_x * DmQn::CX[DmQn::NUMVECTORS - i] + force_y * DmQn::CY[DmQn::NUMVECTORS - i]
+									+ force_z * DmQn::CZ[DmQn::NUMVECTORS - i];
+								forceDist[DmQn::NUMVECTORS - i] = prefactor * DmQn::EQMWEIGHTS[DmQn::NUMVECTORS - i]
 									* ( invCs2 * (FScalarProductDirection - vScalarProductF)
 											+ invCs4 * (FScalarProductDirection * vScalarProductDirection));
 							}
@@ -874,9 +1407,6 @@ namespace hemelb
 								// Get the velocity components. Note that the naming is to make it easier to follow the
 								// paper. ux does not necessarily hold the velocity in the x direction; it's the velocity
 								// component in the direction we're calculating zeta for.
-								distribn_t ux = velocity[thisIndex], uy = velocity[otherIndex1], uz =
-									velocity[otherIndex2];
-
 								// The 5th order term.
 								distribn_t zetaHighOrders = 27.0
 									* (util::NumericalFunctions::IntegerPower(ux, 5) - 4. * ux * uy * uy * uz * uz)
