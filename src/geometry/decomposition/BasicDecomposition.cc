@@ -288,7 +288,10 @@ namespace hemelb
 
 				double d_ratio = (d_max - d_min) / (d_max + d_min);
 
+#ifndef HEMELB_USE_MPI_WIN
 				communicator.Barrier();
+#endif
+
 				if (communicator.Rank() == 0)
 					log::Logger::Log<log::Info, log::OnePerCore>("----> load distribution: %f", d_ratio);//totalBlockWeights[communicator.Rank()]/average);
 			}

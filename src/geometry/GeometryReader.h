@@ -42,6 +42,7 @@ namespace hemelb
 				Geometry LoadAndDecompose(const std::string& dataFilePath);
 
 			private:
+
 				/**
 				 * Read from the file into a buffer. We read this on a single core then broadcast it.
 				 * This has proven to be more efficient than reading in on every core (even using a collective
@@ -58,10 +59,18 @@ namespace hemelb
 
 				void ReadHeader(site_t blockCount);
 
+#ifdef HEMELB_USE_MPI_WIN
+				void ReadInBlocksWithHalo(Geometry& geometry,
+						std::unordered_map<site_t, proc_t>& unitForEachBlock,
+						std::unordered_map<site_t, proc_t>& unitForEachBlockFiltered,
+						std::unordered_set<site_t>& readBlock,
+						const proc_t localRank);
+#else
 				void ReadInBlocksWithHalo(Geometry& geometry,
 						std::unordered_map<site_t, proc_t>& unitForEachBlock,
 						std::unordered_map<site_t, proc_t>& unitForEachBlockFiltered,
 						const proc_t localRank);
+#endif
 
 				/**
 				 * Compile a list of blocks to be read onto this core, including all the ones we perform
@@ -192,7 +201,7 @@ namespace hemelb
 				//! Essential block information:
 				//!		the number of bytes each block takes up while still compressed.
 				//!		the number of bytes each block takes up when uncompressed.
-				std::unordered_map<site_t, std::pair<uint16_t, uint16_t> > blockInformation;
+				std::unordered_map<site_t, std::pair<uint16_t, uint32_t> > blockInformation;
 				//! The number of fluid sites on each block in the geometry.
 				std::unordered_map<site_t, uint16_t> fluidSitesOnEachBlock;
 				//! Block weights.

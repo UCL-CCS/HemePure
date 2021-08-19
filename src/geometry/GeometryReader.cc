@@ -101,6 +101,9 @@ namespace hemelb
 #ifdef HEMELB_USE_MPI_CALL
 			log::Logger::Log<log::Info, log::Singleton>("----> using standard MPI calls in ReadInBlock()");
 #endif
+#ifdef HEMELB_USE_BIGMPI
+			log::Logger::Log<log::Info, log::Singleton>("----> using BigMPI to read from file");
+#endif
 
 			log::Logger::Log<log::Info, log::Singleton>("----> reading preamble");
 			Geometry geometry = ReadPreamble();
@@ -152,6 +155,28 @@ namespace hemelb
 			log::Logger::Log<log::Info, log::Singleton>("----> not optimising decomposition");
 #endif
 
+#ifdef HEMELB_USE_MPI_WIN
+			log::Logger::Log<log::Info, log::Singleton>("----> using a shared memory window (for principalProcForEachBlock)");
+
+
+			site_t *principalProcForEachBlock_1;
+			site_t *principalProcForEachBlock_1_local;
+			proc_t *principalProcForEachBlock_2;
+			proc_t *principalProcForEachBlock_2_local;
+
+			char nodename[MPI_MAX_PROCESSOR_NAME];
+			int nodestringlen;
+			MPI_Get_processor_name(nodename, &nodestringlen);
+
+			MPI_Comm nodecomm;
+			MPI_Comm_split_type(hemeLbComms, MPI_COMM_TYPE_SHARED, hemeLbComms.Rank(),
+					MPI_INFO_NULL, &nodecomm);
+
+			int nodesize, noderank;
+			MPI_Comm_size(nodecomm, &nodesize);
+			MPI_Comm_rank(nodecomm, &noderank);
+#endif
+
 			log::Logger::Log<log::Info, log::Singleton>("----> basic decomposition (start)");
 			timings[hemelb::reporting::Timers::initialDecomposition].Start();
 			if (participateInTopology)
@@ -163,10 +188,13 @@ namespace hemelb
 						computeComms,
 						blockInformation,
 						blockWeights);
-		//		basicDecomposer.DecomposeBlock(
-		//				*principalProcForEachBlock);
+			//	basicDecomposer.DecomposeBlock(
+			//			*principalProcForEachBlock, noderank);
 		//		basicDecomposer.DecomposeDumb(
 		//				*principalProcForEachBlock, nonEmptyBlocks);
+#ifdef HEMELB_USE_MPI_WIN
+				if (noderank == 1)
+#endif
 				basicDecomposer.Decompose(
 						*principalProcForEachBlock);
 		//		basicDecomposer.Validate(
@@ -175,9 +203,124 @@ namespace hemelb
 			timings[hemelb::reporting::Timers::initialDecomposition].Stop();
 			log::Logger::Log<log::Info, log::Singleton>("----> basic decomposition (end)");
 
+#if defined(HEMELB_USE_PARMETIS) && defined(HEMELB_USE_MPI_WIN)
+			throw Exception() << "Cannot use ParMETIS if also using a shared memory window.";
+#endif
+
 			// The processor assigned to each block we know about.
 			std::unordered_map<site_t, proc_t>* principalProcForEachBlockFiltered =
 				new std::unordered_map<site_t, proc_t>();
+
+#ifdef HEMELB_USE_MPI_WIN
+			// Only rank 1 on a node actually allocates memory.
+			unsigned tablesize, localtablesize = 0;
+			if (noderank == 1) localtablesize = blockInformation.size();
+			log::Logger::Log<log::Debug, log::OnePerCore>(
+					"----> rank %d of %d, rank %d of %d in node <%s>, localtablesize %d",
+					hemeLbComms.Rank(), hemeLbComms.Size(), noderank, nodesize, nodename, localtablesize);
+
+			MPI_Win wintable1;
+			MPI_Win_allocate_shared(localtablesize*sizeof(site_t), sizeof(site_t),
+					MPI_INFO_NULL, nodecomm, &principalProcForEachBlock_1_local, &wintable1);
+			MPI_Win wintable2;
+			MPI_Win_allocate_shared(localtablesize*sizeof(proc_t), sizeof(proc_t),
+					MPI_INFO_NULL, nodecomm, &principalProcForEachBlock_2_local, &wintable2);
+
+			// Need to get local pointer valid for table on rank 0.
+			principalProcForEachBlock_1 = principalProcForEachBlock_1_local;
+			principalProcForEachBlock_2 = principalProcForEachBlock_2_local;
+
+			MPI_Aint winsize1, winsize2;
+			int windisp1, windisp2;
+			if (noderank != 1)
+			{
+				MPI_Win_shared_query(wintable1, 1, &winsize1, &windisp1, &principalProcForEachBlock_1);
+				MPI_Win_shared_query(wintable2, 1, &winsize2, &windisp2, &principalProcForEachBlock_2);
+				// All table pointers should now point to copy on noderank == 1.
+			}
+
+			// Initialise table on rank 1 with appropriate synchronisation.
+			MPI_Win_fence(0, wintable1);
+			MPI_Win_fence(0, wintable2);
+
+			if (noderank == 1)
+			{
+				unsigned blockCount = 0;
+				std::unordered_map<site_t, proc_t>::iterator it = principalProcForEachBlock->begin();
+				while (it != principalProcForEachBlock->end())
+				{
+					principalProcForEachBlock_1[blockCount] = it->first;
+					principalProcForEachBlock_2[blockCount] = it->second;
+					it++; blockCount++;
+				}
+			}
+
+			// Initialise table on rank 1 with appropriate synchronisation.
+			MPI_Win_fence(0, wintable1);
+			MPI_Win_fence(0, wintable2);
+
+			std::unordered_set<site_t> shouldReadBlock;
+
+			// Read a block in if it has fluid sites and is to live on the current processor. Also read
+			// in any neighbours with fluid sites.
+			if (participateInTopology)
+			{
+				unsigned blockCount = blockInformation.size();
+				for (site_t block = 0; block < blockCount; ++block)
+				{
+					if (principalProcForEachBlock_2[block] != computeComms.Rank())
+					{
+						continue;
+					}
+
+					util::Vector3D<site_t> blockCoords;
+					blockCoords.z = principalProcForEachBlock_1[block] %
+						geometry.GetBlockDimensions().z;
+					site_t blockIJData = principalProcForEachBlock_1[block] /
+						geometry.GetBlockDimensions().z;
+					blockCoords.y = blockIJData %
+						geometry.GetBlockDimensions().y;
+					blockCoords.x = blockIJData /
+						geometry.GetBlockDimensions().y;
+
+					// Read in all neighbouring blocks.
+					for (site_t neighI = util::NumericalFunctions::max<site_t>(0, blockCoords.x - 1); (neighI
+								<= (blockCoords.x + 1)) && (neighI < geometry.GetBlockDimensions().x); ++neighI)
+					{
+						for (site_t neighJ = util::NumericalFunctions::max<site_t>(0, blockCoords.y - 1); (neighJ
+									<= (blockCoords.y + 1)) && (neighJ < geometry.GetBlockDimensions().y); ++neighJ)
+						{
+							for (site_t neighK = util::NumericalFunctions::max<site_t>(0, blockCoords.z - 1); (neighK
+										<= (blockCoords.z + 1)) && (neighK < geometry.GetBlockDimensions().z); ++neighK)
+							{
+								site_t lNeighId = geometry.GetBlockIdFromBlockCoordinates(neighI, neighJ, neighK);
+								if (blockInformation.find(lNeighId) != blockInformation.end())
+									for (site_t blockNeigh = 0; blockNeigh < blockCount; ++blockNeigh)
+									{
+										if (principalProcForEachBlock_1[blockNeigh] == lNeighId)
+										{
+											(*principalProcForEachBlockFiltered)[lNeighId] =
+												principalProcForEachBlock_2[blockNeigh];
+											break;
+										}
+									}
+								shouldReadBlock.insert(lNeighId);
+							}
+						}
+					}
+				}
+			}
+#endif
+
+			//{
+			//	int i = 0;
+			//	char hostname[256];
+			//	gethostname(hostname, sizeof(hostname));
+			//	printf("PID %d (%d) on %s ready for attach\n", getpid(), hemeLbComms.Rank(), hostname);
+			//	fflush(stdout);
+			//	while (0 == i)
+			//		sleep(5);
+			//}
 
 			log::Logger::Log<log::Info, log::Singleton>("----> read blocks (start)");
 			// Perform the initial read-in.
@@ -187,10 +330,18 @@ namespace hemelb
 				// local to this node.
 				file = net::MpiFile::Open(computeComms, dataFilePath, MPI_MODE_RDONLY, fileInfo);
 
+#ifdef HEMELB_USE_MPI_WIN
+				ReadInBlocksWithHalo(geometry,
+						*principalProcForEachBlock,
+						*principalProcForEachBlockFiltered,
+						shouldReadBlock,
+						computeComms.Rank());
+#else
 				ReadInBlocksWithHalo(geometry,
 						*principalProcForEachBlock,
 						*principalProcForEachBlockFiltered,
 						computeComms.Rank());
+#endif
 			}
 			timings[hemelb::reporting::Timers::fileRead].Stop();
 			log::Logger::Log<log::Info, log::Singleton>("----> read blocks (end)");
@@ -295,6 +446,72 @@ namespace hemelb
 		/**
 		 * Read the header section, with minimal information about each block.
 		 */
+#ifdef HEMELB_USE_BIGMPI
+		void GeometryReader::ReadHeader(site_t blockCount)
+		{
+			site_t headerByteCount = GetHeaderLength(blockCount);
+			std::vector<char> headerBuffer = ReadOnAllTasks(headerByteCount);
+
+			// Create a Xdr translation object to translate from binary
+			hemelb::io::writers::xdr::XdrReader preambleReader =
+				hemelb::io::writers::xdr::XdrMemReader(&headerBuffer[0], (unsigned int) headerByteCount);
+
+			// Initialise count for non-empty blocks.
+			nonEmptyBlocks = 0;
+
+			// Read in all the data.
+			for (site_t block = 0; block < blockCount; block++)
+			{
+				unsigned int sites, weights, bytes, uncompressedBytes;
+				preambleReader.readUnsignedInt(sites);
+#ifdef HEMELB_USE_GMYPLUS
+				preambleReader.readUnsignedInt(weights);
+#endif
+				preambleReader.readUnsignedInt(bytes);
+				preambleReader.readUnsignedInt(uncompressedBytes);
+
+				if (sites > 0)
+				{
+					if (std::pow(2,32)-1 < sites)
+						throw Exception() << "Too large (sites)!";
+					if (std::pow(2,32)-1 < weights)
+						throw Exception() << "Too large (weights)!";
+					if (std::pow(2,32)-1 < bytes)
+						throw Exception() << "Too large (bytes)!";
+					if (std::pow(2,32)-1 < uncompressedBytes)
+					{
+						std::cout << "Uncompressed bytes was " << uncompressedBytes << std::endl;
+						throw Exception() << "Too large (uncompressedBytes)!";
+					}
+
+					// Essential block information
+					blockInformation[block].first  = bytes;
+					blockInformation[block].second = uncompressedBytes;
+
+					if (blockInformation.at(block).first != bytes)
+						throw Exception() << "blockInformation.at(block).first != bytes!";
+					if (blockInformation.at(block).second != uncompressedBytes)
+						throw Exception() << "blockInformation.at(block).second != uncompressedBytes!";
+
+					// The number of fluid sites on this block.
+#ifdef HEMELB_USE_PARMETIS
+					fluidSitesOnEachBlock[block] = sites;
+#else
+					if (file.GetCommunicator().Rank() == HEADER_READING_RANK)
+						fluidSitesOnEachBlock[block] = sites;
+#endif
+
+#ifdef HEMELB_USE_GMYPLUS
+					// 'Computational weight' of this block.
+					blockWeights[block] = weights;
+#endif
+
+					// Count the number of blocks containing fluid sites.
+					nonEmptyBlocks++;
+				}
+			}
+		}
+#else
 		void GeometryReader::ReadHeader(site_t blockCount)
 		{
 			sitedata_t maxLength = 100000; //std::numeric_limits<signed>::max()
@@ -307,16 +524,18 @@ namespace hemelb
 			sitedata_t last;
 			sitedata_t offset = 0;
 			sitedata_t chunks = blockCount/maxLength;
-
+			//std::cout << "maxBytes, blocks and chunks: " << maxBytes << ", " << blockCount << ", " << chunks << std::endl;
 			nonEmptyBlocks = 0;
 			while (offset < chunks+1)
 			{
+				//std::cout << "Current offset: " << offset << std::endl;
 				// The last block to be read this iteration
 				last = (offset+1)*maxLength;
-
+		
 				// The last iteration
 				if (offset == chunks)
 				{
+					//std::cout << "Got to last iteration" << std::endl;
 					partialBuffer.resize(GetHeaderLength(blockCount%maxLength));
 					partialBuffer.shrink_to_fit();
 					last = blockCount;
@@ -346,15 +565,18 @@ namespace hemelb
 
 					if (sites > 0)
 					{
-						if (std::pow(2,16)-1 < sites)
+						if (std::pow(2,32)-1 < sites)
 							throw Exception() << "Too large (sites)!";
-						if (std::pow(2,16)-1 < weights)
+						if (std::pow(2,32)-1 < weights)
 							throw Exception() << "Too large (weights)!";
-						if (std::pow(2,16)-1 < bytes)
+						if (std::pow(2,32)-1 < bytes)
 							throw Exception() << "Too large (bytes)!";
-						if (std::pow(2,16)-1 < uncompressedBytes)
+						if (std::pow(2,32)-1 < uncompressedBytes)
+						{
+							std::cout << "Uncompressed bytes was " << uncompressedBytes << std::endl;
 							throw Exception() << "Too large (uncompressedBytes)!";
-
+						}
+						//std::cout << "Block: " << block << " info (site, bytes, ucBytes): " << sites << ", " << bytes << ", " << uncompressedBytes << std::endl;
 						// Essential block information
 						blockInformation[block].first  = bytes;
 						blockInformation[block].second = uncompressedBytes;
@@ -383,18 +605,28 @@ namespace hemelb
 				} offset++;
 			}
 		}
+#endif
 
 		/**
 		 * Read in the necessary blocks from the file.
 		 */
+#ifdef HEMELB_USE_MPI_WIN
+		void GeometryReader::ReadInBlocksWithHalo(Geometry& geometry,
+				std::unordered_map<site_t, proc_t>& unitForEachBlock,
+				std::unordered_map<site_t, proc_t>& unitForEachBlockFiltered,
+				std::unordered_set<site_t>& readBlock,
+				const proc_t localRank)
+#else
 		void GeometryReader::ReadInBlocksWithHalo(Geometry& geometry,
 				std::unordered_map<site_t, proc_t>& unitForEachBlock,
 				std::unordered_map<site_t, proc_t>& unitForEachBlockFiltered,
 				const proc_t localRank)
+#endif
 		{
 			// Create a list of which blocks to read in.
 			timings[hemelb::reporting::Timers::readBlocksPrelim].Start();
 
+#ifndef HEMELB_USE_MPI_WIN
 			// Populate the list of blocks to read (including a halo one block wide around all
 			// local blocks).
 			log::Logger::Log<log::Debug, log::OnePerCore>("----> determining blocks to read");
@@ -402,6 +634,7 @@ namespace hemelb
 					unitForEachBlock,
 					unitForEachBlockFiltered,
 					localRank);
+#endif
 
 #ifndef HEMELB_USE_PARMETIS
 			unitForEachBlock.clear();
@@ -876,6 +1109,7 @@ namespace hemelb
 			return io::formats::geometry::HeaderRecordLength * blockCount;
 		}
 
+#ifdef HEMELB_USE_PARMETIS
 		void GeometryReader::RereadBlocks(Geometry& geometry, const std::vector<idx_t>& movesPerProc,
 				const std::vector<idx_t>& movesList,
 				std::unordered_map<site_t, proc_t>& procForEachBlock,
@@ -915,6 +1149,7 @@ namespace hemelb
 				procForEachBlock.at(iter->first) = iter->second;
 			}
 		}
+#endif
 
 		void GeometryReader::ImplementMoves(Geometry& geometry,
 				const std::unordered_map<site_t, proc_t>& procForEachBlock,
