@@ -39,6 +39,16 @@ namespace hemelb
     };
 
     /**
+     * LBGK with Noble and Torczynski's partially saturated method
+     */
+    template<class Lattice>
+    class LBGKPSM
+    {
+      public:
+        typedef kernels::LBGKPSM<Lattice> Type;
+    };
+
+    /**
      * The entropic implementation by Ansumali et al.
      */
     template<class Lattice>
@@ -150,6 +160,15 @@ namespace hemelb
         typedef typename streamers::GuoZhengShi<Collision>::Type Type;
     };
     /**
+     * The Guo Zheng and Shi Wall condition modified for elastic walls.
+     */
+    template<class Collision>
+    class GZSElastic
+    {
+      public:
+        typedef typename streamers::GuoZhengShiElasticWall<Collision>::Type Type;
+    };
+    /**
      * The simple bounce back boundary condition.
      */
     template<class Collision>
@@ -172,8 +191,7 @@ namespace hemelb
      * The following classes have names corresponding to the options given in the build system for
      * HEMELB_INLET_BOUNDARY / HEMELB_OUTLET_BOUNDARY
      */
-
-    /**
+     /**
      * Our zeroth-order phantom site BC for iolets
      */
     template<class Collision>
@@ -183,6 +201,15 @@ namespace hemelb
         typedef typename streamers::NashZerothOrderPressureIolet<Collision>::Type Type;
     };
     /**
+     * Our zeroth-order phantom site BC for iolets with Guo forcing //JM
+     */
+    template<class Collision>
+    class NASHZEROTHORDERPRESSUREIOLET_GUOFORCING
+    {
+      public:
+        typedef typename streamers::NashZerothOrderPressureIolet_GuoForcing<Collision>::Type Type;
+    };
+    /**
      * The inlet/outlet condition based on Ladd's modified bounce-back on
      * links.
      */
@@ -190,6 +217,16 @@ namespace hemelb
     struct LADDIOLET
     {
         typedef typename streamers::LaddIolet<Collision>::Type Type;
+    };
+
+     /**
+     * The inlet/outlet condition based on Ladd's modified bounce-back on
+     * links.
+     */
+    template<class Collision>
+    struct LADDIOLET_GUOFORCING
+    {
+        typedef typename streamers::LaddIolet_GuoForcing<Collision>::Type Type;
     };
 
     /**
@@ -224,6 +261,16 @@ namespace hemelb
       public:
         typedef typename streamers::NashZerothOrderPressureIoletBFL<Collision>::Type Type;
     };
+    
+    /**
+     * Nash in/outlet with Guo Forcing + BFL
+     */
+    template<class Collision>
+    class NASHZEROTHORDERPRESSURE_GUOFORCINGBFL
+    {
+      public:
+        typedef typename streamers::NashZerothOrderPressureIolet_GuoForcingBFL<Collision>::Type Type;
+    };
 
     /**
      * Ladd in/outlet + BFL
@@ -232,6 +279,15 @@ namespace hemelb
     struct LADDIOLETBFL
     {
         typedef typename streamers::LaddIoletBFL<Collision>::Type Type;
+    };
+
+    /**
+     * Ladd in/outlet with Guo Forcing + BFL
+     */
+    template<class Collision>
+    struct LADDIOLET_GUOFORCINGBFL
+    {
+        typedef typename streamers::LaddIolet_GuoForcingBFL<Collision>::Type Type;
     };
     /**
      * Nash in/outlet + GZS
@@ -250,6 +306,25 @@ namespace hemelb
     struct LADDIOLETGZS
     {
         typedef typename streamers::LaddIoletGZS<Collision>::Type Type;
+    };
+
+    /**
+     * Nash in/outlet + GZSElastic
+     */
+    template<class Collision>
+    class NASHZEROTHORDERPRESSUREGZSE
+    {
+      public:
+        typedef typename streamers::NashZerothOrderPressureIoletGZSE<Collision>::Type Type;
+    };
+
+    /**
+     * Ladd in/outlet + GZS
+     */
+    template<class Collision>
+    struct LADDIOLETGZSE
+    {
+        typedef typename streamers::LaddIoletGZSE<Collision>::Type Type;
     };
 
     /**

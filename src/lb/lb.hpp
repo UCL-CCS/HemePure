@@ -8,6 +8,9 @@
 
 #include "io/writers/xdr/XdrMemWriter.h"
 #include "lb/lb.h"
+#include "util/unique.h"
+#include "lb/InitialCondition.h"
+#include "lb/InitialCondition.hpp"
 
 namespace hemelb
 {
@@ -119,7 +122,7 @@ namespace hemelb
 
 				InitCollisions();
 
-				SetInitialConditions();
+				//JM SetInitialConditions();
 			}
 
 		template<class LatticeType>
@@ -151,6 +154,14 @@ namespace hemelb
 			}
 
 		template<class LatticeType>
+			
+			    void LBM<LatticeType>::SetInitialConditions(const net::IOCommunicator& ioComms)
+			    {
+			      auto icond = InitialCondition::FromConfig(mSimConfig->GetInitialCondition());
+			      icond.SetFs<LatticeType>(mLatDat, ioComms);
+			      icond.SetTime(mState);
+			    }
+		/** JM Method before trying to bring Checkpointing in	
 			void LBM<LatticeType>::SetInitialConditions()
 			{
 				distribn_t density = mUnits->ConvertPressureToLatticeUnits(mSimConfig->GetInitialPressure()) / Cs2;
@@ -170,6 +181,7 @@ namespace hemelb
 					}
 				}
 			}
+		**/
 
 		template<class LatticeType>
 			void LBM<LatticeType>::RequestComms()
@@ -348,6 +360,8 @@ namespace hemelb
 				inletCount = inlets.size();
 				outletCount = outlets.size();
 				mParams.StressType = mSimConfig->GetStressType();
+				
+				mParams.ElasticWallStiffness = mSimConfig->GetElasticWallStiffness();
 			}
 	}
 }

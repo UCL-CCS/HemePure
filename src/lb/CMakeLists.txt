@@ -13,6 +13,7 @@ add_library(hemelb_lb
 	iolets/InOutLetVelocity.cc
 	iolets/InOutLetParabolicVelocity.cc
 	iolets/InOutLetWomersleyVelocity.cc
+	iolets/InOutLetWomersleyElasticVelocity.cc
 	iolets/InOutLetFileVelocity.cc
 	IncompressibilityChecker.cc
 	kernels/momentBasis/DHumieresD3Q15MRTBasis.cc
@@ -28,4 +29,6 @@ add_library(hemelb_lb
 	lattices/D3Q15i.cc
 	MacroscopicPropertyCache.cc
 	SimulationState.cc
-	StabilityTester.cc)
+	StabilityTester.cc
+	InitialCondition.cc
+	)

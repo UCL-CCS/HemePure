@@ -9,6 +9,7 @@
 
 #include "lb/streamers/StreamerTypeFactory.h"
 #include "lb/streamers/GuoZhengShiDelegate.h"
+#include "lb/streamers/GuoZhengShiElasticWallDelegate.h"
 
 namespace hemelb
 {
@@ -21,6 +22,12 @@ namespace hemelb
       struct GuoZhengShi
       {
           typedef WallStreamerTypeFactory<CollisionImpl, GuoZhengShiDelegate<CollisionImpl> > Type;
+      };
+
+      template<typename CollisionImpl>
+      struct GuoZhengShiElasticWall
+      {
+          typedef WallStreamerTypeFactory<CollisionImpl, GuoZhengShiElasticWallDelegate<CollisionImpl> > Type;
       };
 
     }

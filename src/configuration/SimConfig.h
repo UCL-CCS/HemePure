@@ -8,6 +8,9 @@
 #define HEMELB_CONFIGURATION_SIMCONFIG_H
 
 #include <vector>
+#include <boost/variant.hpp>
+#include <boost/optional.hpp>
+
 #include "util/Vector3D.h"
 #include "lb/LbmParameters.h"
 #include "lb/iolets/InOutLets.h"
@@ -31,6 +34,31 @@ namespace hemelb
 
       elem.GetAttributeOrThrow("value", value);
     }
+
+    // Base for initial conditions configuration
+    struct ICConfigBase {
+      ICConfigBase(const util::UnitConverter* units, boost::optional<LatticeTimeStep> t);
+
+      const util::UnitConverter* unitConverter;
+      boost::optional<LatticeTimeStep> t0;
+    };
+
+    // Uniform equilibrium IC
+    struct EquilibriumIC : ICConfigBase {
+      EquilibriumIC(const util::UnitConverter* units, boost::optional<LatticeTimeStep> t, PhysicalPressure p);
+      EquilibriumIC(const util::UnitConverter* units, boost::optional<LatticeTimeStep> t, PhysicalPressure p, const PhysicalVelocity& v);
+      PhysicalPressure p_mmHg;
+      PhysicalVelocity v_ms;
+    };
+
+    // Read from checkpoint IC
+    struct CheckpointIC : ICConfigBase {
+      CheckpointIC(const util::UnitConverter* units, boost::optional<LatticeTimeStep> t, const std::string& cp);
+      std::string cpFile;
+    };
+
+    // Variant including null state
+    using ICConfig = boost::variant<std::nullptr_t, EquilibriumIC, CheckpointIC>;
 
     class SimConfig
     {
@@ -89,6 +117,14 @@ namespace hemelb
         {
           return dataFilePath;
         }
+        const std::string & GetMapFilePath() const
+        {
+          return mapFilePath;
+        }
+        int GetLatticeId() const
+        {
+          return latticeId;
+        }
         LatticeTimeStep GetTotalTimeSteps() const
         {
           return totalTimeSteps;
@@ -125,7 +161,12 @@ namespace hemelb
         {
           return colloidConfigPath;
         }
-        /**
+
+	float GetElasticWallStiffness() const
+	{
+	  return elasticWallStiffness;
+	}
+	/**
          * True if the XML file has a section specifying colloids.
          * @return
          */
@@ -137,7 +178,13 @@ namespace hemelb
          */
         LatticeDensity GetInitialPressure() const;
 
-        const util::UnitConverter& GetUnitConverter() const;
+
+        // Get the initial condtion config
+        inline const ICConfig& GetInitialCondition() const {
+	  return icConfig;
+	}
+        
+	const util::UnitConverter& GetUnitConverter() const;
 
         /**
          * Return the configuration of various checks/test
@@ -192,13 +239,16 @@ namespace hemelb
         lb::iolets::InOutLetParabolicVelocity* DoIOForParabolicVelocityInOutlet(
             const io::xml::Element& ioletEl);
         /**
-         * Reads a Womersley velocity iolet definition from the XML config file and returns
+         * Reads a Womersley velocity iolet definition (rigid or elastic wall) from the XML config file and returns
          * an InOutLetWomersleyVelocity object
          *
          * @param ioletEl in memory representation of <inlet> or <outlet> xml element
          * @return InOutLetWomersleyVelocity object
          */
         lb::iolets::InOutLetWomersleyVelocity* DoIOForWomersleyVelocityInOutlet(
+            const io::xml::Element& ioletEl);
+
+        lb::iolets::InOutLetWomersleyElasticVelocity* DoIOForWomersleyElasticVelocityInOutlet(
             const io::xml::Element& ioletEl);
 
         /**
@@ -222,6 +272,7 @@ namespace hemelb
         extraction::SurfacePointSelector* DoIOForSurfacePoint(const io::xml::Element&);
 
         void DoIOForInitialConditions(io::xml::Element parent);
+        void DoIOForCheckpointFile(const io::xml::Element& checkpointEl);
 
         /**
          * Reads monitoring configuration from XML file
@@ -248,6 +299,11 @@ namespace hemelb
         io::xml::Document* rawXmlDoc;
         std::string dataFilePath;
 
+        std::string mapFilePath;
+        int latticeId;
+
+
+
         float maxVelocity;
         float maxStress;
         lb::StressTypes stressType;
@@ -271,6 +327,9 @@ namespace hemelb
         PhysicalDistance voxelSizeMetres;
         PhysicalPosition geometryOriginMetres;
         util::UnitConverter* unitConverter;
+	ICConfig icConfig;
+
+	float elasticWallStiffness;
     };
   }
 }

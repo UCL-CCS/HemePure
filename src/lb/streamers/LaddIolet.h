@@ -9,6 +9,7 @@
 
 #include "lb/streamers/StreamerTypeFactory.h"
 #include "lb/streamers/LaddIoletDelegate.h"
+#include "lb/streamers/LaddIoletDelegate_GuoForcing.h"
 #include "lb/streamers/SimpleBounceBackDelegate.h"
 #include "lb/streamers/BouzidiFirdaousLallemandDelegate.h"
 #include "lb/streamers/GuoZhengShiDelegate.h"
@@ -26,6 +27,12 @@ namespace hemelb
       {
           typedef IoletStreamerTypeFactory<CollisionType, LaddIoletDelegate<CollisionType> > Type;
       };
+      
+      template<class CollisionType>
+      struct LaddIolet_GuoForcing
+      {
+          typedef IoletStreamerTypeFactory<CollisionType, LaddIoletDelegate_GuoForcing<CollisionType> > Type;
+      };
 
       template<class CollisionType>
       struct LaddIoletSBB
@@ -42,9 +49,23 @@ namespace hemelb
       };
 
       template<class CollisionType>
+      struct LaddIolet_GuoForcingBFL
+      {
+          typedef WallIoletStreamerTypeFactory<CollisionType,
+              BouzidiFirdaousLallemandDelegate<CollisionType>, LaddIoletDelegate_GuoForcing<CollisionType> > Type;
+      };
+
+      template<class CollisionType>
       struct LaddIoletGZS
       {
           typedef WallIoletStreamerTypeFactory<CollisionType, GuoZhengShiDelegate<CollisionType>,
+              LaddIoletDelegate<CollisionType> > Type;
+      };
+      
+      template<class CollisionType>
+      struct LaddIoletGZSE
+      {
+          typedef WallIoletStreamerTypeFactory<CollisionType, GuoZhengShiElasticWallDelegate<CollisionType>,
               LaddIoletDelegate<CollisionType> > Type;
       };
 

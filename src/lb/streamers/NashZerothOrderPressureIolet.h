@@ -8,6 +8,7 @@
 
 #include "lb/streamers/StreamerTypeFactory.h"
 #include "lb/streamers/NashZerothOrderPressureDelegate.h"
+#include "lb/streamers/NashZerothOrderPressureDelegate_GuoForcing.h"
 #include "lb/streamers/SimpleBounceBackDelegate.h"
 #include "lb/streamers/BouzidiFirdaousLallemandDelegate.h"
 #include "lb/streamers/JunkYangFactory.h"
@@ -26,6 +27,12 @@ namespace hemelb
       };
 
       template<class CollisionType>
+      struct NashZerothOrderPressureIolet_GuoForcing
+      {
+          typedef IoletStreamerTypeFactory<CollisionType, NashZerothOrderPressureDelegate_GuoForcing<CollisionType> > Type;
+      };
+
+      template<class CollisionType>
       struct NashZerothOrderPressureIoletSBB
       {
           typedef WallIoletStreamerTypeFactory<CollisionType, SimpleBounceBackDelegate<CollisionType> ,
@@ -38,11 +45,25 @@ namespace hemelb
           typedef WallIoletStreamerTypeFactory<CollisionType, BouzidiFirdaousLallemandDelegate<CollisionType> ,
               NashZerothOrderPressureDelegate<CollisionType> > Type;
       };
+      
+      template<class CollisionType>
+      struct NashZerothOrderPressureIolet_GuoForcingBFL
+      {
+          typedef WallIoletStreamerTypeFactory<CollisionType, BouzidiFirdaousLallemandDelegate<CollisionType> ,
+              NashZerothOrderPressureDelegate_GuoForcing<CollisionType> > Type;
+      };
 
       template<class CollisionType>
       struct NashZerothOrderPressureIoletGZS
       {
           typedef WallIoletStreamerTypeFactory<CollisionType, GuoZhengShiDelegate<CollisionType> ,
+              NashZerothOrderPressureDelegate<CollisionType> > Type;
+      };
+
+      template<class CollisionType>
+      struct NashZerothOrderPressureIoletGZSE
+      {
+          typedef WallIoletStreamerTypeFactory<CollisionType, GuoZhengShiElasticWallDelegate<CollisionType> ,
               NashZerothOrderPressureDelegate<CollisionType> > Type;
       };
 
