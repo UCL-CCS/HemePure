@@ -335,19 +335,12 @@ namespace hemelb
 
 		void SimConfig::DoIOForProperties(const io::xml::Element& propertiesEl)
 		{
-			int coupledCount = 0;
+
 			for (io::xml::ChildIterator poPtr = propertiesEl.IterChildren("propertyoutput");
 					!poPtr.AtEnd(); ++poPtr)
 			{
 				propertyOutputs.push_back(DoIOForPropertyOutputFile(*poPtr));
-				for (std::vector<hemelb::extraction::OutputField>::iterator it = propertyOutputs.back()->fields.begin();
-						it != propertyOutputs.back()->fields.end(); ++it)
-					if (it->type == extraction::OutputField::Coupled)
-						coupledCount++;
 			}
-
-			if (coupledCount > 1)
-				throw Exception() << "Too many coupling instances (limited to 1)";
 		}
 
 		extraction::PropertyOutputFile* SimConfig::DoIOForPropertyOutputFile(
@@ -402,11 +395,6 @@ namespace hemelb
 			for (io::xml::ChildIterator fieldPtr = propertyoutputEl.IterChildren("field");
 					!fieldPtr.AtEnd(); ++fieldPtr)
 				file->fields.push_back(DoIOForPropertyField(*fieldPtr));
-
-			for (std::vector<hemelb::extraction::OutputField>::iterator it = file->fields.begin();
-					it != file->fields.end(); ++it)
-				if (it->type == extraction::OutputField::Coupled && !iolet)
-					throw Exception() << "Coupling must be performed at IOlet";
 
 			return file;
 		}
@@ -480,11 +468,7 @@ namespace hemelb
 			}
 
 			// Check and assign the type.
-			if (type == "coupled")
-			{
-				field.type = extraction::OutputField::Coupled;
-			}
-			else if (type == "pressure")
+			if (type == "pressure")
 			{
 				field.type = extraction::OutputField::Pressure;
 			}
@@ -743,13 +727,6 @@ namespace hemelb
 
 			const io::xml::Element radiusEl = conditionEl.GetChildOrThrow("radius");
 			newIolet->SetRadius(GetDimensionalValueInLatticeUnits<LatticeDistance>(radiusEl, "m"));
-
-			//const io::xml::Element maximumEl = conditionEl.GetChildOrThrow("maximum");
-			//if (maximumEl != io::xml::Element::Missing())
-			if (auto maximumEl = conditionEl.GetChildOrNull("maximum"))
-			{
-			    newIolet->SetMaxSpeed(GetDimensionalValueInLatticeUnits<PhysicalSpeed>(maximumEl, "m/s"));
-			}
 
 			return newIolet;
 		}

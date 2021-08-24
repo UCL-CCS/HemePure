@@ -16,5 +16,5 @@ add_library(hemelb_extraction
 	WholeGeometrySelector.cc
 	LbDataSourceIterator.cc
 	GeometrySurfaceSelector.cc
-	SurfacePointSelector.cc)
+	SurfacePointSelector.cc
         LocalDistributionInput.cc)

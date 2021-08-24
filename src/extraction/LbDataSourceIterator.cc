@@ -8,119 +8,135 @@
 
 namespace hemelb
 {
-  namespace extraction
-  {
-    LbDataSourceIterator::LbDataSourceIterator(const lb::MacroscopicPropertyCache& propertyCache,
-                                               const geometry::LatticeData& data,
-                                               int rank_,
-                                               const util::UnitConverter& converter) :
-        propertyCache(propertyCache), data(data), rank(rank_), converter(converter), position(-1)
-    {
+	namespace extraction
+	{
+		LbDataSourceIterator::LbDataSourceIterator(const lb::MacroscopicPropertyCache& propertyCache,
+				const geometry::LatticeData& data,
+				int rank_,
+				const util::UnitConverter& converter) :
+			propertyCache(propertyCache), data(data), rank(rank_), converter(converter), position(-1)
+		{
 
-    }
+		}
 
-    bool LbDataSourceIterator::ReadNext()
-    {
-      ++position;
+		bool LbDataSourceIterator::ReadNext()
+		{
+			++position;
 
-      if (position >= data.GetLocalFluidSiteCount())
-      {
-        return false;
-      }
+			if (position >= data.GetLocalFluidSiteCount())
+			{
+				return false;
+			}
 
-      return true;
-    }
+			return true;
+		}
 
-    util::Vector3D<site_t> LbDataSourceIterator::GetPosition() const
-    {
-      return data.GetSite(position).GetGlobalSiteCoords();
-    }
+		util::Vector3D<site_t> LbDataSourceIterator::GetPosition() const
+		{
+			return data.GetSite(position).GetGlobalSiteCoords();
+		}
 
-    FloatingType LbDataSourceIterator::GetPressure() const
-    {
-      return converter.ConvertPressureToPhysicalUnits(propertyCache.densityCache.Get(position) * Cs2);
-    }
+		FloatingType LbDataSourceIterator::GetPressure() const
+		{
+			return converter.ConvertPressureToPhysicalUnits(propertyCache.densityCache.Get(position) * Cs2);
+		}
 
-    util::Vector3D<FloatingType> LbDataSourceIterator::GetVelocity() const
-    {
-      return converter.ConvertVelocityToPhysicalUnits(propertyCache.velocityCache.Get(position));
-    }
+		util::Vector3D<FloatingType> LbDataSourceIterator::GetVelocity() const
+		{
+			return converter.ConvertVelocityToPhysicalUnits(propertyCache.velocityCache.Get(position));
+		}
 
-    FloatingType LbDataSourceIterator::GetShearStress() const
-    {
-      return converter.ConvertStressToPhysicalUnits(propertyCache.wallShearStressMagnitudeCache.Get(position));
-    }
+		FloatingType LbDataSourceIterator::GetShearStress() const
+		{
+			return converter.ConvertStressToPhysicalUnits(propertyCache.wallShearStressMagnitudeCache.Get(position));
+		}
 
-    FloatingType LbDataSourceIterator::GetVonMisesStress() const
-    {
-      return converter.ConvertStressToPhysicalUnits(propertyCache.vonMisesStressCache.Get(position));
-    }
+		FloatingType LbDataSourceIterator::GetVonMisesStress() const
+		{
+			return converter.ConvertStressToPhysicalUnits(propertyCache.vonMisesStressCache.Get(position));
+		}
 
-    FloatingType LbDataSourceIterator::GetShearRate() const
-    {
-      return converter.ConvertShearRateToPhysicalUnits(propertyCache.shearRateCache.Get(position));
-    }
+		FloatingType LbDataSourceIterator::GetShearRate() const
+		{
+			return converter.ConvertShearRateToPhysicalUnits(propertyCache.shearRateCache.Get(position));
+		}
 
-    util::Matrix3D LbDataSourceIterator::GetStressTensor() const
-    {
-      return converter.ConvertFullStressTensorToPhysicalUnits(propertyCache.stressTensorCache.Get(position));
-    }
+		util::Matrix3D LbDataSourceIterator::GetStressTensor() const
+		{
+			return converter.ConvertFullStressTensorToPhysicalUnits(propertyCache.stressTensorCache.Get(position));
+		}
 
-    util::Vector3D<PhysicalStress> LbDataSourceIterator::GetTraction() const
-    {
-      return converter.ConvertTractionToPhysicalUnits(propertyCache.tractionCache.Get(position),
-                                                      data.GetSite(position).GetWallNormal());
-    }
+		util::Vector3D<PhysicalStress> LbDataSourceIterator::GetTraction() const
+		{
+			return converter.ConvertTractionToPhysicalUnits(propertyCache.tractionCache.Get(position),
+					data.GetSite(position).GetWallNormal());
+		}
 
-    util::Vector3D<PhysicalStress> LbDataSourceIterator::GetTangentialProjectionTraction() const
-    {
-      return converter.ConvertStressToPhysicalUnits(propertyCache.tangentialProjectionTractionCache.Get(position));
-    }
+		util::Vector3D<PhysicalStress> LbDataSourceIterator::GetTangentialProjectionTraction() const
+		{
+			return converter.ConvertStressToPhysicalUnits(propertyCache.tangentialProjectionTractionCache.Get(position));
+		}
 
-    void LbDataSourceIterator::Reset()
-    {
-      position = -1;
-    }
+	    	const distribn_t* LbDataSourceIterator::GetDistribution() const
+	    	{
+	    		return data.GetFNew(position * data.GetLatticeInfo().GetNumVectors());
+	    	}
 
-    bool LbDataSourceIterator::IsValidLatticeSite(const util::Vector3D<site_t>& location) const
-    {
-      return data.IsValidLatticeSite(location);
-    }
+		int LbDataSourceIterator::GetIoletId() const
+		{
+			return data.GetSite(position).GetIoletId();
+		}
 
-    bool LbDataSourceIterator::IsAvailable(const util::Vector3D<site_t>& location) const
-    {
-      return data.GetProcIdFromGlobalCoords(location) == rank;
-    }
+		void LbDataSourceIterator::Reset()
+		{
+			position = -1;
+		}
 
-    PhysicalDistance LbDataSourceIterator::GetVoxelSize() const
-    {
-      return converter.GetVoxelSize();
-    }
+		bool LbDataSourceIterator::IsValidLatticeSite(const util::Vector3D<site_t>& location) const
+		{
+			return data.IsValidLatticeSite(location);
+		}
 
-    const PhysicalPosition& LbDataSourceIterator::GetOrigin() const
-    {
-      return converter.GetLatticeOrigin();
-    }
+		bool LbDataSourceIterator::IsAvailable(const util::Vector3D<site_t>& location) const
+		{
+			return data.GetProcIdFromGlobalCoords(location) == rank;
+		}
 
-    bool LbDataSourceIterator::IsWallSite(const util::Vector3D<site_t>& location) const
-    {
-      site_t localSiteId = data.GetContiguousSiteId(location);
+		PhysicalDistance LbDataSourceIterator::GetVoxelSize() const
+		{
+			return converter.GetVoxelSize();
+		}
 
-      return data.GetSite(localSiteId).IsWall();
-    }
+		const PhysicalPosition& LbDataSourceIterator::GetOrigin() const
+		{
+			return converter.GetLatticeOrigin();
+		}
 
-    bool LbDataSourceIterator::IsInletSite(const util::Vector3D<site_t>& location) const
-    {
-      site_t localSiteId = data.GetContiguousSiteId(location);
+		bool LbDataSourceIterator::IsWallSite(const util::Vector3D<site_t>& location) const
+		{
+			site_t localSiteId = data.GetContiguousSiteId(location);
 
-      return data.GetSite(localSiteId).GetSiteType() == hemelb::geometry::INLET_TYPE;
-    }
+			return data.GetSite(localSiteId).IsWall();
+		}
 
-    bool LbDataSourceIterator::IsOutletSite(const util::Vector3D<site_t>& location) const
-    {
-      site_t localSiteId = data.GetContiguousSiteId(location);
+		bool LbDataSourceIterator::IsInletSite(const util::Vector3D<site_t>& location) const
+		{
+			site_t localSiteId = data.GetContiguousSiteId(location);
 
-      return data.GetSite(localSiteId).GetSiteType() == hemelb::geometry::OUTLET_TYPE;
-    }
-  }
+			return data.GetSite(localSiteId).GetSiteType() == hemelb::geometry::INLET_TYPE;
+		}
+
+		bool LbDataSourceIterator::IsOutletSite(const util::Vector3D<site_t>& location) const
+		{
+			site_t localSiteId = data.GetContiguousSiteId(location);
+
+			return data.GetSite(localSiteId).GetSiteType() == hemelb::geometry::OUTLET_TYPE;
+		}
+
+		unsigned LbDataSourceIterator::GetNumVectors() const
+		{
+			return data.GetLatticeInfo().GetNumVectors();
+		}
+
+	}
 }

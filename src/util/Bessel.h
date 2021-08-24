@@ -34,6 +34,16 @@ namespace hemelb
      */
     std::complex<double>
     BesselJ0ComplexArgument(const std::complex<double>& z, double tolSq = 1e-12);
+    
+    /**
+     * Function for Bessel function of first kind order 1 at z
+     * Series becomes:
+     *
+     *    J1(z) ~=  1 - (0.5*z/2)*0.25*z*z/1!^2 + (0.5*z/3)*(0.25*z*z)^2/2!^2 - (0.5*z/4)*(0.25*z*z)^3/3!^2 + ...
+     */
+
+    std::complex<double>
+    BesselJ1ComplexArgument(const std::complex<double>& z, double tolSq = 1e-12);
   }
 }
 

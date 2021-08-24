@@ -39,16 +39,6 @@ namespace hemelb
     };
 
     /**
-     * LBGK with Noble and Torczynski's partially saturated method
-     */
-    template<class Lattice>
-    class LBGKPSM
-    {
-      public:
-        typedef kernels::LBGKPSM<Lattice> Type;
-    };
-
-    /**
      * The entropic implementation by Ansumali et al.
      */
     template<class Lattice>
@@ -200,15 +190,7 @@ namespace hemelb
       public:
         typedef typename streamers::NashZerothOrderPressureIolet<Collision>::Type Type;
     };
-    /**
-     * Our zeroth-order phantom site BC for iolets with Guo forcing //JM
-     */
-    template<class Collision>
-    class NASHZEROTHORDERPRESSUREIOLET_GUOFORCING
-    {
-      public:
-        typedef typename streamers::NashZerothOrderPressureIolet_GuoForcing<Collision>::Type Type;
-    };
+    
     /**
      * The inlet/outlet condition based on Ladd's modified bounce-back on
      * links.
@@ -217,16 +199,6 @@ namespace hemelb
     struct LADDIOLET
     {
         typedef typename streamers::LaddIolet<Collision>::Type Type;
-    };
-
-     /**
-     * The inlet/outlet condition based on Ladd's modified bounce-back on
-     * links.
-     */
-    template<class Collision>
-    struct LADDIOLET_GUOFORCING
-    {
-        typedef typename streamers::LaddIolet_GuoForcing<Collision>::Type Type;
     };
 
     /**
@@ -261,16 +233,6 @@ namespace hemelb
       public:
         typedef typename streamers::NashZerothOrderPressureIoletBFL<Collision>::Type Type;
     };
-    
-    /**
-     * Nash in/outlet with Guo Forcing + BFL
-     */
-    template<class Collision>
-    class NASHZEROTHORDERPRESSURE_GUOFORCINGBFL
-    {
-      public:
-        typedef typename streamers::NashZerothOrderPressureIolet_GuoForcingBFL<Collision>::Type Type;
-    };
 
     /**
      * Ladd in/outlet + BFL
@@ -280,15 +242,7 @@ namespace hemelb
     {
         typedef typename streamers::LaddIoletBFL<Collision>::Type Type;
     };
-
-    /**
-     * Ladd in/outlet with Guo Forcing + BFL
-     */
-    template<class Collision>
-    struct LADDIOLET_GUOFORCINGBFL
-    {
-        typedef typename streamers::LaddIolet_GuoForcingBFL<Collision>::Type Type;
-    };
+    
     /**
      * Nash in/outlet + GZS
      */

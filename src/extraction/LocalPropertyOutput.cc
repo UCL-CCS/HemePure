@@ -8,14 +8,41 @@
 #include "extraction/LocalPropertyOutput.h"
 #include "io/formats/formats.h"
 #include "io/formats/extraction.h"
+#include "io/formats/offset.h"
 #include "io/writers/xdr/XdrMemWriter.h"
+#include "io/writers/xdr/XdrVectorWriter.h"
 #include "net/IOCommunicator.h"
 #include "constants.h"
+#include "units.h"
 
 namespace hemelb
 {
   namespace extraction
   {
+     // Declare recursive helper
+    template <typename... Ts>
+    io::writers::Writer& encode(io::writers::Writer& enc, Ts... args);
+    // Terminating case - one arg
+    template <typename T>
+    io::writers::Writer& encode(io::writers::Writer& enc, T arg) {
+      return enc << arg;
+    }
+    // Recursive case - N + 1 args
+    template <typename T, typename... Ts>
+    io::writers::Writer& encode(io::writers::Writer& enc, T arg, Ts... args) {
+      return encode(enc << arg, args...);
+    }
+
+
+    // XDR encode some values and return the result buffer
+    template <typename... Ts>
+    std::vector<char> quick_encode(Ts... args) {
+      io::writers::xdr::XdrVectorWriter encoder;
+      encode(encoder, args...);
+      auto ans = encoder.GetBuf();
+      return ans;
+    }
+
     LocalPropertyOutput::LocalPropertyOutput(IterableDataSource& dataSource,
                                              const PropertyOutputFile* outputSpec,
                                              const net::IOCommunicator& ioComms) :
@@ -153,6 +180,21 @@ namespace hemelb
 
       // Create the buffer that we'll write each iteration's data into.
       buffer.resize(writeLength);
+
+	for (unsigned outputNumber = 0; outputNumber < outputSpec->fields.size(); ++outputNumber)
+	{
+		if (outputSpec->fields[outputNumber].type == OutputField::Distributions){
+			// Create a new file name by changing the suffix - outputSpec
+			// must have a .-separated extension!
+
+			const auto offsetFileName = io::formats::offset::ExtractionToOffset(outputSpec->filename);
+
+			// Now create the file.
+			offsetFile = net::MpiFile::Open(comms, offsetFileName,
+					MPI_MODE_WRONLY | MPI_MODE_CREATE | MPI_MODE_EXCL);
+			WriteOffsetFile();
+		}
+	}
     }
 
     LocalPropertyOutput::~LocalPropertyOutput()
@@ -250,7 +292,21 @@ namespace hemelb
                     << static_cast<WrittenDataType> (dataSource.GetTangentialProjectionTraction().y)
                     << static_cast<WrittenDataType> (dataSource.GetTangentialProjectionTraction().z);
                 break;
-              case OutputField::MpiRank:
+              
+              case OutputField::Distributions:
+
+		unsigned numComponents;
+		const distribn_t *d_ptr;
+		numComponents = dataSource.GetNumVectors();
+		d_ptr = dataSource.GetDistribution();
+		for (int i = 0; i < numComponents; i++)
+		{
+			xdrWriter << static_cast<WrittenDataType> (*d_ptr);
+			d_ptr++;
+		}
+		break;
+	      
+	      case OutputField::MpiRank:
                 xdrWriter
                     << static_cast<WrittenDataType> (comms.Rank());
                 break;
@@ -270,6 +326,33 @@ namespace hemelb
       localDataOffsetIntoFile += allCoresWriteLength;
     }
 
+    // Write the offset file.
+    void LocalPropertyOutput::WriteOffsetFile() {
+      namespace fmt = io::formats;
+
+      // On process 0 only, write the header
+      if (comms.OnIORank()) {
+	auto buf = quick_encode(
+				uint32_t(fmt::HemeLbMagicNumber),
+				uint32_t(fmt::offset::MagicNumber),
+				uint32_t(fmt::offset::VersionNumber),
+				uint32_t(comms.Size())
+				);
+	assert(buf.size() == fmt::offset::HeaderLength);
+	offsetFile.WriteAt(0, buf);
+      }
+      // Every rank writes its offset
+      uint64_t offsetForOffset = comms.Rank() * sizeof(localDataOffsetIntoFile)
+	+ fmt::offset::HeaderLength;
+      offsetFile.WriteAt(offsetForOffset, quick_encode(localDataOffsetIntoFile));
+
+      // Last process writes total
+      if (comms.Rank() == (comms.Size()-1)) {
+	offsetFile.WriteAt(offsetForOffset + sizeof(localDataOffsetIntoFile),
+			   quick_encode(localDataOffsetIntoFile + writeLength));
+      }
+    }
+
     unsigned LocalPropertyOutput::GetFieldLength(OutputField::FieldType field)
     {
       switch (field)
@@ -286,7 +369,9 @@ namespace hemelb
           return 3;
         case OutputField::StressTensor:
           return 6; // We only store the upper triangular part of the symmetric tensor
-        default:
+        case OutputField::Distributions:
+	  return latticeType::NUMVECTORS;
+	default:
           // This should never trip. Only occurs if someone adds a new field and forgets
           // to add to this method.
           assert(false);
@@ -294,7 +379,7 @@ namespace hemelb
       }
     }
 
-    double LocalPropertyOutput::GetOffset(OutputField::FieldType field) const
+    double LocalPropertyOutput::GetOffset(OutputField::FieldType field)
     {
       switch (field)
       {
