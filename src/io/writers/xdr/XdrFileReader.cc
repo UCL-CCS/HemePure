@@ -11,6 +11,7 @@
  *      Author: rupert
  */
 
+#include <cassert>
 #include "io/writers/xdr/XdrFileReader.h"
 
 namespace hemelb
@@ -28,6 +29,18 @@ namespace hemelb
           xdrstdio_create(&mXdr, xdrFile, XDR_DECODE);
         }
 
+        // Constructor to create an Xdr object based on a file.
+        XdrFileReader::XdrFileReader(const std::string& fn) {
+	  fh = std::fopen(fn.c_str(), "r");
+	  printf(" TRY to open %s \n", fn.c_str());
+	  
+	  assert(fh != nullptr);
+          xdrstdio_create(&mXdr, fh, XDR_DECODE);
+        }
+
+	XdrFileReader::~XdrFileReader() {
+	  std::fclose(fh);
+	}
       } // namespace name
 
     } // namespace writers

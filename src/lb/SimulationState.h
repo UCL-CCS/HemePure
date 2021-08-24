@@ -40,6 +40,8 @@ namespace hemelb
         bool IsTerminating() const;
         bool IsRendering() const;
         Stability GetStability() const;
+	
+	friend struct InitialConditionBase; //JM Checkpointing
 
         PhysicalTime GetTime() const {return GetTimeStepLength()*Get0IndexedTimeStep();}
         PhysicalTime GetTimeStepLength() const {return timeStepLength;}

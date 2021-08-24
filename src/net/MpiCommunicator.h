@@ -23,6 +23,7 @@ namespace hemelb
 		{
 			public:
 				static MpiCommunicator World();
+				static MpiCommunicator Get(MPI_Comm communicator);
 
 				/**
 				 * Constructor for an uninitialised communicator, equivalent to
@@ -102,6 +103,11 @@ namespace hemelb
 					T Reduce(const T& val, const MPI_Op& op, const int root) const;
 				template <typename T>
 					std::vector<T> Reduce(const std::vector<T>& vals, const MPI_Op& op, const int root) const;
+        
+				template <typename T>
+				T Scatter(const std::vector<T>& vals, const int root) const;
+				template <typename T>
+				std::vector<T> Scatter(const std::vector<T>& vals, const size_t n, const int root) const;
 
 				template <typename T>
 					std::vector<T> Gather(const T& val, const int root) const;

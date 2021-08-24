@@ -225,6 +225,7 @@ void SimulationMaster::Initialise() {
 			*unitConverter);
 
 	latticeBoltzmannModel->Initialise(inletValues, outletValues, unitConverter);
+        latticeBoltzmannModel->SetInitialConditions(ioComms); //JM Checkpoint addition
 	neighbouringDataManager->ShareNeeds();
 	neighbouringDataManager->TransferNonFieldDependentInformation();
 

@@ -16,6 +16,7 @@
 #include "net/net.h"
 #include "constants.h"
 #include "configuration/SimConfig.h"
+#include "extraction/LocalDistributionInput.h"
 #include "geometry/Block.h"
 #include "geometry/GeometryReader.h"
 #include "geometry/NeighbouringProcessor.h"
@@ -32,12 +33,18 @@ namespace hemelb
 	{
 		// Ugly forward definition is currently necessary.
 		template<class LatticeType> class LBM;
+
+		struct InitialConditionBase;
 	}
 
 	namespace geometry
 	{
 		class LatticeData : public reporting::Reportable
 		{
+        			friend class extraction::LocalDistributionInput; //! Give access to the methods GetFOld and GetFNew.
+
+        			friend lb::InitialConditionBase;
+			
 			public:
 				template<class Lattice> friend class lb::LBM; //! Let the LBM have access to internals so it can initialise the distribution arrays.
 				template<class LatticeData> friend class Site; //! Let the inner classes have access to site-related data that's otherwise private.
@@ -347,6 +354,11 @@ namespace hemelb
 
 				int GetLocalRank() const;
 
+				inline const util::Vector3D<site_t>& GiveMeGlobalSiteCoords(site_t siteIndex) const
+				{
+					return globalSiteCoords[siteIndex];
+				}
+		
 			protected:
 				/**
 				 * The protected default constructor does nothing. It exists to allow derivation from this
@@ -548,7 +560,8 @@ namespace hemelb
 				}
 
 				// Method should remain protected, intent is to access this information via Site
-				LatticeForceVector const& GetForceAtSite(site_t iSiteIndex) const
+				//LatticeForceVector const& GetForceAtSite(site_t iSiteIndex) const
+				LatticeForceVector& GetForceAtSite(site_t iSiteIndex) //JM
 				{
 					return forceAtSite[iSiteIndex];
 				}
@@ -561,7 +574,9 @@ namespace hemelb
 				 */
 				// Method should remain protected, intent is to set this information via Site
 				void SetForceAtSite(site_t iSiteIndex, LatticeForceVector const & force)
+				//void SetForceAtSite(site_t iSiteIndex, LatticeForceVector& force) //JM
 				{
+					printf("method 1 set being hit \n");
 					assert(iSiteIndex >= site_t(0));
 					assert(forceAtSite.size() > size_t(iSiteIndex));
 					forceAtSite[iSiteIndex] = force;
@@ -582,7 +597,7 @@ namespace hemelb
 				 */
 				// Method should remain protected, intent is to set this information via Site
 				void SetForceAtSite(site_t iSiteIndex, LatticeForce force)
-				{
+				{ printf("method 2 being hit\n");
 					assert(iSiteIndex >= site_t(0));
 					assert(forceAtSite.size() > size_t(iSiteIndex));
 					forceAtSite[iSiteIndex] = util::Vector3D<distribn_t>(0.0, 0.0, force);

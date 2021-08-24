@@ -25,6 +25,14 @@ namespace hemelb
         {
           public:
             XdrFileReader(FILE* xdrFile);
+	  
+	    XdrFileReader(const std::string& fn);
+	  
+	    virtual ~XdrFileReader();
+	
+	  private:
+	  
+	    std::FILE* fh;
         };
 
       } // namespace xdr
