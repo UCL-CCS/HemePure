@@ -687,9 +687,6 @@ inline static double hsum_double_avx512(__m512d v) {
 							const __m128d vz = _mm_set1_pd(velocity_z);
 
 							const __m128d fx = _mm_set1_pd(force_x);
-							const __m128d vz = _mm_set1_pd(velocity_z);
-
-							const __m128d fx = _mm_set1_pd(force_x);
 							const __m128d fy = _mm_set1_pd(force_y);
 							const __m128d fz = _mm_set1_pd(force_z);
 
@@ -1407,6 +1404,9 @@ inline static double hsum_double_avx512(__m512d v) {
 								// Get the velocity components. Note that the naming is to make it easier to follow the
 								// paper. ux does not necessarily hold the velocity in the x direction; it's the velocity
 								// component in the direction we're calculating zeta for.
+								distribn_t ux = velocity[thisIndex], uy = velocity[otherIndex1], uz =
+									velocity[otherIndex2];
+
 								// The 5th order term.
 								distribn_t zetaHighOrders = 27.0
 									* (util::NumericalFunctions::IntegerPower(ux, 5) - 4. * ux * uy * uy * uz * uz)

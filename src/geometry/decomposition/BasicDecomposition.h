@@ -10,10 +10,6 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "ALL.hpp"
-#include "ALL_Point.hpp"
-#include "ALL_CustomExceptions.hpp"
-
 #include "geometry/Geometry.h"
 #include "lb/lattices/LatticeInfo.h"
 #include "net/MpiCommunicator.h"
@@ -72,16 +68,6 @@ namespace hemelb
 					void DecomposeDumb(
 							std::unordered_map<site_t, proc_t>& procAssignedToEachBlock,
 							sitedata_t nonEmptyBlocks);
-					void DecomposeBlock(
-							std::unordered_map<site_t, proc_t>& procAssignedToEachBlock, int noderank);
-
-					void RotateAndAllocate(
-							const double (&m_rot)[3][3][3], const double (&phi)[3],
-							const double (&r_min)[3], const double (&r_max)[3],
-							std::vector<ALL_Point<double>>& points,
-							std::unordered_map<site_t, proc_t>& procAssignedToEachBlock,
-							const std::vector<double>& l, const std::vector<double>& u,
-							const int rank);
 
 					/**
 					 * Validates that all cores have the same beliefs about which proc is to be assigned
@@ -92,8 +78,6 @@ namespace hemelb
 					void Validate(std::unordered_map<site_t, proc_t>& procAssignedToEachBlock);
 
 				private:
-
-					void Procs2Grid(int nx, int ny, int nz, int &px, int &py, int &pz);
 
 					/**
 					 * Does the work of dividing blocks up between processors.

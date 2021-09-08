@@ -201,7 +201,7 @@ namespace hemelb
 				//! Essential block information:
 				//!		the number of bytes each block takes up while still compressed.
 				//!		the number of bytes each block takes up when uncompressed.
-				std::unordered_map<site_t, std::pair<uint16_t, uint32_t> > blockInformation;
+				std::unordered_map<site_t, std::pair<uint16_t, uint16_t> > blockInformation;
 				//! The number of fluid sites on each block in the geometry.
 				std::unordered_map<site_t, uint16_t> fluidSitesOnEachBlock;
 				//! Block weights.
