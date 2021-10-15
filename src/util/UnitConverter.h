@@ -36,6 +36,9 @@ namespace hemelb
         LatticeSpeed ConvertSpeedToLatticeUnits(const PhysicalSpeed& v) const;
         PhysicalSpeed ConvertSpeedToPhysicalUnits(const LatticeSpeed& v) const;
 
+        distribn_t ConvertResistanceToLatticeUnits(const distribn_t& r) const;
+        distribn_t ConvertResistanceToPhysicalUnits(const distribn_t& r) const;
+
         /**
          * Convert stress from physical to lattice units, using any rank of tensor
          */
