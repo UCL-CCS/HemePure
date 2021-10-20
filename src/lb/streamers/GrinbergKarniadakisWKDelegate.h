@@ -35,9 +35,11 @@ namespace hemelb
 							const Direction& direction)
 					{
 						int boundaryId = site.GetIoletId();
-
-                                                iolets::InOutLetWK* wkIolet = dynamic_cast<iolets::InOutLetWK*>(iolet.GetLocalIolet(boundaryId));
-						
+#ifdef HEMELB_USE_VELOCITY_WEIGHTS_FILE
+                                                iolets::InOutLetFileWK* wkIolet = dynamic_cast<iolets::InOutLetFileWK*>(iolet.GetLocalIolet(boundaryId));
+#elif                                               
+					       	iolets::InOutLetWK* wkIolet = dynamic_cast<iolets::InOutLetWK*>(iolet.GetLocalIolet(boundaryId));
+#endif						
 						distribn_t Ptm1;
 						double R0 = wkIolet->GetRwk();	
 					        

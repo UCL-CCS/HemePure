@@ -316,6 +316,11 @@ namespace hemelb
 		        CheckIoletMatchesCMake(ioletEl, "GRINBERGKARNIADAKISWKIOLET");
 			newIolet = DoIOForGrinbergKarniadakisWKInOutlet(ioletEl);
 		      }
+		      else if (conditionSubtype == "fileGKmodel")
+		      {
+		        CheckIoletMatchesCMake(ioletEl, "GRINBERGKARNIADAKISWKIOLET");
+			newIolet = DoIOForFileGrinbergKarniadakisWKInOutlet(ioletEl);
+		      }
 		      else
 		      {
 			throw Exception() << "Invalid boundary condition subtype '" << conditionSubtype << "' in "
@@ -670,6 +675,33 @@ namespace hemelb
 
 		      const io::xml::Element radiusEl = conditionEl.GetChildOrThrow("radius");
 		      newIolet->SetRadius(GetDimensionalValueInLatticeUnits<LatticeDistance>(radiusEl, "m"));
+
+		      return newIolet;
+		}
+
+
+		lb::iolets::InOutLetFileWK* SimConfig::DoIOForFileGrinbergKarniadakisWKInOutlet(
+			const io::xml::Element& ioletEl)
+		{
+		      lb::iolets::InOutLetFileWK* newIolet = new lb::iolets::InOutLetFileWK();
+		      DoIOForBaseInOutlet(ioletEl, newIolet);
+
+		      const io::xml::Element conditionEl = ioletEl.GetChildOrThrow("condition");
+	              std::string wkFilePath = conditionEl.GetChildOrThrow("path").GetAttributeOrThrow("value");
+
+		      wkFilePath = util::NormalizePathRelativeToPath(wkFilePath, xmlFilePath);
+		      newIolet->SetFilePath(wkFilePath);
+
+		      distribn_t tempR1WK;
+		      GetDimensionalValue(conditionEl.GetChildOrThrow("R"), "kg/m^4*s", tempR1WK);
+		      newIolet->SetRwk(unitConverter->ConvertResistanceToLatticeUnits(tempR1WK));
+
+		      distribn_t tempArea;
+		      GetDimensionalValue(conditionEl.GetChildOrThrow("area"), "m^2", tempArea);
+		      newIolet->SetArea(unitConverter->ConvertAreaToLatticeUnits(tempArea));
+		      
+		      //const io::xml::Element radiusEl = conditionEl.GetChildOrThrow("radius");
+		      //newIolet->SetRadius(GetDimensionalValueInLatticeUnits<LatticeDistance>(radiusEl, "m"));
 
 		      return newIolet;
 		}

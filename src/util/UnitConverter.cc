@@ -88,6 +88,16 @@ namespace hemelb
       return LatticeTime(time_step) * latticeTime;
     }
 
+    distribn_t UnitConverter::ConvertAreaToLatticeUnits(const distribn_t& r) const
+    {
+      return r / (latticeDistance*latticeDistance);
+    }
+    
+    distribn_t UnitConverter::ConvertAreaToPhysicalUnits(const distribn_t& r) const
+    {
+      return r * (latticeDistance*latticeDistance);
+    }
+    
     distribn_t UnitConverter::ConvertResistanceToLatticeUnits(const distribn_t& r) const
     {
       return r * ((latticeTime*latticeDistance)/BLOOD_DENSITY_Kg_per_m3);

@@ -36,6 +36,9 @@ namespace hemelb
         LatticeSpeed ConvertSpeedToLatticeUnits(const PhysicalSpeed& v) const;
         PhysicalSpeed ConvertSpeedToPhysicalUnits(const LatticeSpeed& v) const;
 
+        distribn_t ConvertAreaToLatticeUnits(const distribn_t& r) const;
+        distribn_t ConvertAreaToPhysicalUnits(const distribn_t& r) const;
+
         distribn_t ConvertResistanceToLatticeUnits(const distribn_t& r) const;
         distribn_t ConvertResistanceToPhysicalUnits(const distribn_t& r) const;
 
