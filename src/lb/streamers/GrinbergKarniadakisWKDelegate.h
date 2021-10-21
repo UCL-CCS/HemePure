@@ -37,7 +37,7 @@ namespace hemelb
 						int boundaryId = site.GetIoletId();
 #ifdef HEMELB_USE_VELOCITY_WEIGHTS_FILE
                                                 iolets::InOutLetFileWK* wkIolet = dynamic_cast<iolets::InOutLetFileWK*>(iolet.GetLocalIolet(boundaryId));
-#elif                                               
+#else                                               
 					       	iolets::InOutLetWK* wkIolet = dynamic_cast<iolets::InOutLetWK*>(iolet.GetLocalIolet(boundaryId));
 #endif						
 						distribn_t Ptm1;
