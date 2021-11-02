@@ -34,8 +34,9 @@ namespace hemelb
         // where r is the distance from the centreline
         LatticePosition displ = x - position;
         LatticeDistance z = displ.Dot(normal);
-        Dimensionless rSq = (displ.GetMagnitudeSquared() - z * z) / (radius * radius);
+        Dimensionless rSqOverASq = (displ.GetMagnitudeSquared() - z * z) / (radius * radius);
 
+        assert(rSqOverASq <= 1.0);
         // Get the max velocity
         LatticeSpeed max = maxSpeed;
         // If we're in the warm-up phase, scale down the imposed velocity
@@ -45,7 +46,7 @@ namespace hemelb
         }
 
         // Brackets to ensure that the scalar multiplies are done before vector * scalar.
-        return normal * (max * (1. - rSq));
+        return normal * (max * (1. - rSqOverASq));
       }
     }
   }
