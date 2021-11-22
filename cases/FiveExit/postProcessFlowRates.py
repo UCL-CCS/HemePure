@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 stepSize = 500
-DX = 0.000025
+DX = 0.00002
 
 ForkIn = np.array([[23,23,203]])
 

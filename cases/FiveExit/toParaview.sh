@@ -13,7 +13,7 @@ processing () {
 	#awk -F ' ' 'BEGIN{N=-1; last_step=-1}{if(last_step != $1) {N++; print>$OUT"N".txt"; last_step=$1;} else {print>>$OUT"N".txt"}}' $NAME
 	awk -v out=$2 -F ' ' 'BEGIN{N=-2; last_step=-1}{if(last_step != $1) {N++; print>out N".txt"; last_step=$1;} else {print>>out N".txt"}}' $NAME
 
-	sed -i '1isteps gridX gridY gridZ velX velY velZ pressure' $OUT*
+	sed -i '1isteps gridX gridY gridZ velX velY velZ pressure mpirank' $OUT*
 }
 
 processing "results/outlet.txt" "results/outletPV"

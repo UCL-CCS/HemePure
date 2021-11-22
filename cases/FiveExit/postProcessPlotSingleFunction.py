@@ -41,7 +41,7 @@ def hemeCollateFunction(path, stepSize, DX, lets):
 
                 for io in range(np.shape(IOlets)[0]):
                     IOP[io] = IOP[io]+[np.max(ioV[io], axis=0)[7], np.average(ioV[io], axis=0)[7], np.min(ioV[io], axis=0)[7]]
-                    IOV[io] = IOV[io]+[np.max(ioV[io], axis=0)[8], np.average(ioV[io], axis=0)[8], np.min(ioV[io], axis=0)[8]]
+                    IOV[io] = IOV[io]+[np.max(ioV[io], axis=0)[-1], np.average(ioV[io], axis=0)[-1], np.min(ioV[io], axis=0)[-1]]
 
             notStart=True
             
