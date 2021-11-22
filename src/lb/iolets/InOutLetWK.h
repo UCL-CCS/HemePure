@@ -30,6 +30,16 @@ namespace hemelb
 	  {
 		  density = d;
 	  }
+	  
+	  LatticeDensity GetDensityNew(unsigned long time_step) const
+	  {
+		  return density;
+	  }
+
+	  void SetDensityNew(const LatticeDensity& d)
+	  {
+		  density = d;
+	  }
  
 
           virtual void Reset(SimulationState &state)
