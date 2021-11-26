@@ -90,7 +90,7 @@ namespace hemelb
                 const LatticeVector siteLocation = site.GetGlobalSiteCoords();
 
                 // Get the iolet
-                InOutLet& iolet = *bValues->GetLocalIolet(site.GetIoletId());
+                InOutLet& iolet = *bValues->GetIolets()[site.GetIoletId()];
 
                 // Get the extra data for this iolet
                 VSExtra<LatticeType>* extra = GetExtra(&iolet);
@@ -178,7 +178,7 @@ namespace hemelb
                * Store the density and velocity for later use.
                */
               // Get the iolet
-              InOutLet* iolet = bValues->GetLocalIolet(site.GetIoletId());
+              InOutLet* iolet = bValues->GetIolets()[site.GetIoletId()];
 
               // Get the extra data for this iolet
               VSExtra<LatticeType>* extra = GetExtra(iolet);

@@ -75,7 +75,7 @@ namespace hemelb
           InOutLetCosine* GetIolet(lb::iolets::BoundaryValues* iolets)
           {
             InOutLetCosine* ans =
-                dynamic_cast<lb::iolets::InOutLetCosine*> (iolets->GetLocalIolet(0));
+                dynamic_cast<lb::iolets::InOutLetCosine*> (iolets->GetIolets()[0]);
             CPPUNIT_ASSERT(ans != NULL);
             return ans;
           }
@@ -439,7 +439,7 @@ namespace hemelb
           void CheckAllHVUpdated(lb::iolets::BoundaryValues* iolets, LatticeTimeStep expectedT)
           {
             VSExtra<Lattice> * extra =
-                dynamic_cast<VSExtra<Lattice>*> (iolets->GetLocalIolet(0)->GetExtraData());
+                dynamic_cast<VSExtra<Lattice>*> (iolets->GetIolets()[0]->GetExtraData());
             for (RSHV::Map::iterator hvPtr = extra->hydroVarsCache.begin(); hvPtr
                 != extra->hydroVarsCache.end(); ++hvPtr)
             {
