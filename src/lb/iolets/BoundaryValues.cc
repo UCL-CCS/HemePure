@@ -48,12 +48,12 @@ namespace hemelb
           {
             localIoletCount++;
             localIoletIDs.push_back(ioletIndex);
-//            hemelb::log::Logger::Log<hemelb::log::Warning, hemelb::log::OnePerCore>("BOUNDARYVALUES.H - ioletIndex: %d", ioletIndex);
+            hemelb::log::Logger::Log<hemelb::log::Debug, hemelb::log::OnePerCore>("BOUNDARYVALUES.CC - ioletIndex: %d", ioletIndex);
 
-//            if (iolet->IsCommsRequired()) //DEREK: POTENTIAL MULTISCALE ISSUE (this if-statement)
-//            {
+            if (iolet->IsCommsRequired()) //DEREK: POTENTIAL MULTISCALE ISSUE (this if-statement)
+            {
               iolet->SetComms(new BoundaryComms(state, procsList[ioletIndex], bcComms, isIOletOnThisProc));
-//            }
+            }
           }
         }
 
@@ -63,7 +63,7 @@ namespace hemelb
         // Clear up
         delete[] procsList;
 
-        hemelb::log::Logger::Log<hemelb::log::Debug, hemelb::log::OnePerCore>("BOUNDARYVALUES.H - ioletCount: %d, first iolet ID %d", localIoletCount, localIoletIDs[0]);
+        hemelb::log::Logger::Log<hemelb::log::Debug, hemelb::log::OnePerCore>("BOUNDARYVALUES.CC - ioletCount: %d", localIoletCount);
 
       }
 
@@ -90,7 +90,7 @@ namespace hemelb
           }
         }
 
-        return true;
+        return false;
       }
 
       std::vector<int> BoundaryValues::GatherProcList(bool hasBoundary)

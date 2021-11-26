@@ -36,9 +36,9 @@ namespace hemelb
 					{
 						int boundaryId = site.GetIoletId();
 #ifdef HEMELB_USE_VELOCITY_WEIGHTS_FILE
-                                                iolets::InOutLetFileWK* wkIolet = dynamic_cast<iolets::InOutLetFileWK*>(iolet.GetLocalIolet(boundaryId));
+                                                iolets::InOutLetFileWK* wkIolet = dynamic_cast<iolets::InOutLetFileWK*>(iolet.GetIolets()[boundaryId]);
 #else                                               
-					       	iolets::InOutLetWK* wkIolet = dynamic_cast<iolets::InOutLetWK*>(iolet.GetLocalIolet(boundaryId));
+					       	iolets::InOutLetWK* wkIolet = dynamic_cast<iolets::InOutLetWK*>(iolet.GetIolets()[boundaryId]);
 #endif						
 						distribn_t Ptm1;
 						double R0 = wkIolet->GetRwk();	
@@ -59,7 +59,7 @@ namespace hemelb
 						distribn_t distance = wkIolet->GetDistance(sitePos); 
 
 						// Calculate the velocity at the ghost site, as the component normal to the iolet.
-						util::Vector3D<float> ioletNormal = iolet.GetLocalIolet(boundaryId)->GetNormal();
+						util::Vector3D<float> ioletNormal = wkIolet->GetNormal();
 
 						// Note that the division by density compensates for the fact that v_x etc have momentum
 						// not velocity.
@@ -110,9 +110,9 @@ if (iolet.GetTimeStep()%50==0&&distance<1.0) //(sitePos.x==7 && sitePos.y==13 &&
           {
 		int boundaryId = site.GetIoletId();
 #ifdef HEMELB_USE_VELOCITY_WEIGHTS_FILE
-		iolets::InOutLetFileWK* wkIolet = dynamic_cast<iolets::InOutLetFileWK*>(iolet.GetLocalIolet(boundaryId));
+		iolets::InOutLetFileWK* wkIolet = dynamic_cast<iolets::InOutLetFileWK*>(iolet.GetIolets()[boundaryId]);
 #else                                               
-		iolets::InOutLetWK* wkIolet = dynamic_cast<iolets::InOutLetWK*>(iolet.GetLocalIolet(boundaryId));
+		iolets::InOutLetWK* wkIolet = dynamic_cast<iolets::InOutLetWK*>(iolet.GetIolets()[boundaryId]);
 #endif	
 
 				
