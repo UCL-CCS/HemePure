@@ -135,21 +135,17 @@ namespace hemelb
         // the given inlet/outlet.
 
         std::vector<int> processorsNeedingIoletFlags = bcComms.AllGather(isIOletOnThisProc);
-        //std::vector<int> processorsNeedingIoletFlags = bcComms.Gather(isIOletOnThisProc, bcComms.GetBCProcRank());
 
-        //if (bcComms.IsCurrentProcTheBCProc())
-        //{
-          // Now we have an array for each IOlet with true (1) at indices corresponding to
-          // processes that are members of that group. We have to convert this into arrays
-          // of ints which store a list of processor ranks.
-          for (proc_t process = 0; process < processorsNeedingIoletFlags.size(); ++process)
+        // Now we have an array for each IOlet with true (1) at indices corresponding to
+        // processes that are members of that group. We have to convert this into arrays
+        // of ints which store a list of processor ranks.
+        for (proc_t process = 0; process < processorsNeedingIoletFlags.size(); ++process)
+        {
+          if (processorsNeedingIoletFlags[process])
           {
-            if (processorsNeedingIoletFlags[process])
-            {
-              processorsNeedingIoletList.push_back(process);
-            }
+            processorsNeedingIoletList.push_back(process);
           }
-        //}
+        }
 
         return processorsNeedingIoletList; // return by copy
       }
