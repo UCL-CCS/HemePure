@@ -22,7 +22,7 @@ namespace hemelb
       class BoundaryComms
       {
         public:
-          BoundaryComms(SimulationState* iSimState, std::vector<int> &iProcsList, const BoundaryCommunicator& boundaryComm, bool iHasBoundary);
+          BoundaryComms(SimulationState* iSimState, std::vector<int> &iProcsList, int centreRank, const BoundaryCommunicator& boundaryComm, bool iHasBoundary);
           ~BoundaryComms();
 
           void Wait();
@@ -53,6 +53,9 @@ namespace hemelb
           int nProcs;
           std::vector<int> procsList;
           const BoundaryCommunicator& bcComm;
+
+	  //The rank that contains the centre site of the iolet
+	  int centreRank;
 
           MPI_Request *sendRequest;
           MPI_Status *sendStatus;

@@ -74,6 +74,7 @@ namespace hemelb
        
        	private:
           bool IsIOletOnThisProc(geometry::SiteType ioletType, geometry::LatticeData* latticeData, int boundaryId);
+          bool IsIOletCentreOnThisProc(iolets::InOutLet* iolet, geometry::LatticeData* latticeData);
           std::vector<int> GatherProcList(bool hasBoundary);
           void HandleComms(iolets::InOutLet* iolet);
           geometry::SiteType ioletType;
