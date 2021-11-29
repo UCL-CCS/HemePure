@@ -20,7 +20,13 @@ namespace hemelb
           InOutLetWK();
           virtual ~InOutLetWK();
           virtual InOutLet* Clone() const;
- 
+
+	  bool IsCommsRequired() const {
+		  return true;
+	  }
+
+	  void DoComms(const BoundaryCommunicator& boundaryComm, const LatticeTimeStep timeStep);
+
 	  LatticeDensity GetDensity(unsigned long time_step) const
 	  {
 		  return density;

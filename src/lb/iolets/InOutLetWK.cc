@@ -5,7 +5,7 @@
 // license in the file LICENSE.
 #include "lb/iolets/InOutLetWK.h"
 #include "configuration/SimConfig.h"
-#include "net/IOCommunicator.h"
+#include "lb/iolets/BoundaryComms.h"
 
 namespace hemelb
 {
@@ -28,6 +28,12 @@ namespace hemelb
       {
       }
 
+      void InOutLetWK::DoComms(const BoundaryCommunicator& boundaryComm, const LatticeTimeStep timeStep)
+      {
+	      //Do magic
+	      //1. determine which rank has the centre of outlet
+	      //2. distribute density from centre rank to others
+      }
 
       distribn_t InOutLetWK::GetDistance(const LatticePosition& x) const
       {
