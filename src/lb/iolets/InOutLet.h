@@ -101,7 +101,7 @@ namespace hemelb
            * Carry out communication necessary
            * @param isIoProcess Is the process the master process?
            */
-          virtual void DoComms(const BoundaryCommunicator& bcComms, const LatticeTimeStep timeStep);
+          virtual void DoComms(const BoundaryCommunicator& boundaryComm, const LatticeTimeStep timeStep);
 
           /***
            * Set up the Iolet.

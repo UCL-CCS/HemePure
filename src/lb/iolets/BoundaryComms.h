@@ -31,6 +31,10 @@ namespace hemelb
           void Send(distribn_t* density);
           void Receive(distribn_t* density);
 
+          int GetNumProcs() const
+          {
+            return nProcs;
+          }
           const std::vector<int>& GetListOfProcs() const
           {
             return procsList;

@@ -106,19 +106,16 @@ namespace hemelb
         // Each stores true/false value. True if proc of rank equal to the index contains
         // the given inlet/outlet.
 
-        std::vector<int> processorsNeedingIoletFlags = bcComms.Gather(isIOletOnThisProc, bcComms.GetBCProcRank());
+        std::vector<int> processorsNeedingIoletFlags = bcComms.AllGather(isIOletOnThisProc);
 
-        if (bcComms.IsCurrentProcTheBCProc())
+        // Now we have an array for each IOlet with true (1) at indices corresponding to
+        // processes that are members of that group. We have to convert this into arrays
+        // of ints which store a list of processor ranks.
+        for (proc_t process = 0; process < processorsNeedingIoletFlags.size(); ++process)
         {
-          // Now we have an array for each IOlet with true (1) at indices corresponding to
-          // processes that are members of that group. We have to convert this into arrays
-          // of ints which store a list of processor ranks.
-          for (proc_t process = 0; process < processorsNeedingIoletFlags.size(); ++process)
+          if (processorsNeedingIoletFlags[process])
           {
-            if (processorsNeedingIoletFlags[process])
-            {
-              processorsNeedingIoletList.push_back(process);
-            }
+            processorsNeedingIoletList.push_back(process);
           }
         }
 
@@ -149,7 +146,7 @@ namespace hemelb
         {
           if (GetLocalIolet(i)->IsCommsRequired())
           {
-            GetLocalIolet(i)->GetComms()->FinishSend();
+            //GetLocalIolet(i)->GetComms()->FinishSend();
           }
         }
       }
@@ -160,7 +157,7 @@ namespace hemelb
         {
           if (GetLocalIolet(i)->IsCommsRequired())
           {
-            GetLocalIolet(i)->GetComms()->Wait();
+            //GetLocalIolet(i)->GetComms()->Wait();
           }
         }
       }
@@ -172,7 +169,7 @@ namespace hemelb
           GetLocalIolet(i)->Reset(*state);
           if (GetLocalIolet(i)->IsCommsRequired())
           {
-            GetLocalIolet(i)->GetComms()->WaitAllComms();
+            //GetLocalIolet(i)->GetComms()->WaitAllComms();
 
           }
         }
