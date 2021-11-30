@@ -41,6 +41,9 @@ namespace hemelb
 
         distribn_t ConvertResistanceToLatticeUnits(const distribn_t& r) const;
         distribn_t ConvertResistanceToPhysicalUnits(const distribn_t& r) const;
+        
+	distribn_t ConvertCapacitanceToLatticeUnits(const distribn_t& r) const;
+        distribn_t ConvertCapacitanceToPhysicalUnits(const distribn_t& r) const;
 
         /**
          * Convert stress from physical to lattice units, using any rank of tensor

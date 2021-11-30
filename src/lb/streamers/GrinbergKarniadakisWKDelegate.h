@@ -42,6 +42,7 @@ namespace hemelb
 #endif						
 						distribn_t Ptm1;
 						double R0 = wkIolet->GetRwk();	
+						double C0 = wkIolet->GetCwk();	
 					        
 						Ptm1 = (wkIolet->GetDensity(iolet.GetTimeStep())-1.0)*Cs2;
 						
@@ -71,7 +72,7 @@ namespace hemelb
 
 						// Set the density at the "ghost" site to be the density prediceted by the 2-element WK.
 						//distribn_t ghostDensity_new = ((R0/(1.0 + 0.3/lbmParams->GetTimeStep()))*(scaleFactor*std::abs(component) + 0.3*Ptm1/(lbmParams->GetTimeStep()*R0)))/Cs2 + 1.0;
-						distribn_t C0 = 1000.1/R0;
+						//distribn_t C0 = 1000.1/R0;
 						//distribn_t ghostDensity_new = ((R0/(1.0 + R0*C0/lbmParams->GetTimeStep()))*(scaleFactor*std::abs(component) + C0*Ptm1/(lbmParams->GetTimeStep())))/Cs2 + 1.0;
 						//
 						//as we are in LU here, dt is 1

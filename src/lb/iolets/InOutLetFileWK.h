@@ -108,6 +108,15 @@ namespace hemelb
 	  {
 		  rwk = r;
 	  }
+	  
+	  const distribn_t& GetCwk() const
+	  {
+		  return cwk;
+          }
+	  void SetCwk(const distribn_t c)
+	  {
+		  cwk = c;
+	  }
 
           bool useWeightsFromFile;
 
@@ -116,6 +125,7 @@ namespace hemelb
 	private:
           LatticeDistance radius;
           distribn_t rwk;
+          distribn_t cwk;
           distribn_t area;
           LatticeDensity density;
           LatticeDensity densityMean;

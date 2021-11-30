@@ -102,10 +102,19 @@ namespace hemelb
 		  rwk = r;
 	  }
 
+	  const distribn_t& GetCwk() const
+	  {
+		  return cwk;
+          }
+	  void SetCwk(const distribn_t c)
+	  {
+		  cwk = c;
+	  }
 
         private:
           LatticeDistance radius;
           distribn_t rwk;
+          distribn_t cwk;
           LatticeDensity density;
           LatticeDensity densityMean;
           LatticeDensity densityAmp;

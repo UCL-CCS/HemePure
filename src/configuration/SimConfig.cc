@@ -673,6 +673,10 @@ namespace hemelb
 		      GetDimensionalValue(conditionEl.GetChildOrThrow("R"), "kg/m^4*s", tempR1WK);
 		      newIolet->SetRwk(unitConverter->ConvertResistanceToLatticeUnits(tempR1WK));
 
+		      distribn_t tempC1WK;
+		      GetDimensionalValue(conditionEl.GetChildOrThrow("C"), "m^4*s^2/kg", tempC1WK);
+		      newIolet->SetCwk(unitConverter->ConvertCapacitanceToLatticeUnits(tempC1WK));
+
 		      const io::xml::Element radiusEl = conditionEl.GetChildOrThrow("radius");
 		      newIolet->SetRadius(GetDimensionalValueInLatticeUnits<LatticeDistance>(radiusEl, "m"));
 
@@ -695,6 +699,10 @@ namespace hemelb
 		      distribn_t tempR1WK;
 		      GetDimensionalValue(conditionEl.GetChildOrThrow("R"), "kg/m^4*s", tempR1WK);
 		      newIolet->SetRwk(unitConverter->ConvertResistanceToLatticeUnits(tempR1WK));
+
+		      distribn_t tempC1WK;
+		      GetDimensionalValue(conditionEl.GetChildOrThrow("C"), "m^4*s^2/kg", tempC1WK);
+		      newIolet->SetCwk(unitConverter->ConvertCapacitanceToLatticeUnits(tempC1WK));
 
 		      distribn_t tempArea;
 		      GetDimensionalValue(conditionEl.GetChildOrThrow("area"), "m^2", tempArea);

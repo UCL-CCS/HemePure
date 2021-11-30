@@ -107,6 +107,16 @@ namespace hemelb
     {
       return r * (BLOOD_DENSITY_Kg_per_m3/(latticeTime*latticeDistance));
     }
+    
+    distribn_t UnitConverter::ConvertCapacitanceToLatticeUnits(const distribn_t& r) const
+    {
+      return r * (BLOOD_DENSITY_Kg_per_m3/(latticeTime*latticeTime*latticeDistance));
+    }
+    
+    distribn_t UnitConverter::ConvertCapacitanceToPhysicalUnits(const distribn_t& r) const
+    {
+      return r * ((latticeTime*latticeTime*latticeDistance)/BLOOD_DENSITY_Kg_per_m3);
+    }
 
 
   }
