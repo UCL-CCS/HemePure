@@ -33,25 +33,41 @@ namespace hemelb
         const int localRank = boundaryComm.Rank();
         const int nProcs = comms->GetNumProcs();
         const std::vector<int> procsList = comms->GetListOfProcs();
-        printf("localRank: %d, nProcs: %d, first proc: %d\n", localRank, nProcs, procsList[0]);
+        const int centreRank = comms->GetCentreRank();
         for (int proc = 0; proc < nProcs; proc++)
         {
-          printf("localRank: %d, proc: %d, procsList[proc]: %d\n", localRank, proc, procsList[proc]);
+          //printf("localRank: %d, proc: %d, procsList[proc]: %d\n", localRank, proc, procsList[proc]);
         }
 
+        if (nProcs == 1) return;
+
+        LatticeDensity density_new = density;
         MPI_Request *sendRequest, receiveRequest;
 
-        if (localRank == procsList[0])
+        if (localRank != centreRank && localRank != 0)
+        {
+          HEMELB_MPI_CALL(
+            MPI_Irecv, (
+              &density,
+              1,
+              net::MpiDataType(density),
+              centreRank,
+              100,
+              boundaryComm,
+              &receiveRequest
+            )
+          );
+        }
+        else if (localRank == centreRank)
         {
           sendRequest = new MPI_Request[nProcs];
-
           for (int proc = 0; proc < nProcs; proc++)
           {
             HEMELB_MPI_CALL(
               MPI_Isend, (
-                &density,
+                &density_new,
                 1,
-                net::MpiDataType(density),
+                net::MpiDataType(density_new),
                 procsList[proc],
                 901,
                 boundaryComm,
@@ -68,26 +84,14 @@ namespace hemelb
 
           if (timeStep % 1 == 0){
             for (int proc = 0; proc < nProcs; proc++){
-              printf("Time: %d, proc %d sent density of %.15lf to proc %d\n", timeStep, localRank, density, procsList[proc]);
+              printf("Time: %d, proc %d sent density of %.15lf to proc %d\n", timeStep, localRank, density_new, procsList[proc]);
             }
           }
-
         }
 
-        if (!boundaryComm.IsCurrentProcTheBCProc()) // BCProc is not contained in the procsList
+        if (localRank != centreRank && localRank != 0)
         {
-
-          HEMELB_MPI_CALL(
-            MPI_Irecv, (
-              &density,
-              1,
-              net::MpiDataType(density),
-              procsList[0],
-              901,
-              boundaryComm,
-              &receiveRequest
-            )
-          );
+          printf("Before Wait in DoComms by rank %d\n", localRank);
 
           HEMELB_MPI_CALL(
             MPI_Wait, (&receiveRequest, MPI_STATUS_IGNORE)
