@@ -70,6 +70,7 @@ namespace hemelb
 
         // Clear up
         delete[] procsList;
+        delete[] centreList;
 
         hemelb::log::Logger::Log<hemelb::log::Debug, hemelb::log::OnePerCore>("BOUNDARYVALUES.CC - ioletCount: %d", localIoletCount);
 
