@@ -47,10 +47,6 @@ namespace hemelb
           {
             return iolets;
           }
-          unsigned int GetTotalIoletCount()
-          {
-            return totalIoletCount;
-          }
           iolets::InOutLet* GetLocalIolet(unsigned int index)
           {
             return iolets[localIoletIDs[index]];

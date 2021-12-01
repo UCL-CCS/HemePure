@@ -21,6 +21,10 @@ namespace hemelb
           BoundaryCommunicator(const net::MpiCommunicator& parent);
           bool IsCurrentProcTheBCProc() const;
           int GetBCProcRank() const;
+          void SetBCProcRank(int rank);
+
+        private:
+          int BCProc;
       };
     }
   }

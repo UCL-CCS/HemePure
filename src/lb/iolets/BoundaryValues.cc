@@ -47,7 +47,7 @@ namespace hemelb
 
           // With information on whether a proc has an IOlet and the list of procs for each IOlte
           // on the BC task we can create the comms
-          if (isIOletOnThisProc || bcComms.IsCurrentProcTheBCProc())
+          if (isIOletOnThisProc)
           {
             localIoletCount++;
             localIoletIDs.push_back(ioletIndex);
@@ -57,7 +57,7 @@ namespace hemelb
             {
 		    // Here we assume that an iolet has a single rank holding the centre. If more than one rank is valid we pass the 
 		    // first one from the centreList and the other(s) remain as slaves to this one...
-              iolet->SetComms(new BoundaryComms(state, procsList[ioletIndex], centreList[ioletIndex][0], bcComms, isIOletOnThisProc));	
+              iolet->SetComms(new BoundaryComms(state, procsList[ioletIndex], centreList[ioletIndex][0], bcComms));	
 	    }
 	  }
 //std::cout << "Proc, iolet, isonproc, proclist length, centrelist length, centreproc: " << comms.Rank() << ", " << ioletIndex << ", " << isIOletOnThisProc << ", " << procsList[ioletIndex].size() << ", " << centreList[ioletIndex].size() << ", " << centreList[ioletIndex][0] << std::endl;
