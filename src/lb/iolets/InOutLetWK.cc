@@ -14,7 +14,7 @@ namespace hemelb
     namespace iolets
     {
       InOutLetWK::InOutLetWK() :
-          InOutLet(), radius(1.0), rwk(1.0), density(1.0)
+          InOutLet(), radius(1.0), rwk(1.0), cwk(1.0), density(1.0)
       {
       }
 
