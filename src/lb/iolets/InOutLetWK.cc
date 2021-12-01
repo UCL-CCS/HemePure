@@ -30,72 +30,12 @@ namespace hemelb
 
       void InOutLetWK::DoComms(const BoundaryCommunicator& boundaryComm, const LatticeTimeStep timeStep)
       {
-        const int localRank = boundaryComm.Rank();
-        const int nProcs = comms->GetNumProcs();
-        const std::vector<int> procsList = comms->GetListOfProcs();
-        printf("localRank: %d, nProcs: %d, first proc: %d\n", localRank, nProcs, procsList[0]);
-        for (int proc = 0; proc < nProcs; proc++)
-        {
-          printf("localRank: %d, proc: %d, procsList[proc]: %d\n", localRank, proc, procsList[proc]);
-        }
+        if (comms->GetNumProcs() == 1) return;
 
-        MPI_Request *sendRequest, receiveRequest;
-
-        if (localRank == procsList[0])
-        {
-          sendRequest = new MPI_Request[nProcs];
-
-          for (int proc = 0; proc < nProcs; proc++)
-          {
-            HEMELB_MPI_CALL(
-              MPI_Isend, (
-                &density,
-                1,
-                net::MpiDataType(density),
-                procsList[proc],
-                901,
-                boundaryComm,
-                &sendRequest[proc]
-              )
-            );
-          }
-
-          HEMELB_MPI_CALL(
-            MPI_Waitall, (nProcs, sendRequest, MPI_STATUS_IGNORE)
-          );
-
-          delete[] sendRequest;
-
-          if (timeStep % 1 == 0){
-            for (int proc = 0; proc < nProcs; proc++){
-              printf("Time: %d, proc %d sent density of %.15lf to proc %d\n", timeStep, localRank, density, procsList[proc]);
-            }
-          }
-
-        }
-
-        if (!boundaryComm.IsCurrentProcTheBCProc()) // BCProc is not contained in the procsList
-        {
-
-          HEMELB_MPI_CALL(
-            MPI_Irecv, (
-              &density,
-              1,
-              net::MpiDataType(density),
-              procsList[0],
-              901,
-              boundaryComm,
-              &receiveRequest
-            )
-          );
-
-          HEMELB_MPI_CALL(
-            MPI_Wait, (&receiveRequest, MPI_STATUS_IGNORE)
-          );
-          
-          if (timeStep % 1 == 0)
-            printf("Time: %d, proc %d received density of %.15lf\n", timeStep, localRank, density);
-        }
+        LatticeDensity density_new = density;
+        comms->Receive(&density);
+        comms->Send(&density_new);
+        comms->WaitAllComms();
       }
 
       distribn_t InOutLetWK::GetDistance(const LatticePosition& x) const
