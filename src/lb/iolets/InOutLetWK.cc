@@ -4,8 +4,8 @@
 // file AUTHORS. This software is provided under the terms of the
 // license in the file LICENSE.
 #include "lb/iolets/InOutLetWK.h"
+#include "lb/iolets/BoundaryComms.h"
 #include "configuration/SimConfig.h"
-#include "net/IOCommunicator.h"
 
 namespace hemelb
 {
@@ -28,6 +28,15 @@ namespace hemelb
       {
       }
 
+      void InOutLetWK::DoComms(const BoundaryCommunicator& boundaryComm, const LatticeTimeStep timeStep)
+      {
+        if (comms->GetNumProcs() == 1) return;
+
+        LatticeDensity density_new = density;
+        comms->Receive(&density);
+        comms->Send(&density_new);
+        comms->WaitAllComms();
+      }
 
       distribn_t InOutLetWK::GetDistance(const LatticePosition& x) const
       {

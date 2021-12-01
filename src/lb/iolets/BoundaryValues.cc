@@ -27,6 +27,7 @@ namespace hemelb
             state(simulationState), unitConverter(units), bcComms(comms)
       {
         std::vector<int> *procsList = new std::vector<int>[totalIoletCount];
+        std::vector<int> *centreList = new std::vector<int>[totalIoletCount];
 
         // Determine which iolets need comms and create them
         for (int ioletIndex = 0; ioletIndex < totalIoletCount; ioletIndex++)
@@ -39,31 +40,39 @@ namespace hemelb
           iolets.push_back(iolet);
 
           bool isIOletOnThisProc = IsIOletOnThisProc(ioletType, latticeData, ioletIndex);
+          bool isIOletCentreOnThisProc = IsIOletCentreOnThisProc(iolet, latticeData);
           hemelb::log::Logger::Log<hemelb::log::Debug, hemelb::log::OnePerCore>("BOUNDARYVALUES.CC - isioletonthisproc? : %d", isIOletOnThisProc);
           procsList[ioletIndex] = GatherProcList(isIOletOnThisProc);
+          centreList[ioletIndex] = GatherProcList(isIOletCentreOnThisProc);
 
           // With information on whether a proc has an IOlet and the list of procs for each IOlte
           // on the BC task we can create the comms
-          if (isIOletOnThisProc || bcComms.IsCurrentProcTheBCProc())
+          if (isIOletOnThisProc)
           {
             localIoletCount++;
             localIoletIDs.push_back(ioletIndex);
-//            hemelb::log::Logger::Log<hemelb::log::Warning, hemelb::log::OnePerCore>("BOUNDARYVALUES.H - ioletIndex: %d", ioletIndex);
+            hemelb::log::Logger::Log<hemelb::log::Debug, hemelb::log::OnePerCore>("BOUNDARYVALUES.CC - ioletIndex: %d", ioletIndex);
 
-//            if (iolet->IsCommsRequired()) //DEREK: POTENTIAL MULTISCALE ISSUE (this if-statement)
-//            {
-              iolet->SetComms(new BoundaryComms(state, procsList[ioletIndex], bcComms, isIOletOnThisProc));
-//            }
-          }
-        }
+            if (iolet->IsCommsRequired()) //DEREK: POTENTIAL MULTISCALE ISSUE (this if-statement)
+            {
+		    // Here we assume that an iolet has a single rank holding the centre. If more than one rank is valid we pass the 
+		    // first one from the centreList and the other(s) remain as slaves to this one...
+              iolet->SetComms(new BoundaryComms(state, procsList[ioletIndex], centreList[ioletIndex][0], bcComms));	
+	    }
+	  }
+//std::cout << "Proc, iolet, isonproc, proclist length, centrelist length, centreproc: " << comms.Rank() << ", " << ioletIndex << ", " << isIOletOnThisProc << ", " << procsList[ioletIndex].size() << ", " << centreList[ioletIndex].size() << ", " << centreList[ioletIndex][0] << std::endl;
+
+	}
+
 
         // Send out initial values
         Reset();
 
         // Clear up
         delete[] procsList;
+        delete[] centreList;
 
-        hemelb::log::Logger::Log<hemelb::log::Debug, hemelb::log::OnePerCore>("BOUNDARYVALUES.H - ioletCount: %d, first iolet ID %d", localIoletCount, localIoletIDs[0]);
+        hemelb::log::Logger::Log<hemelb::log::Debug, hemelb::log::OnePerCore>("BOUNDARYVALUES.CC - ioletCount: %d", localIoletCount);
 
       }
 
@@ -90,7 +99,27 @@ namespace hemelb
           }
         }
 
-        return true;
+        return false;
+      }
+      
+      bool BoundaryValues::IsIOletCentreOnThisProc(iolets::InOutLet* iolet,
+                                             geometry::LatticeData* latticeData)
+      {
+        LatticePosition ioletCentre = iolet->GetPosition();
+        const hemelb::util::Vector3D<site_t> iCen = hemelb::util::Vector3D<site_t>(ioletCentre);
+        
+	for (site_t i = 0; i < latticeData->GetLocalFluidSiteCount(); i++)
+        {
+		const geometry::Site<geometry::LatticeData> site = latticeData->GetSite(i);
+      		const hemelb::util::Vector3D<site_t> siteLoc = site.GetGlobalSiteCoords(); 
+
+          if (siteLoc.IsInRange(iCen+hemelb::util::Vector3D<site_t>(-1.0), iCen+hemelb::util::Vector3D<site_t>(1.0)))
+          {
+//		  std::cout << "iolet " << ioletCentre[0] << "," << ioletCentre[1] << "," << ioletCentre[2] << " on rank " << bcComms.Rank() << std::endl;
+            return true;
+          }
+        }
+        return false;
       }
 
       std::vector<int> BoundaryValues::GatherProcList(bool hasBoundary)
@@ -106,19 +135,16 @@ namespace hemelb
         // Each stores true/false value. True if proc of rank equal to the index contains
         // the given inlet/outlet.
 
-        std::vector<int> processorsNeedingIoletFlags = bcComms.Gather(isIOletOnThisProc, bcComms.GetBCProcRank());
+        std::vector<int> processorsNeedingIoletFlags = bcComms.AllGather(isIOletOnThisProc);
 
-        if (bcComms.IsCurrentProcTheBCProc())
+        // Now we have an array for each IOlet with true (1) at indices corresponding to
+        // processes that are members of that group. We have to convert this into arrays
+        // of ints which store a list of processor ranks.
+        for (proc_t process = 0; process < processorsNeedingIoletFlags.size(); ++process)
         {
-          // Now we have an array for each IOlet with true (1) at indices corresponding to
-          // processes that are members of that group. We have to convert this into arrays
-          // of ints which store a list of processor ranks.
-          for (proc_t process = 0; process < processorsNeedingIoletFlags.size(); ++process)
+          if (processorsNeedingIoletFlags[process])
           {
-            if (processorsNeedingIoletFlags[process])
-            {
-              processorsNeedingIoletList.push_back(process);
-            }
+            processorsNeedingIoletList.push_back(process);
           }
         }
 
@@ -149,7 +175,7 @@ namespace hemelb
         {
           if (GetLocalIolet(i)->IsCommsRequired())
           {
-            GetLocalIolet(i)->GetComms()->FinishSend();
+            //GetLocalIolet(i)->GetComms()->FinishSend();
           }
         }
       }
@@ -160,7 +186,7 @@ namespace hemelb
         {
           if (GetLocalIolet(i)->IsCommsRequired())
           {
-            GetLocalIolet(i)->GetComms()->Wait();
+            //GetLocalIolet(i)->GetComms()->Wait();
           }
         }
       }
@@ -172,7 +198,7 @@ namespace hemelb
           GetLocalIolet(i)->Reset(*state);
           if (GetLocalIolet(i)->IsCommsRequired())
           {
-            GetLocalIolet(i)->GetComms()->WaitAllComms();
+            //GetLocalIolet(i)->GetComms()->WaitAllComms();
 
           }
         }

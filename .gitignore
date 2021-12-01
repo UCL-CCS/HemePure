@@ -1,7 +1,8 @@
 *.ignore
 *.ignore/
-build/
+build*/
 dep/src/loadbalancing*
 fluidAndLinks*
 install/
 results/
+__pycache__/

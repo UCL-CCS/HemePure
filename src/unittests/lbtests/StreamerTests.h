@@ -801,7 +801,7 @@ namespace hemelb
               const Direction chosenIoletDirection =
                   lb::lattices::D3Q15::INVERSEDIRECTIONS[chosenUnstreamedDirection];
               const util::Vector3D<distribn_t> ioletNormal =
-                  inletBoundary.GetLocalIolet(chosenBoundaryId)->GetNormal();
+                  inletBoundary.GetIolets()[chosenBoundaryId]->GetNormal();
 
               // Enforce that there's a boundary in the iolet direction.
               latDat->SetHasIolet(chosenSite, chosenIoletDirection);
@@ -916,7 +916,7 @@ namespace hemelb
               const Direction chosenIoletDirection =
                   lb::lattices::D3Q15::INVERSEDIRECTIONS[chosenUnstreamedDirection];
               const util::Vector3D<distribn_t> ioletNormal =
-                  inletBoundary.GetLocalIolet(chosenBoundaryId)->GetNormal();
+                  inletBoundary.GetIolets()[chosenBoundaryId]->GetNormal();
 
               // Enforce that there's a boundary in the iolet direction.
               latDat->SetHasIolet(chosenSite, chosenIoletDirection);
