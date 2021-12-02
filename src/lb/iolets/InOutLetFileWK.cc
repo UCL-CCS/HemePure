@@ -33,7 +33,7 @@ namespace hemelb
       {
       }
 
-      void InOutLetWK::DoComms(const BoundaryCommunicator& boundaryComm, const LatticeTimeStep timeStep)
+      void InOutLetFileWK::DoComms(const BoundaryCommunicator& boundaryComm, const LatticeTimeStep timeStep)
       {
         if (comms->GetNumProcs() == 1) return;
 
