@@ -2,7 +2,7 @@
 <hemelbsettings version="3">
   <simulation>
     <step_length units="s" value="2e-06"/>
-    <steps units="lattice" value="15000"/>
+    <steps units="lattice" value="1000"/>
     <stresstype value="1"/>
     <voxel_size units="m" value="2e-05"/>
     <origin units="m" value="(0.0,0.0,0.0)"/>
@@ -36,7 +36,8 @@
     <outlet>
       <!-- index value=0 -->
       <condition subtype="GKmodel" type="windkessel">
-        <R units="kg/m^4*s" value="1e11"/>
+        <R units="kg/m^4*s" value="1e10"/>
+	<C units="m^4*s^2/kg" value="2e-13"/>
         <radius units="m" value="2e-4"/>
       </condition>
       <normal units="dimensionless" value="(0.866025,-2.7027e-11,0.5)"/>
@@ -45,7 +46,8 @@
     <outlet>
       <!-- index value=1 -->
       <condition subtype="GKmodel" type="windkessel">
-        <R units="kg/m^4*s" value="2e11"/>
+        <R units="kg/m^4*s" value="2e10"/>
+	<C units="m^4*s^2/kg" value="1e-13"/>
         <radius units="m" value="2e-4"/>
       </condition>
       <normal units="dimensionless" value="(2.06435e-11,-2.48225e-10,-1)"/>
@@ -54,7 +56,8 @@
     <outlet>
       <!-- index value=2 -->
       <condition subtype="GKmodel" type="windkessel">
-        <R units="kg/m^4*s" value="3e11"/>
+        <R units="kg/m^4*s" value="3e10"/>
+	<C units="m^4*s^2/kg" value="6.66666666666666666667e-14"/>
         <radius units="m" value="2e-4"/>
       </condition>
       <normal units="dimensionless" value="(-1.16783e-12,-6.89079e-12,1)"/>
@@ -63,7 +66,8 @@
     <outlet>
       <!-- index value=3 -->
       <condition subtype="GKmodel" type="windkessel">
-        <R units="kg/m^4*s" value="4e11"/>
+        <R units="kg/m^4*s" value="4e10"/>
+	<C units="m^4*s^2/kg" value="5e-14"/>
         <radius units="m" value="2e-4"/>
       </condition>
       <normal units="dimensionless" value="(-0.866025,-2.69401e-11,-0.5)"/>
@@ -72,7 +76,8 @@
     <outlet>
       <!-- index value=4 -->
       <condition subtype="GKmodel" type="windkessel">
-        <R units="kg/m^4*s" value="5e11"/>
+        <R units="kg/m^4*s" value="5e10"/>
+	<C units="m^4*s^2/kg" value="4e-14"/>
         <radius units="m" value="2e-4"/>
       </condition>
       <normal units="dimensionless" value="(-0.866025,-2.68425e-11,0.5)"/>
@@ -86,7 +91,7 @@
      <field type="velocity" />
      <field type="pressure" />
    </propertyoutput>
-   <propertyoutput file="outlet.dat" period="500">
+   <propertyoutput file="outlet.dat" period="1000">
      <geometry type="outlet" />
      <field type="velocity" />
      <field type="pressure" />
@@ -97,7 +102,7 @@
      <field type="velocity" />
      <field type="pressure" />
    </propertyoutput>
-   <propertyoutput file="planeY.dat" period="500">
+   <propertyoutput file="planeY.dat" period="1000">
      <geometry type="plane" >
 	<normal units="dimensionless" value="(0.0,1.0,0.0)" />
        	<point units="m" value="(0.0,0.00026,0.0)" />
