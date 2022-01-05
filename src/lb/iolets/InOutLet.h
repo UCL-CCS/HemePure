@@ -172,6 +172,20 @@ namespace hemelb
           }
 
           /**
+           * Set the site ID of the centre of the InOutlet
+           * @param siteID
+           */
+          void SetCentreSiteID(const site_t& siteID)
+          {
+            centreSiteID = siteID;
+          }
+
+          site_t GetCentreSiteID() const
+          {
+            return centreSiteID;
+          }
+
+          /**
            * Set the minimum density throughout the simulation.
            * @param minSimDensity
            */
@@ -194,6 +208,7 @@ namespace hemelb
           LatticeDensity minimumSimulationDensity;
           LatticePosition position;
           util::Vector3D<Dimensionless> normal;
+          site_t centreSiteID;
           BoundaryComms* comms;
           IoletExtraData* extraData;
           friend class IoletExtraData;

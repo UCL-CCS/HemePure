@@ -67,7 +67,7 @@ namespace hemelb
 						distribn_t component = (hydroVars.momentum / hydroVars.density).Dot(ioletNormal); 						
 						distribn_t ghostDensity = wkIolet->GetDensity(iolet.GetTimeStep());
 
-						if (distance < 1.0)
+						if (site.GetIndex() == wkIolet->GetCentreSiteID())
 						{
 
 						// Set the density at the "ghost" site to be the density prediceted by the 2-element WK.
@@ -80,12 +80,13 @@ namespace hemelb
 						//distribn_t ghostDensity_new = ((R0/(1.0 + R0*C0))*(scaleFactor*std::abs(component) + C0*Ptm1))/Cs2 + 1.0;
 						
 						wkIolet->SetDensityNew(ghostDensity_new);
-						}
 
-if (iolet.GetTimeStep()%50==0&&distance<1.0) //(sitePos.x==7 && sitePos.y==13 && sitePos.z==240)||(sitePos.x==193&&sitePos.y==13&&sitePos.z==131)))
+if (iolet.GetTimeStep()%50==0) //(sitePos.x==7 && sitePos.y==13 && sitePos.z==240)||(sitePos.x==193&&sitePos.y==13&&sitePos.z==131)))
 {
-	std::cout << "Step Num, x, scalefactor, velocity, R, Ptm1, ghostDensity :" << iolet.GetTimeStep() << "," << sitePos.x << "," << scaleFactor << "," << std::abs(component) << "," << R0 << "," << Ptm1 << "," << ghostDensity << std::endl;
+	//std::cout << "Step Num, x, scalefactor, velocity, R, Ptm1, ghostDensity :" << iolet.GetTimeStep() << "," << sitePos.x << "," << scaleFactor << "," << std::abs(component) << "," << R0 << "," << Ptm1 << "," << ghostDensity << std::endl;
+	//printf("Time: %d, boundaryId: %d, sitePos: (%.1lf %.1lf %.1lf), scaleFactor: %.2lf, ghostDensity_new: %lf\n", iolet.GetTimeStep(), boundaryId, sitePos.x, sitePos.y, sitePos.z, scaleFactor, ghostDensity_new);
 }	
+						}
 
 						// TODO it's ugly that we have to do this.
 						// TODO having to give 0 as an argument is also ugly.

@@ -105,17 +105,19 @@ namespace hemelb
       bool BoundaryValues::IsIOletCentreOnThisProc(iolets::InOutLet* iolet,
                                              geometry::LatticeData* latticeData)
       {
-        LatticePosition ioletCentre = iolet->GetPosition();
-        const hemelb::util::Vector3D<site_t> iCen = hemelb::util::Vector3D<site_t>(ioletCentre);
+        const LatticePosition centre = iolet->GetPosition();
+        const LatticePosition lower = centre - LatticePosition(1.0);
+        const LatticePosition upper = centre + LatticePosition(1.0);
         
 	for (site_t i = 0; i < latticeData->GetLocalFluidSiteCount(); i++)
         {
 		const geometry::Site<geometry::LatticeData> site = latticeData->GetSite(i);
-      		const hemelb::util::Vector3D<site_t> siteLoc = site.GetGlobalSiteCoords(); 
+      		const LatticePosition sitePos(site.GetGlobalSiteCoords()); 
 
-          if (siteLoc.IsInRange(iCen+hemelb::util::Vector3D<site_t>(-1.0), iCen+hemelb::util::Vector3D<site_t>(1.0)))
+          if (sitePos.IsInRange(lower, upper))
           {
-//		  std::cout << "iolet " << ioletCentre[0] << "," << ioletCentre[1] << "," << ioletCentre[2] << " on rank " << bcComms.Rank() << std::endl;
+            iolet->SetCentreSiteID(i);
+            //printf("centreSiteID: %ld, sitePos: (%.1lf %.1lf %.1lf)\n", i, sitePos.x, sitePos.y, sitePos.z);
             return true;
           }
         }
