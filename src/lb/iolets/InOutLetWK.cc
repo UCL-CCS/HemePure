@@ -14,7 +14,7 @@ namespace hemelb
     namespace iolets
     {
       InOutLetWK::InOutLetWK() :
-          InOutLet(), radius(1.0), rwk(1.0), cwk(1.0), density(1.0)
+          InOutLet(), radius(1.0), rwk(1.0), cwk(1.0), density(1.0), densityNew(1.0)
       {
       }
 
@@ -32,9 +32,8 @@ namespace hemelb
       {
         if (comms->GetNumProcs() == 1) return;
 
-        LatticeDensity density_new = density;
         comms->Receive(&density);
-        comms->Send(&density_new);
+        comms->Send(&densityNew);
         comms->WaitAllComms();
       }
 

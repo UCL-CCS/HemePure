@@ -40,12 +40,12 @@ namespace hemelb
 	  
 	  LatticeDensity GetDensityNew(unsigned long time_step) const
 	  {
-		  return density;
+		  return densityNew;
 	  }
 
 	  void SetDensityNew(const LatticeDensity& d)
 	  {
-		  density = d;
+		  densityNew = d;
 	  }
  
 
@@ -123,6 +123,7 @@ namespace hemelb
           distribn_t rwk;
           distribn_t cwk;
           LatticeDensity density;
+          LatticeDensity densityNew;
           LatticeDensity densityMean;
           LatticeDensity densityAmp;
 
