@@ -39,11 +39,11 @@ namespace hemelb
         distribn_t ConvertAreaToLatticeUnits(const distribn_t& r) const;
         distribn_t ConvertAreaToPhysicalUnits(const distribn_t& r) const;
 
-        distribn_t ConvertResistanceToLatticeUnits(const distribn_t& r) const;
-        distribn_t ConvertResistanceToPhysicalUnits(const distribn_t& r) const;
+        distribn_t ConvertResistanceToLatticeUnits(const distribn_t& R) const;
+        distribn_t ConvertResistanceToPhysicalUnits(const distribn_t& R) const;
         
-	distribn_t ConvertCapacitanceToLatticeUnits(const distribn_t& r) const;
-        distribn_t ConvertCapacitanceToPhysicalUnits(const distribn_t& r) const;
+        distribn_t ConvertCapacitanceToLatticeUnits(const distribn_t& C) const;
+        distribn_t ConvertCapacitanceToPhysicalUnits(const distribn_t& C) const;
 
         /**
          * Convert stress from physical to lattice units, using any rank of tensor

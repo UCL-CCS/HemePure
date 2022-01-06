@@ -14,7 +14,8 @@ namespace hemelb
     namespace iolets
     {
       InOutLetWK::InOutLetWK() :
-          InOutLet(), radius(1.0), rwk(1.0), cwk(1.0), density(1.0)
+          InOutLet(), density(1.0), densityNew(1.0), radius(1.0),
+          resistance(1.0), capacitance(1.0)
       {
       }
 
@@ -32,29 +33,26 @@ namespace hemelb
       {
         if (comms->GetNumProcs() == 1) return;
 
-        LatticeDensity density_new = density;
         comms->Receive(&density);
-        comms->Send(&density_new);
+        comms->Send(&densityNew);
         comms->WaitAllComms();
       }
 
-      distribn_t InOutLetWK::GetDistance(const LatticePosition& x) const
+      LatticeDistance InOutLetWK::GetDistance(const LatticePosition& x) const
       {
         LatticePosition displ = x - position;
         LatticeDistance z = displ.Dot(normal);
-
-	return std::sqrt(displ.GetMagnitudeSquared() - z * z);
+        return std::sqrt(displ.GetMagnitudeSquared() - z * z);
       }
-	      
-      distribn_t InOutLetWK::GetQtScaleFactor(const LatticePosition& x) const
+
+      distribn_t InOutLetWK::GetScaleFactor(const LatticePosition& x) const
       {
         // Q = vLocal (0.5pi a**2)(a**2/(a**2 - r**2)
         // where r is the distance from the centreline
-	// a is the radius of the circular iolet
+        // a is the radius of the circular iolet
         LatticePosition displ = x - position;
         LatticeDistance z = displ.Dot(normal);
         Dimensionless rFactor = (radius * radius)/(radius * radius - (displ.GetMagnitudeSquared() - z * z) );
-
         return 0.5 * PI * radius * radius * rFactor;
       }
     }

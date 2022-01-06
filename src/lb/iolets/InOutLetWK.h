@@ -28,104 +28,85 @@ namespace hemelb
 
           void DoComms(const BoundaryCommunicator& boundaryComm, const LatticeTimeStep timeStep);
 
-	  LatticeDensity GetDensity(unsigned long time_step) const
-	  {
-		  return density;
-	  }
+          virtual LatticeDensity GetDensityMin() const
+          {
+            //pass;
+          }
 
-	  void SetDensity(const LatticeDensity& d)
-	  {
-		  density = d;
-	  }
-	  
-	  LatticeDensity GetDensityNew(unsigned long time_step) const
-	  {
-		  return density;
-	  }
+          virtual LatticeDensity GetDensityMax() const
+          {
+            //pass;
+          }
 
-	  void SetDensityNew(const LatticeDensity& d)
-	  {
-		  density = d;
-	  }
- 
+          LatticeDensity GetDensity(LatticeTimeStep time_step) const
+          {
+            return density;
+          }
+
+          void SetDensity(const LatticeDensity& d)
+          {
+            density = d;
+          }
+          
+          LatticeDensity GetDensityNew(LatticeTimeStep time_step) const
+          {
+            return densityNew;
+          }
+
+          void SetDensityNew(const LatticeDensity& d)
+          {
+            densityNew = d;
+          }
 
           virtual void Reset(SimulationState &state)
           {
             //pass;
           }
           
-	  /**
+	        /**
            * Note that the radius and max speed for these are specified in LATTICE UNITS in the XML file.
            * This is indeed a horrible hack.
            * @return
            */
-          
-	  const LatticeDistance& GetRadius() const
+          const LatticeDistance& GetRadius() const
           {
             return radius;
           }
+          
           void SetRadius(const LatticeDistance& r)
           {
             radius = r;
           }
-
-          const LatticeDensity& GetDensityMean() const
-          {
-            return densityMean;
-          }
-          void SetDensityMean(const LatticeDensity& rho)
-          {
-            densityMean = rho;
-          }
-
-          const LatticeDensity& GetDensityAmp() const
-          {
-            return densityAmp;
-          }
-          void SetDensityAmp(const LatticeDensity& rho)
-          {
-            densityAmp = rho;
-          }
-          
-	  LatticeDensity GetDensityMin() const
-          {
-            return (densityMean - densityAmp);
-          }
-          LatticeDensity GetDensityMax() const
-          {
-            return (densityMean + densityAmp);
-          }
         
-	  distribn_t GetQtScaleFactor(const LatticePosition& x) const;
-	  
-	  distribn_t GetDistance(const LatticePosition& x) const;
-	  
-	  const distribn_t& GetRwk() const
-	  {
-		  return rwk;
+          virtual distribn_t GetScaleFactor(const LatticePosition& x) const;
+          
+          LatticeDistance GetDistance(const LatticePosition& x) const;
+          
+          const distribn_t& GetResistance() const
+          {
+            return resistance;
           }
-	  void SetRwk(const distribn_t r)
-	  {
-		  rwk = r;
-	  }
 
-	  const distribn_t& GetCwk() const
-	  {
-		  return cwk;
+          void SetResistance(const distribn_t& R)
+          {
+            resistance = R;
           }
-	  void SetCwk(const distribn_t c)
-	  {
-		  cwk = c;
-	  }
 
-        private:
+          const distribn_t& GetCapacitance() const
+          {
+            return capacitance;
+          }
+
+          void SetCapacitance(const distribn_t& C)
+          {
+            capacitance = C;
+          }
+
+        protected:
+          LatticeDensity density, densityNew;
           LatticeDistance radius;
-          distribn_t rwk;
-          distribn_t cwk;
-          LatticeDensity density;
-          LatticeDensity densityMean;
-          LatticeDensity densityAmp;
-
+          distribn_t resistance;
+          distribn_t capacitance;
       };
     }
   }

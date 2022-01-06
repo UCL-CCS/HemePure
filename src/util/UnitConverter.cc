@@ -98,24 +98,24 @@ namespace hemelb
       return r * (latticeDistance*latticeDistance);
     }
     
-    distribn_t UnitConverter::ConvertResistanceToLatticeUnits(const distribn_t& r) const
+    distribn_t UnitConverter::ConvertResistanceToLatticeUnits(const distribn_t& R) const
     {
-      return r * ((latticeTime*latticeDistance)/BLOOD_DENSITY_Kg_per_m3);
+      return R * ((latticeTime*latticeDistance)/BLOOD_DENSITY_Kg_per_m3);
     }
     
-    distribn_t UnitConverter::ConvertResistanceToPhysicalUnits(const distribn_t& r) const
+    distribn_t UnitConverter::ConvertResistanceToPhysicalUnits(const distribn_t& R) const
     {
-      return r * (BLOOD_DENSITY_Kg_per_m3/(latticeTime*latticeDistance));
+      return R * (BLOOD_DENSITY_Kg_per_m3/(latticeTime*latticeDistance));
     }
     
-    distribn_t UnitConverter::ConvertCapacitanceToLatticeUnits(const distribn_t& r) const
+    distribn_t UnitConverter::ConvertCapacitanceToLatticeUnits(const distribn_t& C) const
     {
-      return r * (BLOOD_DENSITY_Kg_per_m3/(latticeTime*latticeTime*latticeDistance));
+      return C * (BLOOD_DENSITY_Kg_per_m3/(latticeTime*latticeTime*latticeDistance));
     }
     
-    distribn_t UnitConverter::ConvertCapacitanceToPhysicalUnits(const distribn_t& r) const
+    distribn_t UnitConverter::ConvertCapacitanceToPhysicalUnits(const distribn_t& C) const
     {
-      return r * ((latticeTime*latticeTime*latticeDistance)/BLOOD_DENSITY_Kg_per_m3);
+      return C * ((latticeTime*latticeTime*latticeDistance)/BLOOD_DENSITY_Kg_per_m3);
     }
 
 

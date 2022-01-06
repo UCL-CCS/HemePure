@@ -235,9 +235,9 @@ namespace hemelb
         lb::iolets::InOutLetCosine* DoIOForCosinePressureInOutlet(const io::xml::Element& ioletEl);
         lb::iolets::InOutLetFile* DoIOForFilePressureInOutlet(const io::xml::Element& ioletEl);
         
-	lb::iolets::InOutLet* DoIOForWindkesselPressureInOutlet(const io::xml::Element& ioletEl);
-	lb::iolets::InOutLetWK* DoIOForGrinbergKarniadakisWKInOutlet(const io::xml::Element& ioletEl);
-	lb::iolets::InOutLetFileWK* DoIOForFileGrinbergKarniadakisWKInOutlet(const io::xml::Element& ioletEl);
+        lb::iolets::InOutLet* DoIOForWindkesselPressureInOutlet(const io::xml::Element& ioletEl);
+        lb::iolets::InOutLetWK* DoIOForGrinbergKarniadakisWKInOutlet(const io::xml::Element& ioletEl);
+        lb::iolets::InOutLetFileWK* DoIOForFileGrinbergKarniadakisWKInOutlet(const io::xml::Element& ioletEl);
 
         lb::iolets::InOutLet* DoIOForVelocityInOutlet(const io::xml::Element& ioletEl);
         lb::iolets::InOutLetParabolicVelocity* DoIOForParabolicVelocityInOutlet(
