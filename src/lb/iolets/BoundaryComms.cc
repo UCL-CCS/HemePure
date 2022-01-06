@@ -17,7 +17,7 @@ namespace hemelb
     {
 
       BoundaryComms::BoundaryComms(SimulationState* iSimState, std::vector<int> &iProcsList, int centreRank, const BoundaryCommunicator& boundaryComm) :
-          nProcs((int) iProcsList.size()), procsList(iProcsList), bcComm(boundaryComm), centreRank(centreRank)
+          nProcs((int) iProcsList.size()), procsList(iProcsList), centreRank(centreRank), bcComm(boundaryComm)
       {
         /* iProcsList contains the procs containing said Boundary/iolet, but NOT proc 0! */
         // Let centreRank be the BoundaryControlling/BC proc

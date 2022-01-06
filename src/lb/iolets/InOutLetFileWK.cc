@@ -19,7 +19,7 @@ namespace hemelb
     namespace iolets
     {
       InOutLetFileWK::InOutLetFileWK() :
-          InOutLet(), radius(1.0), area(1.0), rwk(1.0), cwk(1.0), density(1.0), units(NULL)
+          InOutLetWK(), area(1.0), units(NULL)
       {
       }
 
@@ -32,26 +32,8 @@ namespace hemelb
       InOutLetFileWK::~InOutLetFileWK()
       {
       }
-
-      void InOutLetFileWK::DoComms(const BoundaryCommunicator& boundaryComm, const LatticeTimeStep timeStep)
-      {
-        if (comms->GetNumProcs() == 1) return;
-
-        LatticeDensity density_new = density;
-        comms->Receive(&density);
-        comms->Send(&density_new);
-        comms->WaitAllComms();
-      }
-
-      distribn_t InOutLetFileWK::GetDistance(const LatticePosition& x) const
-      {
-        LatticePosition displ = x - position;
-        LatticeDistance z = displ.Dot(normal);
-
-	return std::sqrt(displ.GetMagnitudeSquared() - z * z);
-      }
 	      
-      distribn_t InOutLetFileWK::GetQtScaleFactor(const LatticePosition& x) const
+      distribn_t InOutLetFileWK::GetScaleFactor(const LatticePosition& x) const
       {
 	/* These absolute normal values can still be negative here,
 	 * but are corrected below to become positive. */

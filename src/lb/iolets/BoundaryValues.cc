@@ -55,15 +55,12 @@ namespace hemelb
 
             if (iolet->IsCommsRequired()) //DEREK: POTENTIAL MULTISCALE ISSUE (this if-statement)
             {
-		    // Here we assume that an iolet has a single rank holding the centre. If more than one rank is valid we pass the 
-		    // first one from the centreList and the other(s) remain as slaves to this one...
+              // Here we assume that an iolet has a single rank holding the centre. If more than one rank is valid we pass the 
+              // first one from the centreList and the other(s) remain as slaves to this one...
               iolet->SetComms(new BoundaryComms(state, procsList[ioletIndex], centreList[ioletIndex][0], bcComms));	
-	    }
-	  }
-//std::cout << "Proc, iolet, isonproc, proclist length, centrelist length, centreproc: " << comms.Rank() << ", " << ioletIndex << ", " << isIOletOnThisProc << ", " << procsList[ioletIndex].size() << ", " << centreList[ioletIndex].size() << ", " << centreList[ioletIndex][0] << std::endl;
-
-	}
-
+            }
+          }
+        }
 
         // Send out initial values
         Reset();
@@ -109,15 +106,14 @@ namespace hemelb
         const LatticePosition lower = centre - LatticePosition(1.0);
         const LatticePosition upper = centre + LatticePosition(1.0);
         
-	for (site_t i = 0; i < latticeData->GetLocalFluidSiteCount(); i++)
+        for (site_t i = 0; i < latticeData->GetLocalFluidSiteCount(); i++)
         {
-		const geometry::Site<geometry::LatticeData> site = latticeData->GetSite(i);
-      		const LatticePosition sitePos(site.GetGlobalSiteCoords()); 
+          const geometry::Site<geometry::LatticeData> site = latticeData->GetSite(i);
+          const LatticePosition sitePos(site.GetGlobalSiteCoords()); 
 
           if (sitePos.IsInRange(lower, upper))
           {
             iolet->SetCentreSiteID(i);
-            //printf("centreSiteID: %ld, sitePos: (%.1lf %.1lf %.1lf)\n", i, sitePos.x, sitePos.y, sitePos.z);
             return true;
           }
         }
@@ -163,12 +159,10 @@ namespace hemelb
 
       void BoundaryValues::HandleComms(iolets::InOutLet* iolet)
       {
-
         if (iolet->IsCommsRequired())
         {
           iolet->DoComms(bcComms, state->GetTimeStep());
         }
-
       }
 
       void BoundaryValues::EndIteration()
@@ -201,7 +195,6 @@ namespace hemelb
           if (GetLocalIolet(i)->IsCommsRequired())
           {
             //GetLocalIolet(i)->GetComms()->WaitAllComms();
-
           }
         }
       }

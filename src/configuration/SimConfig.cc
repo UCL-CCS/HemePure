@@ -314,12 +314,12 @@ namespace hemelb
 		      if (conditionSubtype == "GKmodel")
 		      {
 		        CheckIoletMatchesCMake(ioletEl, "GRINBERGKARNIADAKISWKIOLET");
-			newIolet = DoIOForGrinbergKarniadakisWKInOutlet(ioletEl);
+		        newIolet = DoIOForGrinbergKarniadakisWKInOutlet(ioletEl);
 		      }
 		      else if (conditionSubtype == "fileGKmodel")
 		      {
 		        CheckIoletMatchesCMake(ioletEl, "GRINBERGKARNIADAKISWKIOLET");
-			newIolet = DoIOForFileGrinbergKarniadakisWKInOutlet(ioletEl);
+		        newIolet = DoIOForFileGrinbergKarniadakisWKInOutlet(ioletEl);
 		      }
 		      else
 		      {
@@ -669,13 +669,13 @@ namespace hemelb
 
 		      const io::xml::Element conditionEl = ioletEl.GetChildOrThrow("condition");
 
-		      distribn_t tempR1WK;
-		      GetDimensionalValue(conditionEl.GetChildOrThrow("R"), "kg/m^4*s", tempR1WK);
-		      newIolet->SetRwk(unitConverter->ConvertResistanceToLatticeUnits(tempR1WK));
+		      distribn_t tempR;
+		      GetDimensionalValue(conditionEl.GetChildOrThrow("R"), "kg/m^4*s", tempR);
+		      newIolet->SetResistance(unitConverter->ConvertResistanceToLatticeUnits(tempR));
 
-		      distribn_t tempC1WK;
-		      GetDimensionalValue(conditionEl.GetChildOrThrow("C"), "m^4*s^2/kg", tempC1WK);
-		      newIolet->SetCwk(unitConverter->ConvertCapacitanceToLatticeUnits(tempC1WK));
+		      distribn_t tempC;
+		      GetDimensionalValue(conditionEl.GetChildOrThrow("C"), "m^4*s^2/kg", tempC);
+		      newIolet->SetCapacitance(unitConverter->ConvertCapacitanceToLatticeUnits(tempC));
 
 		      const io::xml::Element radiusEl = conditionEl.GetChildOrThrow("radius");
 		      newIolet->SetRadius(GetDimensionalValueInLatticeUnits<LatticeDistance>(radiusEl, "m"));
@@ -696,13 +696,13 @@ namespace hemelb
 		      wkFilePath = util::NormalizePathRelativeToPath(wkFilePath, xmlFilePath);
 		      newIolet->SetFilePath(wkFilePath);
 
-		      distribn_t tempR1WK;
-		      GetDimensionalValue(conditionEl.GetChildOrThrow("R"), "kg/m^4*s", tempR1WK);
-		      newIolet->SetRwk(unitConverter->ConvertResistanceToLatticeUnits(tempR1WK));
+		      distribn_t tempR;
+		      GetDimensionalValue(conditionEl.GetChildOrThrow("R"), "kg/m^4*s", tempR);
+		      newIolet->SetResistance(unitConverter->ConvertResistanceToLatticeUnits(tempR));
 
-		      distribn_t tempC1WK;
-		      GetDimensionalValue(conditionEl.GetChildOrThrow("C"), "m^4*s^2/kg", tempC1WK);
-		      newIolet->SetCwk(unitConverter->ConvertCapacitanceToLatticeUnits(tempC1WK));
+		      distribn_t tempC;
+		      GetDimensionalValue(conditionEl.GetChildOrThrow("C"), "m^4*s^2/kg", tempC);
+		      newIolet->SetCapacitance(unitConverter->ConvertCapacitanceToLatticeUnits(tempC));
 
 		      distribn_t tempArea;
 		      GetDimensionalValue(conditionEl.GetChildOrThrow("area"), "m^2", tempArea);

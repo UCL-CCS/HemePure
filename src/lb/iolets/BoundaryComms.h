@@ -52,14 +52,11 @@ namespace hemelb
           // This is necessary to support BC proc having fluid sites
           bool hasBoundary;
 
-          // These are only assigned on the BC proc as it is the only one that needs to know
-          // which proc has which IOlet
           int nProcs;
           std::vector<int> procsList;
-          BoundaryCommunicator bcComm;
+          int centreRank; //The rank that contains the centre site of the iolet
 
-	  //The rank that contains the centre site of the iolet
-	  int centreRank;
+          BoundaryCommunicator bcComm;
 
           MPI_Request *sendRequest;
           MPI_Status *sendStatus;
