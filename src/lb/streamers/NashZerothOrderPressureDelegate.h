@@ -40,7 +40,7 @@ namespace hemelb
 						distribn_t ghostDensity = iolet.GetBoundaryDensity(boundaryId);
 
 						// Calculate the velocity at the ghost site, as the component normal to the iolet.
-						util::Vector3D<float> ioletNormal = iolet.GetLocalIolet(boundaryId)->GetNormal();
+						util::Vector3D<float> ioletNormal = iolet.GetIolets()[boundaryId]->GetNormal();
 
 						// Note that the division by density compensates for the fact that v_x etc have momentum
 						// not velocity.

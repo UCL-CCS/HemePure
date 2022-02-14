@@ -11,7 +11,7 @@ namespace hemelb
   {
     namespace iolets
     {
-      void InOutLet::DoComms(const BoundaryCommunicator& bcComms, const LatticeTimeStep timeStep)
+      void InOutLet::DoComms(const BoundaryCommunicator& boundaryComm, const LatticeTimeStep timeStep)
       {
         // pass
       }

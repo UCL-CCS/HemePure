@@ -201,6 +201,16 @@ namespace hemelb
         typedef typename streamers::LaddIolet<Collision>::Type Type;
     };
 
+     /**
+     * Our 2-element Windkessel based on Grinberg and Karniadakis and Nash BC for iolets
+     */
+    template<class Collision>
+    class GRINBERGKARNIADAKISWKIOLET
+    {
+      public:
+        typedef typename streamers::GrinbergKarniadakisWKIolet<Collision>::Type Type;
+    };
+    
     /**
      * The following classes have names corresponding to the options given in the build system for
      * HEMELB_WALL_INLET_BOUNDARY / HEMELB_WALL_OUTLET_BOUNDARY
@@ -225,6 +235,16 @@ namespace hemelb
     };
 
     /**
+     * G+K in/outlet + SBB
+     */
+    template<class Collision>
+    class GRINBERGKARNIADAKISWKSBB
+    {
+      public:
+        typedef typename streamers::GrinbergKarniadakisWKIoletSBB<Collision>::Type Type;
+    };
+
+    /**
      * Nash in/outlet + BFL
      */
     template<class Collision>
@@ -243,6 +263,16 @@ namespace hemelb
         typedef typename streamers::LaddIoletBFL<Collision>::Type Type;
     };
     
+    /**
+     * G+K in/outlet + BFL
+     */
+    template<class Collision>
+    class GRINBERGKARNIADAKISWKBFL
+    {
+      public:
+        typedef typename streamers::GrinbergKarniadakisWKIoletBFL<Collision>::Type Type;
+    };
+
     /**
      * Nash in/outlet + GZS
      */

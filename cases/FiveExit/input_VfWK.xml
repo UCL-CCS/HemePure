@@ -1,0 +1,114 @@
+<?xml version="1.0"?>
+<hemelbsettings version="3">
+  <simulation>
+    <step_length units="s" value="1e-05"/>
+    <steps units="lattice" value="15000"/>
+    <stresstype value="1"/>
+    <voxel_size units="m" value="2e-05"/>
+    <origin units="m" value="(0.0,0.0,0.0)"/>
+  </simulation>
+ <geometry>
+    <datafile path="SixBranch.gmy"/>
+  </geometry>
+  <initialconditions>
+    <pressure>
+      <uniform units="mmHg" value="0.0"/>
+    </pressure>
+  </initialconditions>
+  <monitoring>
+    <incompressibility/>
+  </monitoring>
+
+  <inlets>
+    <inlet>
+      <!-- index value=0-->
+      <condition subtype="file" type="velocity">
+        <radius value="2.08e-4" units="m"/>
+        <path value="inletProfile.txt"/>
+        <!--pressure_gradient_amplitude value="27.5" units="mmHg/m"/>
+        <period value="0.062832" units="s"/>
+        <womersley_number value="1" units="dimensionless"/-->
+      </condition>
+      <normal units="dimensionless" value="(0.866025,-2.70088e-11,-0.5)"/>
+      <position units="lattice" value="(8.02016,13.0403,123.482)"/>
+    </inlet>
+  </inlets>
+  <outlets>
+    <outlet>
+      <!-- index value=0 -->
+      <condition subtype="GKmodel" type="windkessel">
+        <R units="kg/m^4*s" value="6e10"/>
+        <C units="m^4*s^2/kg" value="5e-13"/>
+        <radius units="m" value="2e-4"/>
+      </condition>
+      <normal units="dimensionless" value="(0.866025,-2.7027e-11,0.5)"/>
+      <position units="lattice" value="(8.02016,13.0403,73.2765)"/>
+    </outlet>
+    <outlet>
+      <!-- index value=1 -->
+      <condition subtype="GKmodel" type="windkessel">
+        <R units="kg/m^4*s" value="8e10"/>
+        <C units="m^4*s^2/kg" value="3.75e-13"/>
+        <radius units="m" value="2e-4"/>
+      </condition>
+      <normal units="dimensionless" value="(2.06435e-11,-2.48225e-10,-1)"/>
+      <position units="lattice" value="(51.4991,13.0403,148.584)"/>
+    </outlet>
+    <outlet>
+      <!-- index value=2 -->
+      <condition subtype="GKmodel" type="windkessel">
+        <R units="kg/m^4*s" value="12e10"/>
+        <C units="m^4*s^2/kg" value="2.5e-13"/>
+        <radius units="m" value="2e-4"/>
+      </condition>
+      <normal units="dimensionless" value="(-1.16783e-12,-6.89079e-12,1)"/>
+      <position units="lattice" value="(51.4991,13.0403,3)"/>
+    </outlet>
+    <outlet>
+      <!-- index value=3 -->
+      <condition subtype="GKmodel" type="windkessel">
+        <R units="kg/m^4*s" value="6e10"/>
+        <C units="m^4*s^2/kg" value="5e-13"/>
+        <radius units="m" value="2e-4"/>
+      </condition>
+      <normal units="dimensionless" value="(-0.866025,-2.69401e-11,-0.5)"/>
+      <position units="lattice" value="(94.978,13.0403,123.482)"/>
+    </outlet>
+    <outlet>
+      <!-- index value=4 -->
+      <condition subtype="GKmodel" type="windkessel">
+        <R units="kg/m^4*s" value="8e10"/>
+        <C units="m^4*s^2/kg" value="3.75e-13"/>
+        <radius units="m" value="2e-4"/>
+      </condition>
+      <normal units="dimensionless" value="(-0.866025,-2.68425e-11,0.5)"/>
+      <position units="lattice" value="(94.978,13.0403,73.2765)"/>
+    </outlet>
+  </outlets>
+
+  <properties>
+   <propertyoutput file="inlet.dat" period="1000">
+     <geometry type="inlet" />
+     <field type="velocity" />
+     <field type="pressure" />
+   </propertyoutput>
+   <propertyoutput file="outlet.dat" period="1000">
+     <geometry type="outlet" />
+     <field type="velocity" />
+     <field type="pressure" />
+   </propertyoutput>
+   <propertyoutput file="whole.dat" period="1000000">
+     <geometry type="whole" />
+     <field type="velocity" />
+     <field type="pressure" />
+   </propertyoutput>
+   <propertyoutput file="planeY.dat" period="1000">
+     <geometry type="plane" >
+	      <normal units="dimensionless" value="(0.0,1.0,0.0)" />
+       	<point units="m" value="(0.0,0.00026,0.0)" />
+     </geometry>
+     <field type="velocity" />
+     <field type="pressure" />
+     </propertyoutput>
+  </properties>
+</hemelbsettings>

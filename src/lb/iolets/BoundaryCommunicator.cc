@@ -24,7 +24,11 @@ namespace hemelb
       }
       int BoundaryCommunicator::GetBCProcRank() const
       {
-        return 0;
+        return BCProc;
+      }
+      void BoundaryCommunicator::SetBCProcRank(int rank)
+      {
+        BCProc = rank;
       }
     }
   }
