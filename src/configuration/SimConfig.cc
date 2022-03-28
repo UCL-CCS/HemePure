@@ -655,8 +655,9 @@ namespace hemelb
 			DoIOForBaseInOutlet(ioletEl, newIolet);
 
 			const io::xml::Element conditionEl = ioletEl.GetChildOrThrow("condition");
-			const io::xml::Element pathEl = conditionEl.GetChildOrThrow("path");
-			newIolet->SetFilePath(pathEl.GetAttributeOrThrow("value"));
+			std::string pathEl = conditionEl.GetChildOrThrow("path").GetAttributeOrThrow("value");
+			pathEl = util::NormalizePathRelativeToPath(pathEl, xmlFilePath);
+			newIolet->SetFilePath(pathEl);
 
 			return newIolet;
 		}
