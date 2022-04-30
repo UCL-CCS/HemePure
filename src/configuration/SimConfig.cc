@@ -261,6 +261,10 @@ namespace hemelb
 				{
 					newIolet = DoIOForPressureInOutlet(currentIoletNode);
 				}
+				else if (conditionType == "yangpressure")
+				{
+					newIolet = DoIOForYangPressureInOutlet(currentIoletNode);
+				}
 				else if (conditionType == "windkessel")
 				{
 					newIolet = DoIOForWindkesselPressureInOutlet(currentIoletNode);
@@ -283,6 +287,30 @@ namespace hemelb
 		{
 			CheckIoletMatchesCMake(ioletEl, "NASHZEROTHORDERPRESSUREIOLET");
 			//CheckIoletMatchesCMake(ioletEl, "NASHZEROTHORDERPRESSUREIOLET_GUOFORCING"); //JM
+			io::xml::Element conditionEl = ioletEl.GetChildOrThrow("condition");
+			const std::string& conditionSubtype = conditionEl.GetAttributeOrThrow("subtype");
+
+			lb::iolets::InOutLet* newIolet = NULL;
+			if (conditionSubtype == "cosine")
+			{
+				newIolet = DoIOForCosinePressureInOutlet(ioletEl);
+			}
+			else if (conditionSubtype == "file")
+			{
+				newIolet = DoIOForFilePressureInOutlet(ioletEl);
+			}
+			else
+			{
+				throw Exception() << "Invalid boundary condition subtype '" << conditionSubtype << "' in "
+					<< ioletEl.GetPath();
+			}
+
+			return newIolet;
+		}
+
+		lb::iolets::InOutLet* SimConfig::DoIOForYangPressureInOutlet(const io::xml::Element& ioletEl)
+		{
+			CheckIoletMatchesCMake(ioletEl, "YANGPRESSUREIOLET");
 			io::xml::Element conditionEl = ioletEl.GetChildOrThrow("condition");
 			const std::string& conditionSubtype = conditionEl.GetAttributeOrThrow("subtype");
 

@@ -190,6 +190,16 @@ namespace hemelb
       public:
         typedef typename streamers::NashZerothOrderPressureIolet<Collision>::Type Type;
     };
+
+    /**
+     * The Yang 2010 pressure boundary condition.
+     */
+    template<class Collision>
+    class YANGPRESSUREIOLET
+    {
+      public:
+        typedef typename streamers::YangPressureIolet<Collision>::Type Type;
+    };
     
     /**
      * The inlet/outlet condition based on Ladd's modified bounce-back on
@@ -226,6 +236,16 @@ namespace hemelb
     };
 
     /**
+     * Yang in/outlet + SBB
+     */
+    template<class Collision>
+    class YANGPRESSURESBB
+    {
+      public:
+        typedef typename streamers::YangPressureIoletSBB<Collision>::Type Type;
+    };
+
+    /**
      * Ladd in/outlet + SBB
      */
     template<class Collision>
@@ -252,6 +272,16 @@ namespace hemelb
     {
       public:
         typedef typename streamers::NashZerothOrderPressureIoletBFL<Collision>::Type Type;
+    };
+
+    /**
+     * Yang in/outlet + BFL
+     */
+    template<class Collision>
+    class YANGPRESSUREBFL
+    {
+      public:
+        typedef typename streamers::YangPressureIoletBFL<Collision>::Type Type;
     };
 
     /**
