@@ -269,8 +269,15 @@ namespace hemelb
          */
         Vector3D& Normalise()
         {
-          (*this) /= GetMagnitude();
-          return *this;
+          if (*this == Zero())
+          {
+            return *this;
+          }
+          else
+          {
+            (*this) /= GetMagnitude();
+            return *this;
+          }
         }
 
         /**
