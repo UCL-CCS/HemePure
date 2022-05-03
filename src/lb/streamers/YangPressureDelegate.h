@@ -209,7 +209,7 @@ namespace hemelb
 						// Calculate the distribution of the unstreamed direction (equation 11)
 						fNew = site.GetFOld<LatticeType>()[unstreamed]
 								+ site.GetFOld<LatticeType>()[direction]
-								+ 2.0 * LatticeType::EQMWEIGHTS[unstreamed] * (densityBC - hVfirstFluid.density)
+								+ 2.0 * LatticeType::EQMWEIGHTS[unstreamed] * (densityBC - hydroVars.density)
 								- hVsecondFluid.GetFPostCollision()[direction];
 					}
 					else
@@ -239,17 +239,7 @@ namespace hemelb
 
 						// Calculate the distribution of the unstreamed direction (equation 17).
 						// Assumption 3 is applied here: A equals 1/tau times the identity matrix.
-						fNew = hVouterWall.GetFEq().f[unstreamed] + fNeqOuterWall * (1.0 - hydroVars.tau);
-/*
-						if (iolet.GetTimeStep() % 50 == 0)
-						{
-							printf("direction %u, fNew %lf, first %lf, second %lf, FEq %lf, density %lf, Uz %lf, firstUz %lf, secondUz %lf, q %lf, corr %lf\n",
-							 direction, fNew, firstFluidFOld[unstreamed], secondFluidFOld[unstreamed],
-							 hVouterWall.GetFEq().f[unstreamed], hVouterWall.density, hVouterWall.momentum.z,
-							 hVfirstFluid.momentum.z, hVsecondFluid.momentum.z, wallDistance,
-							 sqBracket.z);
-						}
-*/
+						fNew = hVouterWall.GetFEq().f[unstreamed] + fNeqOuterWall * (1.0 - 1.0 / hydroVars.tau);
 					}
 
 
@@ -278,12 +268,13 @@ namespace hemelb
 
 					// Direction unstreamed = LatticeType::INVERSEDIRECTIONS[direction];
 
+					distribn_t fOld = ghostHydrovars.GetFEq()[unstreamed];
 					//*latticeData->GetFNew(site.GetIndex() * LatticeType::NUMVECTORS + unstreamed) = ghostHydrovars.GetFEq()[unstreamed];
 					*latticeData->GetFNew(site.GetIndex() * LatticeType::NUMVECTORS + unstreamed) = fNew;
 
 					if (iolet.GetTimeStep() % 50 == 0)
 					{
-						printf("direction %u, Nash %.15lf, Yang %.15lf\n", direction, ghostHydrovars.GetFEq()[unstreamed], fNew);
+						//printf("direction %u, Nash %.15lf, Yang %.15lf, dif %.5lf\n", direction, fOld, fNew, (fNew - fOld)/fOld);
 					}
 				}
 
