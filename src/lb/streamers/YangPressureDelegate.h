@@ -96,18 +96,18 @@ namespace hemelb
 										// Request data from another rank
 										initParams.neighbouringDataManager->RegisterNeededSite(
 											initParams.latDat->GetGlobalNoncontiguousSiteIdFromGlobalCoords(firstFluidSiteLocation));
-										printf("case1 local [%ld %ld %ld], firstFluid [%ld %ld %ld]\n",
-												localSiteLocation.x, localSiteLocation.y, localSiteLocation.z,
-												firstFluidSiteLocation.x, firstFluidSiteLocation.y, firstFluidSiteLocation.z);
+										//printf("case1 local [%ld %ld %ld], firstFluid [%ld %ld %ld]\n",
+										//		localSiteLocation.x, localSiteLocation.y, localSiteLocation.z,
+										//		firstFluidSiteLocation.x, firstFluidSiteLocation.y, firstFluidSiteLocation.z);
 									}
 									if (secondFluidSiteHomeProc != initParams.latDat->GetLocalRank())
 									{
 										// Request data from another rank
 										initParams.neighbouringDataManager->RegisterNeededSite(
 											initParams.latDat->GetGlobalNoncontiguousSiteIdFromGlobalCoords(secondFluidSiteLocation));
-										printf("case1 local [%ld %ld %ld], secondFluid [%ld %ld %ld]\n",
-												localSiteLocation.x, localSiteLocation.y, localSiteLocation.z,
-												secondFluidSiteLocation.x, secondFluidSiteLocation.y, secondFluidSiteLocation.z);
+										//printf("case1 local [%ld %ld %ld], secondFluid [%ld %ld %ld]\n",
+										//		localSiteLocation.x, localSiteLocation.y, localSiteLocation.z,
+										//		secondFluidSiteLocation.x, secondFluidSiteLocation.y, secondFluidSiteLocation.z);
 									}
 								}
 								else
@@ -134,9 +134,9 @@ namespace hemelb
 											// Request data from another rank
 											initParams.neighbouringDataManager->RegisterNeededSite(
 												initParams.latDat->GetGlobalNoncontiguousSiteIdFromGlobalCoords(secondFluidSiteLocation));
-											printf("case2 local [%ld %ld %ld], secondFluid [%ld %ld %ld]\n",
-												localSiteLocation.x, localSiteLocation.y, localSiteLocation.z,
-												secondFluidSiteLocation.x, secondFluidSiteLocation.y, secondFluidSiteLocation.z);
+											//printf("case2 local [%ld %ld %ld], secondFluid [%ld %ld %ld]\n",
+											//	localSiteLocation.x, localSiteLocation.y, localSiteLocation.z,
+											//	secondFluidSiteLocation.x, secondFluidSiteLocation.y, secondFluidSiteLocation.z);
 										}
 									}
 									else
@@ -197,10 +197,9 @@ namespace hemelb
 							dynamic_cast<iolets::InOutLetCosine *>(iolet.GetIolets()[boundaryId]);
 						const distribn_t visc = Cs2 * (hydroVars.tau - 0.5); // kinematic viscosity
 						LatticeDensity densityWall = 3.0 * (cosIolet->GetPressure(iolet.GetTimeStep()) + visc *
-															stress(ioletNormal, hydroVars.tau, fNeqWall));
-						// printf("P %lf, visc %lf, stress %lf\n", cosIolet->GetPressureMean(), visc, stress(ioletNormal, hydroVars.tau, fNeqWall));
+															stress(-ioletNormal, hydroVars.tau, fNeqWall));
 
-						// Interpolate the density at the first fluid site (equation 12)
+						// Interpolate the density at the first fluid site accounting for the BC (equation 12)
 						LatticeDensity densityBC = (densityWall + wallDistance * hVsecondFluid.density) / (1.0 + wallDistance);
 
 						// Calculate the post-collision distributions at the second fluid site
@@ -219,12 +218,11 @@ namespace hemelb
 						kernels::HydroVars<typename CollisionType::CKernel> hVouterWall(fOuterWall);
 
 						// Extrapolate the density and momentum at the outer-neighbour node (equation 18)
-						LatticePosition sqBracket = momentumCorrection(cp, ioletNormal, hydroVars.tau, fNeqWall);
 						hVouterWall.density = 2.0 * hVfirstFluid.density - hVsecondFluid.density;
 						hVouterWall.momentum = (hVfirstFluid.momentum * 4.0 * wallDistance +
 												hVsecondFluid.momentum * (1.0 - 2.0 * wallDistance)
-												- momentumCorrection(cp, ioletNormal, hydroVars.tau, fNeqWall)
-												) / (1.0 + 2.0 * wallDistance);
+												- momentumCorrection(cp, -ioletNormal, hydroVars.tau, fNeqWall)
+											   ) / (1.0 + 2.0 * wallDistance);
 
 						// Calculate the equilibrium distributions
 						LatticeType::CalculateFeq(hVouterWall.density,
@@ -270,7 +268,14 @@ namespace hemelb
 
 					distribn_t fOld = ghostHydrovars.GetFEq()[unstreamed];
 					//*latticeData->GetFNew(site.GetIndex() * LatticeType::NUMVECTORS + unstreamed) = ghostHydrovars.GetFEq()[unstreamed];
-					*latticeData->GetFNew(site.GetIndex() * LatticeType::NUMVECTORS + unstreamed) = fNew;
+					if (unstreamed == dirG)
+					{
+						*latticeData->GetFNew(site.GetIndex() * LatticeType::NUMVECTORS + unstreamed) = fNew;
+					}
+					else
+					{
+						*latticeData->GetFNew(site.GetIndex() * LatticeType::NUMVECTORS + unstreamed) = fNew;
+					}
 
 					if (iolet.GetTimeStep() % 50 == 0)
 					{
@@ -309,8 +314,6 @@ namespace hemelb
 					oppG = LatticeType::INVERSEDIRECTIONS[dirG];
 					// The lattice vector in the direction dirG
 					cg = LatticeVector(LatticeType::CX[dirG], LatticeType::CY[dirG], LatticeType::CZ[dirG]);
-
-					printf("dirG %u\n", dirG);
 				}
 
 				/**
@@ -354,10 +357,6 @@ namespace hemelb
 								latDat->GetSite(latDat->GetContiguousSiteId(firstFluidSiteLocation));
 							firstFluidFOld = firstFluidSite.GetFOld<LatticeType>();
 							firstFluidWallDistance = firstFluidSite.GetWallDistance<LatticeType>(oppG);
-							//printf("local site [%ld %ld %ld], first site [%ld %ld %ld], fOld[2] %lf, wallDist %lf\n",
-							//	localSiteLocation.x, localSiteLocation.y, localSiteLocation.z,
-							//	firstFluidSiteLocation.x, firstFluidSiteLocation.y, firstFluidSiteLocation.z,
-							//	firstFluidFOld[2], firstFluidWallDistance);
 						}
 						else
 						{
@@ -366,8 +365,6 @@ namespace hemelb
 									latDat->GetGlobalNoncontiguousSiteIdFromGlobalCoords(firstFluidSiteLocation));
 							firstFluidFOld = firstFluidSite.GetFOld<LatticeType>();
 							firstFluidWallDistance = firstFluidSite.GetWallDistance<LatticeType>(oppG);
-							printf("Get data from first site [%ld %ld %ld]\n",
-								firstFluidSiteLocation.x, firstFluidSiteLocation.y, firstFluidSiteLocation.z);
 						}
 
 						if (secondFluidSiteHomeProc == latDat->GetLocalRank())
@@ -382,8 +379,6 @@ namespace hemelb
 								secondFluidSite = neighbouringLatticeData.GetSite(
 									latDat->GetGlobalNoncontiguousSiteIdFromGlobalCoords(secondFluidSiteLocation));
 							secondFluidFOld = secondFluidSite.GetFOld<LatticeType>();
-							printf("Get data from second site [%ld %ld %ld]\n",
-								secondFluidSiteLocation.x, secondFluidSiteLocation.y, secondFluidSiteLocation.z);
 						}
 					}
 					else
@@ -391,8 +386,6 @@ namespace hemelb
 						// The first fluid site is the local site
 						firstFluidFOld = site.GetFOld<LatticeType>();
 						firstFluidWallDistance = site.GetWallDistance<LatticeType>(i);
-						printf("dirP: local site [%ld %ld %ld]\n",
-							firstFluidSiteLocation.x, firstFluidSiteLocation.y, firstFluidSiteLocation.z);
 
 						const Direction dirP = LatticeType::INVERSEDIRECTIONS[i];
 						cp = LatticeVector(LatticeType::CX[dirP],
@@ -407,8 +400,6 @@ namespace hemelb
 							geometry::Site<geometry::LatticeData> secondFluidSite =
 								latDat->GetSite(latDat->GetContiguousSiteId(secondFluidSiteLocation));
 							secondFluidFOld = secondFluidSite.GetFOld<LatticeType>();
-							printf("dirP: second site [%ld %ld %ld]\n",
-								secondFluidSiteLocation.x, secondFluidSiteLocation.y, secondFluidSiteLocation.z);
 						}
 						else
 						{
@@ -416,8 +407,6 @@ namespace hemelb
 								secondFluidSite = neighbouringLatticeData.GetSite(
 									latDat->GetGlobalNoncontiguousSiteIdFromGlobalCoords(secondFluidSiteLocation));
 							secondFluidFOld = secondFluidSite.GetFOld<LatticeType>();
-							printf("dirP: Get data from second site [%ld %ld %ld]\n",
-								secondFluidSiteLocation.x, secondFluidSiteLocation.y, secondFluidSiteLocation.z);
 						}
 					}
 				}
@@ -427,13 +416,13 @@ namespace hemelb
 				 */
 				inline distribn_t B_k(const Direction k, const LatticePosition s)
 				{
-					const LatticePosition vecC = LatticePosition(LatticeType::CXD[k],
-																 LatticeType::CYD[k],
-																 LatticeType::CZD[k]);
-					distribn_t sc2 = s.Dot(vecC);
+					const LatticePosition ck = LatticePosition(LatticeType::CXD[k],
+															   LatticeType::CYD[k],
+															   LatticeType::CZD[k]);
+					distribn_t sc2 = s.Dot(ck);
 					sc2 *= sc2;
 					const distribn_t s2 = s.GetMagnitudeSquared();
-					const distribn_t c2 = vecC.GetMagnitudeSquared();
+					const distribn_t c2 = ck.GetMagnitudeSquared();
 					return (sc2 - s2 * c2 / 3.0) / (2.0 * Cs2);
 				}
 
@@ -466,11 +455,10 @@ namespace hemelb
 				 * This function calculates the value of gamma_1 in equation 19.
 				 */
 				inline distribn_t gamma1(const LatticePosition tanVec,
-										 const LatticePosition cp,
+										 const distribn_t tanComp,
 										 const distribn_t tau,
 										 const distribn_t *const fNeq)
 				{
-					distribn_t tanComp = cp.Dot(tanVec);
 					return 2.0 * tanComp * stress(tanVec, tau, fNeq);
 				}
 
@@ -495,11 +483,8 @@ namespace hemelb
 					LatticePosition tanVec = tangentialVector(cp, normal);
 					distribn_t tanComp = cp.Dot(tanVec);
 					distribn_t normalComp = cp.Dot(normal);
-					distribn_t g1 = gamma1(tanVec, cp, tau, fNeq);
+					distribn_t g1 = gamma1(tanVec, tanComp, tau, fNeq);
 					distribn_t g2 = gamma2(cp, tau, fNeq);
-					//printf("Vx %lf, Vy %lf, Vz %lf, tan %lf normal %lf g1 %lf g2 %lf\n",
-					//tanVec.x, tanVec.y, tanVec.z,
-					//tanComp, normalComp, g1, g2);
 					return tanVec * g1 + normal * (g2 - tanComp * g1) / normalComp;
 				}
 
