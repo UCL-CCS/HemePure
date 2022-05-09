@@ -314,6 +314,16 @@ namespace hemelb
     };
 
     /**
+     * Yang in/outlet + GZS
+     */
+    template<class Collision>
+    class YANGPRESSUREGZS
+    {
+      public:
+        typedef typename streamers::YangPressureIoletGZS<Collision>::Type Type;
+    };
+
+    /**
      * Ladd in/outlet + GZS
      */
     template<class Collision>
@@ -333,7 +343,17 @@ namespace hemelb
     };
 
     /**
-     * Ladd in/outlet + GZS
+     * Yang in/outlet + GZSElastic
+     */
+    template<class Collision>
+    class YANGPRESSUREGZSE
+    {
+      public:
+        typedef typename streamers::YangPressureIoletGZSE<Collision>::Type Type;
+    };
+
+    /**
+     * Ladd in/outlet + GZSElastic
      */
     template<class Collision>
     struct LADDIOLETGZSE

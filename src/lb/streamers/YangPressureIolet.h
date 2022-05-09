@@ -38,6 +38,20 @@ namespace hemelb
               YangPressureDelegate<CollisionType> > Type;
       };
 
+      template<class CollisionType>
+      struct YangPressureIoletGZS
+      {
+          typedef WallIoletStreamerTypeFactory<CollisionType, GuoZhengShiDelegate<CollisionType> ,
+              YangPressureDelegate<CollisionType> > Type;
+      };
+
+      template<class CollisionType>
+      struct YangPressureIoletGZSE
+      {
+          typedef WallIoletStreamerTypeFactory<CollisionType, GuoZhengShiElasticWallDelegate<CollisionType> ,
+              YangPressureDelegate<CollisionType> > Type;
+      };
+
     }
   }
 }
