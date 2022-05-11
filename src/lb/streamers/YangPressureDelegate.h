@@ -23,9 +23,10 @@ namespace hemelb
 			 *
 			 * The following assumptions are applied to simplify the implementation.
 			 * 1. The iolet plane is straight rather than curved.
-			 * 2. All solid nodes beyond the iolet have two neighbouring fluid sites in either
-			 *    the unstreamed direction or the direction given by the mapping G.
+			 * 2. All solid nodes beyond the iolet have two neighbouring fluid sites
+			 *    in a certain lattice direction.
 			 * 3. The collision kernel adopts a single relaxation time.
+			 * 4. There is only one inlet and one outlet in each rank. (To be relaxed.)
 			 */
 			template <typename CollisionImpl>
 			class YangPressureDelegate : public BaseStreamerDelegate<CollisionImpl>
@@ -40,7 +41,7 @@ namespace hemelb
 					iolet(*initParams.boundaryObject)
 				{
 
-					// std::cout << "rank " << initParams.latDat->GetLocalRank() << " siteCount " << initParams.siteCount << " localIoletCount " << initParams.boundaryObject->GetLocalIoletCount() << " ioletType " << initParams.boundaryObject->GetIoletType() << std::endl;
+					std::cout << "rank " << initParams.latDat->GetLocalRank() << " siteCount " << initParams.siteCount << " localIoletCount " << initParams.boundaryObject->GetLocalIoletCount() << " ioletType " << initParams.boundaryObject->GetIoletType() << std::endl;
 
 					// Loop over each site this streamer is responsible for, as specified in siteRanges.
 					for (std::vector<std::pair<site_t, site_t>>::iterator rangeIt =
@@ -54,99 +55,83 @@ namespace hemelb
 								initParams.latDat->GetSite(localIndex);
 							const LatticeVector &localSiteLocation = localSite.GetGlobalSiteCoords();
 
-							// Find the lattice vector described by the mapping G.
-							// Due to assumption 1, this direction is the same for all sites in this iolet.
-							// Therefore, only the first site is concerned in this search.
+							/**
+							 * Sort the lattice directions in an ascending order based on their allignment to
+							 * the iolet normal vector. Due to assumption 1, these directions are the same for
+							 * all sites linked to the same iolet. Therefore, only the first site is concerned.
+							 * (Currently assumption 4 is applied, but it will be relaxed.)
+							 */
 							if (localIndex == rangeIt->first)
-								FindDirectionG(localSite.GetIoletId());
+							{
+								SortDirectionsAlignToIOletNormal(localSite.GetIoletId());
+								dirG = dirs[0]; // the direction described by the mapping G
+								cg = LatticeVector(LatticeType::CX[dirG], LatticeType::CY[dirG], LatticeType::CZ[dirG]);
+							}
 
 							// Ensure the data of the two fluid sites is available.
 							for (Direction i = 1; i < LatticeType::NUMVECTORS; ++i)
 							{
 								/**
-								 *  First attempt:
-								 * Taking one step from the current site in the current direction, i, gives
-								 * the wall (iolet) node. Taking a further step in the direction given by the
-								 * mapping G gives the first fluid site. Taking one more step in this direction
+								 * Taking one step from the current site in the current direction, i, gives an
+								 * outer-neighbour (solid) node. Taking a further step in the direction mapped
+								 * by P gives the first fluid site. Taking one more step in this direction
 								 * gives the second fluid site.
 								 */
 
 								// Skip if there is no iolet in this direction
-								if (!localSite.HasIolet(i))
-									continue;
+								if (!localSite.HasIolet(i)) continue;
 
 								const LatticeVector ci = LatticeVector(LatticeType::CX[i],
 																	   LatticeType::CY[i],
 																	   LatticeType::CZ[i]);
+								const LatticeVector solidSiteLocation = localSiteLocation + ci;
 
-								const LatticeVector firstFluidSiteLocation = localSiteLocation + ci + cg;
-								proc_t firstFluidSiteHomeProc =
-									initParams.latDat->GetProcIdFromGlobalCoords(firstFluidSiteLocation);
-
-								LatticeVector secondFluidSiteLocation = firstFluidSiteLocation + cg;
-								proc_t secondFluidSiteHomeProc =
-									initParams.latDat->GetProcIdFromGlobalCoords(secondFluidSiteLocation);
-
-								// If any of these sites is outside the fluid domain, use the seoncd approach.
-								if (firstFluidSiteHomeProc != SITE_OR_BLOCK_SOLID &&
-									secondFluidSiteHomeProc != SITE_OR_BLOCK_SOLID)
+								Direction j = 0, dirP = dirs[0];
+								do
 								{
-									if (firstFluidSiteHomeProc != initParams.latDat->GetLocalRank())
-									{
-										// Request data from another rank
-										initParams.neighbouringDataManager->RegisterNeededSite(
-											initParams.latDat->GetGlobalNoncontiguousSiteIdFromGlobalCoords(firstFluidSiteLocation));
-										//printf("case1 local [%ld %ld %ld], firstFluid [%ld %ld %ld]\n",
-										//		localSiteLocation.x, localSiteLocation.y, localSiteLocation.z,
-										//		firstFluidSiteLocation.x, firstFluidSiteLocation.y, firstFluidSiteLocation.z);
-									}
-									if (secondFluidSiteHomeProc != initParams.latDat->GetLocalRank())
-									{
-										// Request data from another rank
-										initParams.neighbouringDataManager->RegisterNeededSite(
-											initParams.latDat->GetGlobalNoncontiguousSiteIdFromGlobalCoords(secondFluidSiteLocation));
-										//printf("case1 local [%ld %ld %ld], secondFluid [%ld %ld %ld]\n",
-										//		localSiteLocation.x, localSiteLocation.y, localSiteLocation.z,
-										//		secondFluidSiteLocation.x, secondFluidSiteLocation.y, secondFluidSiteLocation.z);
-									}
-								}
-								else
-								{
-									/**
-									 *  Second attempt:
-									 * Choose the current site to be the first fluid site and the neighbour
-									 * site in the direction opposite to i to be the second fluid site.
-									 */
-
-									const Direction dirP = LatticeType::INVERSEDIRECTIONS[i];
 									const LatticeVector cp = LatticeVector(LatticeType::CX[dirP],
 																		   LatticeType::CY[dirP],
 																		   LatticeType::CZ[dirP]);
 
-									secondFluidSiteLocation = localSiteLocation + cp;
-									secondFluidSiteHomeProc =
+									const LatticeVector firstFluidSiteLocation = solidSiteLocation + cp;
+									proc_t firstFluidSiteHomeProc =
+										initParams.latDat->GetProcIdFromGlobalCoords(firstFluidSiteLocation);
+
+									const LatticeVector secondFluidSiteLocation = firstFluidSiteLocation + cp;
+									proc_t secondFluidSiteHomeProc =
 										initParams.latDat->GetProcIdFromGlobalCoords(secondFluidSiteLocation);
 
-									if (secondFluidSiteHomeProc != SITE_OR_BLOCK_SOLID)
+									if (firstFluidSiteHomeProc != SITE_OR_BLOCK_SOLID &&
+										secondFluidSiteHomeProc != SITE_OR_BLOCK_SOLID)
 									{
+										if (firstFluidSiteHomeProc != initParams.latDat->GetLocalRank())
+										{
+											// Request data from another rank
+											initParams.neighbouringDataManager->RegisterNeededSite(
+												initParams.latDat->GetGlobalNoncontiguousSiteIdFromGlobalCoords(firstFluidSiteLocation));
+										}
 										if (secondFluidSiteHomeProc != initParams.latDat->GetLocalRank())
 										{
 											// Request data from another rank
 											initParams.neighbouringDataManager->RegisterNeededSite(
 												initParams.latDat->GetGlobalNoncontiguousSiteIdFromGlobalCoords(secondFluidSiteLocation));
-											//printf("case2 local [%ld %ld %ld], secondFluid [%ld %ld %ld]\n",
-											//	localSiteLocation.x, localSiteLocation.y, localSiteLocation.z,
-											//	secondFluidSiteLocation.x, secondFluidSiteLocation.y, secondFluidSiteLocation.z);
 										}
+										//printf("site [%ld %ld %ld], dirG %u, dirP %u\n", localSiteLocation.x, localSiteLocation.y, localSiteLocation.z, dirG, dirP);
+										break;
 									}
-									else
-									{
-										// Assumption 2 is used here to simplify the implementation of the mapping
-										// P (equation B.2). Moreover, in this case a finer grid should be used.
-										hemelb::log::Logger::Log<hemelb::log::Error, hemelb::log::OnePerCore>(
-											"A higher resolution is required for site [%ld, %ld, %ld]",
-											localSiteLocation.x, localSiteLocation.y, localSiteLocation.z);
-									}
+
+									j++;
+									dirP = dirs[j];
+								}
+								while (dirP != 0);
+
+								// Since dirs are sorted, having dirP == 0 implies the mapping P is empty,
+								// violating assumption 2. In this case, a finer grid should be used.
+								if (dirP == 0)
+								{
+									hemelb::log::Logger::Log<hemelb::log::Error, hemelb::log::OnePerCore>(
+										"A higher resolution is required for site [%ld, %ld, %ld] of index %ld",
+										localSiteLocation.x, localSiteLocation.y, localSiteLocation.z, localIndex);
 								}
 							}
 						}
@@ -172,6 +157,9 @@ namespace hemelb
 					LatticeDistance wallDistance; // distance between the wall and the first fluid site
 					const distribn_t *firstFluidFOld, *secondFluidFOld;
 					GetFluidSitesData(site, direction, latticeData, cp, wallDistance, firstFluidFOld, secondFluidFOld);
+					//printf("site [%ld %ld %ld], dir %u, cp [%ld %ld %ld], wallDistance %lf, cg [%ld %ld %ld]\n",
+					//	site.GetGlobalSiteCoords().x, site.GetGlobalSiteCoords().y, site.GetGlobalSiteCoords().z,
+					//	direction, cp.x, cp.y, cp.z, wallDistance, cg.x, cg.y, cg.z);
 
 					// Calculate the densities, momenta, and equilibrium distributions and store them in HydroVars
 					kernels::HydroVars<typename CollisionType::CKernel> hVfirstFluid(firstFluidFOld);
@@ -188,7 +176,7 @@ namespace hemelb
 					}
 
 					Direction unstreamed = LatticeType::INVERSEDIRECTIONS[direction];
-					if (unstreamed == dirG)
+					if (unstreamed == dirG && cg == cp)
 					{
 						// Calculate the density on the wall (equation 13).
 						// The equilibrium density, 1, is absorbed in the iolet pressure.
@@ -268,8 +256,9 @@ namespace hemelb
 
 					distribn_t fOld = ghostHydrovars.GetFEq()[unstreamed];
 					//*latticeData->GetFNew(site.GetIndex() * LatticeType::NUMVECTORS + unstreamed) = ghostHydrovars.GetFEq()[unstreamed];
-					if (unstreamed == dirG)
+					if (unstreamed == dirG && cg == cp)
 					{
+						//printf("unstreamed [%ld %ld %ld]\n", site.GetGlobalSiteCoords().x, site.GetGlobalSiteCoords().y, site.GetGlobalSiteCoords().z);
 						*latticeData->GetFNew(site.GetIndex() * LatticeType::NUMVECTORS + unstreamed) = fNew;
 					}
 					else
@@ -285,36 +274,32 @@ namespace hemelb
 
 			protected:
 				/**
-				 * Find the streaming direction that is closest to the normal direction of
-				 * the iolet plane. See equation A.1 in the paper.
+				 * Sort the lattice directions in an ascending order based on their allignment
+				 * to the iolet normal vector. See equation A.1 in the paper.
 				 */
-				inline void FindDirectionG(const int boundaryId)
+				inline void SortDirectionsAlignToIOletNormal(const int boundaryId)
 				{
-					dirG = 0;
-					LatticeDistance min = 2.0;
-					for (Direction k = 1; k < LatticeType::NUMVECTORS; ++k)
+        			// Assumption 1 is implied here
+					LatticePosition ioletNormal = iolet.GetIolets()[boundaryId]->GetNormal();
+
+        			std::array<LatticeDistance, LatticeType::NUMVECTORS> dist;
+        			for (Direction k = 0; k < LatticeType::NUMVECTORS; ++k)
 					{
 						const LatticePosition ck = LatticePosition(LatticeType::CXD[k],
-																   LatticeType::CYD[k],
-																   LatticeType::CZD[k]);
+											                       LatticeType::CYD[k],
+														           LatticeType::CZD[k]);
 						const LatticePosition unitCk = ck.GetNormalised();
-
-						// Assumption 1 is implied here
-						LatticePosition ioletNormal = iolet.GetIolets()[boundaryId]->GetNormal();
-
-						// The fact that ioletNormal points inwards the fluid domain gives a negative sign.
-						LatticeDistance dist = LatticePosition(unitCk - ioletNormal).GetMagnitudeSquared();
-						if (dist < min)
-						{
-							min = dist;
-							dirG = k;
-						}
+						dist[k] = LatticePosition(unitCk - ioletNormal).GetMagnitudeSquared();
+          				dirs[k] = k;
+        			}
+					// Sort dirs by comparing any two elements of dist
+        			std::sort(dirs.begin(), dirs.end(), [&dist](Direction i, Direction j) {return dist[i] < dist[j];});
+					for (Direction k = 0; k < LatticeType::NUMVECTORS; ++k)
+					{
+						printf("%u %lf ", dirs[k], dist[dirs[k]]);
 					}
-					// The direction opposite to the direction dirG
-					oppG = LatticeType::INVERSEDIRECTIONS[dirG];
-					// The lattice vector in the direction dirG
-					cg = LatticeVector(LatticeType::CX[dirG], LatticeType::CY[dirG], LatticeType::CZ[dirG]);
-				}
+					printf("\n");
+      			}
 
 				/**
 				 * Obtain the data at the two fluid sites. The logic used in the constructor is applied.
@@ -331,84 +316,59 @@ namespace hemelb
 					const LatticeVector ci = LatticeVector(LatticeType::CX[i],
 														   LatticeType::CY[i],
 														   LatticeType::CZ[i]);
+					const LatticeVector solidSiteLocation = site.GetGlobalSiteCoords() + ci;
 
-					const LatticeVector &localSiteLocation = site.GetGlobalSiteCoords();
-
-					const LatticeVector firstFluidSiteLocation = localSiteLocation + ci + cg;
-					proc_t firstFluidSiteHomeProc = latDat->GetProcIdFromGlobalCoords(firstFluidSiteLocation);
-
-					LatticeVector secondFluidSiteLocation = firstFluidSiteLocation + cg;
-					proc_t secondFluidSiteHomeProc = latDat->GetProcIdFromGlobalCoords(secondFluidSiteLocation);
-
-					if (firstFluidSiteHomeProc != SITE_OR_BLOCK_SOLID &&
-						secondFluidSiteHomeProc != SITE_OR_BLOCK_SOLID)
+					Direction j = 0, dirP = dirs[0];
+					do
 					{
-						// The direction given by the mapping P is the same as that given by the mapping G
-						cp = cg;
+						cp = LatticeVector(LatticeType::CX[dirP], LatticeType::CY[dirP], LatticeType::CZ[dirP]);
 
-						if (firstFluidSiteLocation == localSiteLocation)
+						const LatticeVector firstFluidSiteLocation = solidSiteLocation + cp;
+						proc_t firstFluidSiteHomeProc = latDat->GetProcIdFromGlobalCoords(firstFluidSiteLocation);
+
+						const LatticeVector secondFluidSiteLocation = firstFluidSiteLocation + cp;
+						proc_t secondFluidSiteHomeProc = latDat->GetProcIdFromGlobalCoords(secondFluidSiteLocation);
+
+						if (firstFluidSiteHomeProc != SITE_OR_BLOCK_SOLID &&
+							secondFluidSiteHomeProc != SITE_OR_BLOCK_SOLID)
 						{
-							firstFluidFOld = site.GetFOld<LatticeType>();
-							firstFluidWallDistance = site.GetWallDistance<LatticeType>(oppG);
-						}
-						else if (firstFluidSiteHomeProc == latDat->GetLocalRank())
-						{
-							geometry::Site<geometry::LatticeData> firstFluidSite =
-								latDat->GetSite(latDat->GetContiguousSiteId(firstFluidSiteLocation));
-							firstFluidFOld = firstFluidSite.GetFOld<LatticeType>();
-							firstFluidWallDistance = firstFluidSite.GetWallDistance<LatticeType>(oppG);
-						}
-						else
-						{
-							const geometry::neighbouring::ConstNeighbouringSite
-								firstFluidSite = neighbouringLatticeData.GetSite(
-									latDat->GetGlobalNoncontiguousSiteIdFromGlobalCoords(firstFluidSiteLocation));
-							firstFluidFOld = firstFluidSite.GetFOld<LatticeType>();
-							firstFluidWallDistance = firstFluidSite.GetWallDistance<LatticeType>(oppG);
+							const Direction oppP = LatticeType::INVERSEDIRECTIONS[dirP];
+							if (firstFluidSiteHomeProc == latDat->GetLocalRank())
+							{
+								geometry::Site<geometry::LatticeData> firstFluidSite =
+									latDat->GetSite(latDat->GetContiguousSiteId(firstFluidSiteLocation));
+								firstFluidFOld = firstFluidSite.GetFOld<LatticeType>();
+								firstFluidWallDistance = firstFluidSite.GetWallDistance<LatticeType>(oppP);
+							}
+							else
+							{
+								const geometry::neighbouring::ConstNeighbouringSite
+									firstFluidSite = neighbouringLatticeData.GetSite(
+										latDat->GetGlobalNoncontiguousSiteIdFromGlobalCoords(firstFluidSiteLocation));
+								firstFluidFOld = firstFluidSite.GetFOld<LatticeType>();
+								firstFluidWallDistance = firstFluidSite.GetWallDistance<LatticeType>(oppP);
+							}
+
+							if (secondFluidSiteHomeProc == latDat->GetLocalRank())
+							{
+								geometry::Site<geometry::LatticeData> secondFluidSite =
+									latDat->GetSite(latDat->GetContiguousSiteId(secondFluidSiteLocation));
+								secondFluidFOld = secondFluidSite.GetFOld<LatticeType>();
+							}
+							else
+							{
+								const geometry::neighbouring::ConstNeighbouringSite
+									secondFluidSite = neighbouringLatticeData.GetSite(
+										latDat->GetGlobalNoncontiguousSiteIdFromGlobalCoords(secondFluidSiteLocation));
+								secondFluidFOld = secondFluidSite.GetFOld<LatticeType>();
+							}
+							break;
 						}
 
-						if (secondFluidSiteHomeProc == latDat->GetLocalRank())
-						{
-							geometry::Site<geometry::LatticeData> secondFluidSite =
-								latDat->GetSite(latDat->GetContiguousSiteId(secondFluidSiteLocation));
-							secondFluidFOld = secondFluidSite.GetFOld<LatticeType>();
-						}
-						else
-						{
-							const geometry::neighbouring::ConstNeighbouringSite
-								secondFluidSite = neighbouringLatticeData.GetSite(
-									latDat->GetGlobalNoncontiguousSiteIdFromGlobalCoords(secondFluidSiteLocation));
-							secondFluidFOld = secondFluidSite.GetFOld<LatticeType>();
-						}
+						j++;
+						dirP = dirs[j];
 					}
-					else
-					{
-						// The first fluid site is the local site
-						firstFluidFOld = site.GetFOld<LatticeType>();
-						firstFluidWallDistance = site.GetWallDistance<LatticeType>(i);
-
-						const Direction dirP = LatticeType::INVERSEDIRECTIONS[i];
-						cp = LatticeVector(LatticeType::CX[dirP],
-										   LatticeType::CY[dirP],
-										   LatticeType::CZ[dirP]);
-
-						secondFluidSiteLocation = localSiteLocation + cp;
-						secondFluidSiteHomeProc = latDat->GetProcIdFromGlobalCoords(secondFluidSiteLocation);
-
-						if (secondFluidSiteHomeProc == latDat->GetLocalRank())
-						{
-							geometry::Site<geometry::LatticeData> secondFluidSite =
-								latDat->GetSite(latDat->GetContiguousSiteId(secondFluidSiteLocation));
-							secondFluidFOld = secondFluidSite.GetFOld<LatticeType>();
-						}
-						else
-						{
-							const geometry::neighbouring::ConstNeighbouringSite
-								secondFluidSite = neighbouringLatticeData.GetSite(
-									latDat->GetGlobalNoncontiguousSiteIdFromGlobalCoords(secondFluidSiteLocation));
-							secondFluidFOld = secondFluidSite.GetFOld<LatticeType>();
-						}
-					}
+					while (dirP != 0);
 				}
 
 				/**
@@ -492,7 +452,8 @@ namespace hemelb
 				CollisionType &collider;
 				const geometry::neighbouring::NeighbouringLatticeData &neighbouringLatticeData;
 				iolets::BoundaryValues &iolet;
-				Direction dirG, oppG;
+				std::array<Direction, LatticeType::NUMVECTORS> dirs;
+				Direction dirG;
 				LatticeVector cg;
 			};
 		}
