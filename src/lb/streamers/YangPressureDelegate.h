@@ -23,10 +23,8 @@ namespace hemelb
 			 *
 			 * The following assumptions are applied to simplify the implementation.
 			 * 1. The iolet plane is straight rather than curved.
-			 * 2. All solid nodes beyond the iolet have two neighbouring fluid sites
-			 *    in a certain lattice direction.
-			 * 3. The collision kernel adopts a single relaxation time.
-			 * 4. There is only one inlet and one outlet in each rank. (To be relaxed.)
+			 * 2. The collision kernel adopts a single relaxation time.
+			 * 3. There is only one inlet and one outlet in each rank. (To be relaxed.)
 			 */
 			template <typename CollisionImpl>
 			class YangPressureDelegate : public BaseStreamerDelegate<CollisionImpl>
@@ -59,7 +57,7 @@ namespace hemelb
 							 * Sort the lattice directions in an ascending order based on their allignment to
 							 * the iolet normal vector. Due to assumption 1, these directions are the same for
 							 * all sites linked to the same iolet. Therefore, only the first site is concerned.
-							 * (Currently assumption 4 is applied, but it will be relaxed.)
+							 * (Currently assumption 3 is applied, but it will be relaxed.)
 							 */
 							if (localIndex == rangeIt->first)
 							{
@@ -73,7 +71,7 @@ namespace hemelb
 							{
 								/**
 								 * Taking one step from the current site in the current direction, i, gives an
-								 * outer-neighbour (solid) node. Taking a further step in the direction mapped
+								 * outer-wall (solid) node. Taking a further step in the direction mapped
 								 * by P gives the first fluid site. Taking one more step in this direction
 								 * gives the second fluid site.
 								 */
@@ -84,7 +82,7 @@ namespace hemelb
 								const LatticeVector ci = LatticeVector(LatticeType::CX[i],
 																	   LatticeType::CY[i],
 																	   LatticeType::CZ[i]);
-								const LatticeVector solidSiteLocation = localSiteLocation + ci;
+								const LatticeVector outerWallSiteLocation = localSiteLocation + ci;
 
 								Direction j = 0, dirP = dirs[0];
 								do
@@ -93,7 +91,7 @@ namespace hemelb
 																		   LatticeType::CY[dirP],
 																		   LatticeType::CZ[dirP]);
 
-									const LatticeVector firstFluidSiteLocation = solidSiteLocation + cp;
+									const LatticeVector firstFluidSiteLocation = outerWallSiteLocation + cp;
 									proc_t firstFluidSiteHomeProc =
 										initParams.latDat->GetProcIdFromGlobalCoords(firstFluidSiteLocation);
 
@@ -125,13 +123,60 @@ namespace hemelb
 								}
 								while (dirP != 0);
 
-								// Since dirs are sorted, having dirP == 0 implies the mapping P is empty,
-								// violating assumption 2. In this case, a finer grid should be used.
+								/**
+								 * Since dirs are sorted, having dirP == 0 implies the mapping P is empty.
+								 * Try again by taking two steps instead of one step from the outer-wall node.
+								 */
 								if (dirP == 0)
 								{
-									hemelb::log::Logger::Log<hemelb::log::Error, hemelb::log::OnePerCore>(
-										"A higher resolution is required for site [%ld, %ld, %ld] of index %ld",
-										localSiteLocation.x, localSiteLocation.y, localSiteLocation.z, localIndex);
+									j = 0;
+									dirP = dirs[0];
+									do
+									{
+										const LatticeVector cp = LatticeVector(LatticeType::CX[dirP],
+																			   LatticeType::CY[dirP],
+																			   LatticeType::CZ[dirP]);
+
+										// The only difference is the factor 2 in the next line
+										const LatticeVector firstFluidSiteLocation = outerWallSiteLocation + cp * 2;
+										proc_t firstFluidSiteHomeProc =
+											initParams.latDat->GetProcIdFromGlobalCoords(firstFluidSiteLocation);
+
+										const LatticeVector secondFluidSiteLocation = firstFluidSiteLocation + cp;
+										proc_t secondFluidSiteHomeProc =
+											initParams.latDat->GetProcIdFromGlobalCoords(secondFluidSiteLocation);
+
+										if (firstFluidSiteHomeProc != SITE_OR_BLOCK_SOLID &&
+											secondFluidSiteHomeProc != SITE_OR_BLOCK_SOLID)
+										{
+											if (firstFluidSiteHomeProc != initParams.latDat->GetLocalRank())
+											{
+												// Request data from another rank
+												initParams.neighbouringDataManager->RegisterNeededSite(
+													initParams.latDat->GetGlobalNoncontiguousSiteIdFromGlobalCoords(firstFluidSiteLocation));
+											}
+											if (secondFluidSiteHomeProc != initParams.latDat->GetLocalRank())
+											{
+												// Request data from another rank
+												initParams.neighbouringDataManager->RegisterNeededSite(
+													initParams.latDat->GetGlobalNoncontiguousSiteIdFromGlobalCoords(secondFluidSiteLocation));
+											}
+											printf("site [%ld %ld %ld], dirG %u, dirP %u\n", localSiteLocation.x, localSiteLocation.y, localSiteLocation.z, dirG, dirP);
+											break;
+										}
+
+										j++;
+										dirP = dirs[j];
+									}
+									while (dirP != 0);
+
+									// If the search fails again, a finer grid should be used.
+									if (dirP == 0)
+									{
+										hemelb::log::Logger::Log<hemelb::log::Error, hemelb::log::OnePerCore>(
+											"A higher resolution is required for site [%ld, %ld, %ld] of index %ld",
+											localSiteLocation.x, localSiteLocation.y, localSiteLocation.z, localIndex);
+									}
 								}
 							}
 						}
@@ -153,10 +198,11 @@ namespace hemelb
 
 					// Obtain cp, wallDistance, and the old distributions at the first and second fluid nodes.
 					// Here wall is referred to as the iolet plane.
-					LatticeVector cp;			  // the lattice vector given by the mapping P
+					bool special; // whether the outer-wall node has no neighbouring fluid site
+					LatticeVector cp; // the lattice vector given by the mapping P
 					LatticeDistance wallDistance; // distance between the wall and the first fluid site
 					const distribn_t *firstFluidFOld, *secondFluidFOld;
-					GetFluidSitesData(site, direction, latticeData, cp, wallDistance, firstFluidFOld, secondFluidFOld);
+					GetFluidSitesData(site, direction, latticeData, special, cp, wallDistance, firstFluidFOld, secondFluidFOld);
 					//printf("site [%ld %ld %ld], dir %u, cp [%ld %ld %ld], wallDistance %lf, cg [%ld %ld %ld]\n",
 					//	site.GetGlobalSiteCoords().x, site.GetGlobalSiteCoords().y, site.GetGlobalSiteCoords().z,
 					//	direction, cp.x, cp.y, cp.z, wallDistance, cg.x, cg.y, cg.z);
@@ -201,30 +247,49 @@ namespace hemelb
 					}
 					else
 					{
-						// Construct a HydroVars structure at the outer-neighbour node
+						// Construct a HydroVars structure at the outer-wall node
 						distribn_t fOuterWall[LatticeType::NUMVECTORS];
 						kernels::HydroVars<typename CollisionType::CKernel> hVouterWall(fOuterWall);
 
-						// Extrapolate the density and momentum at the outer-neighbour node (equation 18)
-						hVouterWall.density = 2.0 * hVfirstFluid.density - hVsecondFluid.density;
-						hVouterWall.momentum = (hVfirstFluid.momentum * 4.0 * wallDistance +
-												hVsecondFluid.momentum * (1.0 - 2.0 * wallDistance)
-												- momentumCorrection(cp, -ioletNormal, hydroVars.tau, fNeqWall)
-											   ) / (1.0 + 2.0 * wallDistance);
+						// Calculate the required quantities at the outer-wall node
+						const LatticePosition sqBracket = momentumCorrection(cp, -ioletNormal, hydroVars.tau, fNeqWall);
+						distribn_t fNeqOuterWall;
+						if (special)
+						{
+							// Extrapolate the density and momentum (equation B.4)
+							hVouterWall.density = 3.0 * hVfirstFluid.density - 2.0 * hVsecondFluid.density;
+							hVouterWall.momentum = (hVfirstFluid.momentum * (6.0 * wallDistance - 3.0)
+													+ hVsecondFluid.momentum * (4.0 - 4.0 * wallDistance)
+													- sqBracket * 3.0
+												   ) / (1.0 + 2.0 * wallDistance);
 
-						// Calculate the equilibrium distributions
+							// Extrapolate the non-equilibrium distribution of the unstreamed direction (equation B.4)
+							fNeqOuterWall = 3.0 * hVfirstFluid.GetFNeq().f[unstreamed]
+											- 2.0 * hVsecondFluid.GetFNeq().f[unstreamed];
+						}
+						else
+						{
+							// Extrapolate the density and momentum (equation 18)
+							hVouterWall.density = 2.0 * hVfirstFluid.density - hVsecondFluid.density;
+							hVouterWall.momentum = (hVfirstFluid.momentum * 4.0 * wallDistance
+													+ hVsecondFluid.momentum * (1.0 - 2.0 * wallDistance)
+													- sqBracket
+												   ) / (1.0 + 2.0 * wallDistance);
+
+							// Extrapolate the non-equilibrium distribution of the unstreamed direction (equation 20)
+							fNeqOuterWall = 2.0 * hVfirstFluid.GetFNeq().f[unstreamed]
+											- hVsecondFluid.GetFNeq().f[unstreamed];
+						}
+
+						// Calculate the equilibrium distributions at the outer-wall node
 						LatticeType::CalculateFeq(hVouterWall.density,
 												  hVouterWall.momentum.x,
 												  hVouterWall.momentum.y,
 												  hVouterWall.momentum.z,
 												  hVouterWall.GetFEqPtr());
 
-						// Extrapolate the non-equilibrium distribution of the unstreamed direction (equation 20)
-						distribn_t fNeqOuterWall = 2.0 * hVfirstFluid.GetFNeq().f[unstreamed]
-												   - hVsecondFluid.GetFNeq().f[unstreamed];
-
 						// Calculate the distribution of the unstreamed direction (equation 17).
-						// Assumption 3 is applied here: A equals 1/tau times the identity matrix.
+						// Assumption 2 is applied here: A equals 1/tau times the identity matrix.
 						fNew = hVouterWall.GetFEq().f[unstreamed] + fNeqOuterWall * (1.0 - 1.0 / hydroVars.tau);
 					}
 
@@ -307,6 +372,7 @@ namespace hemelb
 				inline void GetFluidSitesData(const geometry::Site<geometry::LatticeData> &site,
 											  const Direction &i,
 											  geometry::LatticeData *const latDat,
+											  bool &special,
 											  LatticeVector &cp,
 											  LatticeDistance &firstFluidWallDistance,
 											  const distribn_t* &firstFluidFOld,
@@ -316,14 +382,15 @@ namespace hemelb
 					const LatticeVector ci = LatticeVector(LatticeType::CX[i],
 														   LatticeType::CY[i],
 														   LatticeType::CZ[i]);
-					const LatticeVector solidSiteLocation = site.GetGlobalSiteCoords() + ci;
+					const LatticeVector outerWallSiteLocation = site.GetGlobalSiteCoords() + ci;
 
+					special = false;
 					Direction j = 0, dirP = dirs[0];
 					do
 					{
 						cp = LatticeVector(LatticeType::CX[dirP], LatticeType::CY[dirP], LatticeType::CZ[dirP]);
 
-						const LatticeVector firstFluidSiteLocation = solidSiteLocation + cp;
+						const LatticeVector firstFluidSiteLocation = outerWallSiteLocation + cp;
 						proc_t firstFluidSiteHomeProc = latDat->GetProcIdFromGlobalCoords(firstFluidSiteLocation);
 
 						const LatticeVector secondFluidSiteLocation = firstFluidSiteLocation + cp;
@@ -369,6 +436,64 @@ namespace hemelb
 						dirP = dirs[j];
 					}
 					while (dirP != 0);
+
+					if (dirP == 0)
+					{
+						special = true;
+						j = 0;
+						dirP = dirs[0];
+						do
+						{
+							cp = LatticeVector(LatticeType::CX[dirP], LatticeType::CY[dirP], LatticeType::CZ[dirP]);
+
+							// The only difference is the factor 2 in the next line
+							const LatticeVector firstFluidSiteLocation = outerWallSiteLocation + cp * 2;
+							proc_t firstFluidSiteHomeProc = latDat->GetProcIdFromGlobalCoords(firstFluidSiteLocation);
+
+							const LatticeVector secondFluidSiteLocation = firstFluidSiteLocation + cp;
+							proc_t secondFluidSiteHomeProc = latDat->GetProcIdFromGlobalCoords(secondFluidSiteLocation);
+
+							if (firstFluidSiteHomeProc != SITE_OR_BLOCK_SOLID &&
+								secondFluidSiteHomeProc != SITE_OR_BLOCK_SOLID)
+							{
+								const Direction oppP = LatticeType::INVERSEDIRECTIONS[dirP];
+								if (firstFluidSiteHomeProc == latDat->GetLocalRank())
+								{
+									geometry::Site<geometry::LatticeData> firstFluidSite =
+										latDat->GetSite(latDat->GetContiguousSiteId(firstFluidSiteLocation));
+									firstFluidFOld = firstFluidSite.GetFOld<LatticeType>();
+									firstFluidWallDistance = firstFluidSite.GetWallDistance<LatticeType>(oppP);
+								}
+								else
+								{
+									const geometry::neighbouring::ConstNeighbouringSite
+										firstFluidSite = neighbouringLatticeData.GetSite(
+											latDat->GetGlobalNoncontiguousSiteIdFromGlobalCoords(firstFluidSiteLocation));
+									firstFluidFOld = firstFluidSite.GetFOld<LatticeType>();
+									firstFluidWallDistance = firstFluidSite.GetWallDistance<LatticeType>(oppP);
+								}
+
+								if (secondFluidSiteHomeProc == latDat->GetLocalRank())
+								{
+									geometry::Site<geometry::LatticeData> secondFluidSite =
+										latDat->GetSite(latDat->GetContiguousSiteId(secondFluidSiteLocation));
+									secondFluidFOld = secondFluidSite.GetFOld<LatticeType>();
+								}
+								else
+								{
+									const geometry::neighbouring::ConstNeighbouringSite
+										secondFluidSite = neighbouringLatticeData.GetSite(
+											latDat->GetGlobalNoncontiguousSiteIdFromGlobalCoords(secondFluidSiteLocation));
+									secondFluidFOld = secondFluidSite.GetFOld<LatticeType>();
+								}
+								break;
+							}
+
+							j++;
+							dirP = dirs[j];
+						}
+						while (dirP != 0);
+					}
 				}
 
 				/**
@@ -388,7 +513,7 @@ namespace hemelb
 
 				/**
 				 * This function calculates the stress term in equation 14.
-				 * Assumption 3 is applied here: the collision matrix A equals 1/tau
+				 * Assumption 2 is applied here: the collision matrix A equals 1/tau
 				 * times the identity matrix, where tau is the single relaxation time.
 				 */
 				inline distribn_t stress(const LatticePosition vec,
