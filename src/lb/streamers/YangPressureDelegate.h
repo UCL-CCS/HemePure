@@ -222,10 +222,9 @@ namespace hemelb
 						// Calculate the density on the wall (equation 13).
 						// The equilibrium density, 1, is absorbed in the iolet pressure.
 						// Also note that h = 1 in lattice units.
-						iolets::InOutLetCosine *cosIolet = dynamic_cast<iolets::InOutLetCosine *>(localIOlet);
 						const distribn_t visc = Cs2 * (hydroVars.tau - 0.5); // kinematic viscosity
-						LatticeDensity densityWall = 3.0 * (cosIolet->GetPressure(iolet.GetTimeStep()) + visc *
-															stress(-ioletNormal, hydroVars.tau, fNeqWall));
+						LatticeDensity densityWall = 3.0 * (localIOlet->GetPressure(iolet.GetTimeStep())
+															+ visc * stress(-ioletNormal, hydroVars.tau, fNeqWall));
 
 						// Interpolate the density at the first fluid site accounting for the BC (equation 12)
 						LatticeDensity densityBC = (densityWall + wallDistance * hVsecondFluid.density) / (1.0 + wallDistance);

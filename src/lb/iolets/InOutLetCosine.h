@@ -61,11 +61,6 @@ namespace hemelb
             return (densityMean + densityAmp);
           }
 
-          LatticePressure GetPressure(LatticeTimeStep time_step) const
-          {
-            return GetDensity(time_step) * Cs2;
-          }
-
           LatticePressure GetPressureMean() const
           {
             return densityMean * Cs2;

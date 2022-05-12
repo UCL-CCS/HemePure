@@ -144,6 +144,11 @@ namespace hemelb
           /// @todo: #632 This method must be moved to InOutletPressure
           virtual LatticeDensity GetDensity(LatticeTimeStep time_step) const = 0;
 
+          LatticePressure GetPressure(LatticeTimeStep time_step) const
+          {
+            return GetDensity(time_step) * Cs2;
+          }
+
           /// @todo: #632 Is this method ever implemented not empty?
           virtual void Reset(SimulationState& state) = 0;
 
