@@ -24,7 +24,6 @@ namespace hemelb
 			 * The following assumptions are applied to simplify the implementation.
 			 * 1. The iolet plane is straight rather than curved.
 			 * 2. The collision kernel adopts a single relaxation time.
-			 * 3. There is only one inlet and one outlet in each rank. (To be relaxed.)
 			 */
 			template <typename CollisionImpl>
 			class YangPressureDelegate : public BaseStreamerDelegate<CollisionImpl>
@@ -41,6 +40,12 @@ namespace hemelb
 
 					std::cout << "rank " << initParams.latDat->GetLocalRank() << " siteCount " << initParams.siteCount << " localIoletCount " << initParams.boundaryObject->GetLocalIoletCount() << " ioletType " << initParams.boundaryObject->GetIoletType() << std::endl;
 
+					// Find the lattice directions described by the mapping G and P.
+					for (int i = 0; i < iolet.GetLocalIoletCount(); ++i)
+					{
+						SortDirectionsCloseToIOletNormal(iolet.GetLocalIolet(i));
+					}
+
 					// Loop over each site this streamer is responsible for, as specified in siteRanges.
 					for (std::vector<std::pair<site_t, site_t>>::iterator rangeIt =
 							 initParams.siteRanges.begin();
@@ -52,21 +57,9 @@ namespace hemelb
 							geometry::Site<const geometry::LatticeData> localSite =
 								initParams.latDat->GetSite(localIndex);
 							const LatticeVector &localSiteLocation = localSite.GetGlobalSiteCoords();
+							const iolets::InOutLet* localIOlet = iolet.GetIolets()[localSite.GetIoletId()];
 
-							/**
-							 * Sort the lattice directions in an ascending order based on their allignment to
-							 * the iolet normal vector. Due to assumption 1, these directions are the same for
-							 * all sites linked to the same iolet. Therefore, only the first site is concerned.
-							 * (Currently assumption 3 is applied, but it will be relaxed.)
-							 */
-							if (localIndex == rangeIt->first)
-							{
-								SortDirectionsAlignToIOletNormal(localSite.GetIoletId());
-								dirG = dirs[0]; // the direction described by the mapping G
-								cg = LatticeVector(LatticeType::CX[dirG], LatticeType::CY[dirG], LatticeType::CZ[dirG]);
-							}
-
-							// Ensure the data of the two fluid sites is available.
+							// Ensure the data of the two fluid sites used for extrapolation is available.
 							for (Direction i = 1; i < LatticeType::NUMVECTORS; ++i)
 							{
 								/**
@@ -84,7 +77,7 @@ namespace hemelb
 																	   LatticeType::CZ[i]);
 								const LatticeVector outerWallSiteLocation = localSiteLocation + ci;
 
-								Direction j = 0, dirP = dirs[0];
+								Direction j = 0, dirP = localIOlet->GetDirectionCloseToNormal(0);
 								do
 								{
 									const LatticeVector cp = LatticeVector(LatticeType::CX[dirP],
@@ -114,23 +107,23 @@ namespace hemelb
 											initParams.neighbouringDataManager->RegisterNeededSite(
 												initParams.latDat->GetGlobalNoncontiguousSiteIdFromGlobalCoords(secondFluidSiteLocation));
 										}
-										//printf("site [%ld %ld %ld], dirG %u, dirP %u\n", localSiteLocation.x, localSiteLocation.y, localSiteLocation.z, dirG, dirP);
+										//printf("site [%ld %ld %ld], dirG %u, dirP %u\n", localSiteLocation.x, localSiteLocation.y, localSiteLocation.z, localIOlet->GetDirectionCloseToNormal(0), dirP);
 										break;
 									}
 
 									j++;
-									dirP = dirs[j];
+									dirP = localIOlet->GetDirectionCloseToNormal(j);
 								}
 								while (dirP != 0);
 
 								/**
-								 * Since dirs are sorted, having dirP == 0 implies the mapping P is empty.
+								 * Since the directions are sorted, further searches cannot be successful.
 								 * Try again by taking two steps instead of one step from the outer-wall node.
 								 */
 								if (dirP == 0)
 								{
 									j = 0;
-									dirP = dirs[0];
+									dirP = localIOlet->GetDirectionCloseToNormal(0);
 									do
 									{
 										const LatticeVector cp = LatticeVector(LatticeType::CX[dirP],
@@ -161,12 +154,12 @@ namespace hemelb
 												initParams.neighbouringDataManager->RegisterNeededSite(
 													initParams.latDat->GetGlobalNoncontiguousSiteIdFromGlobalCoords(secondFluidSiteLocation));
 											}
-											printf("site [%ld %ld %ld], dirG %u, dirP %u\n", localSiteLocation.x, localSiteLocation.y, localSiteLocation.z, dirG, dirP);
+											printf("site [%ld %ld %ld], dirG %u, dirP %u\n", localSiteLocation.x, localSiteLocation.y, localSiteLocation.z, localIOlet->GetDirectionCloseToNormal(0), dirP);
 											break;
 										}
 
 										j++;
-										dirP = dirs[j];
+										dirP = localIOlet->GetDirectionCloseToNormal(j);
 									}
 									while (dirP != 0);
 
@@ -174,8 +167,8 @@ namespace hemelb
 									if (dirP == 0)
 									{
 										hemelb::log::Logger::Log<hemelb::log::Error, hemelb::log::OnePerCore>(
-											"A higher resolution is required for site [%ld, %ld, %ld] of index %ld",
-											localSiteLocation.x, localSiteLocation.y, localSiteLocation.z, localIndex);
+											"A higher resolution is required at the site location [%ld, %ld, %ld]",
+											localSiteLocation.x, localSiteLocation.y, localSiteLocation.z);
 									}
 								}
 							}
@@ -192,8 +185,8 @@ namespace hemelb
 				{
 					if (!site.HasIolet(direction)) return;
 
-					int boundaryId = site.GetIoletId();
-					LatticePosition ioletNormal = iolet.GetIolets()[boundaryId]->GetNormal();
+					iolets::InOutLet* localIOlet = iolet.GetIolets()[site.GetIoletId()];
+					const LatticePosition& ioletNormal = localIOlet->GetNormal();
 					distribn_t fNew;
 
 					// Obtain cp, wallDistance, and the old distributions at the first and second fluid nodes.
@@ -222,13 +215,14 @@ namespace hemelb
 					}
 
 					Direction unstreamed = LatticeType::INVERSEDIRECTIONS[direction];
+					Direction dirG = localIOlet->GetDirectionCloseToNormal(0);
+					LatticeVector cg = LatticeVector(LatticeType::CX[dirG], LatticeType::CY[dirG], LatticeType::CZ[dirG]);
 					if (unstreamed == dirG && cg == cp)
 					{
 						// Calculate the density on the wall (equation 13).
 						// The equilibrium density, 1, is absorbed in the iolet pressure.
 						// Also note that h = 1 in lattice units.
-						iolets::InOutLetCosine *cosIolet =
-							dynamic_cast<iolets::InOutLetCosine *>(iolet.GetIolets()[boundaryId]);
+						iolets::InOutLetCosine *cosIolet = dynamic_cast<iolets::InOutLetCosine *>(localIOlet);
 						const distribn_t visc = Cs2 * (hydroVars.tau - 0.5); // kinematic viscosity
 						LatticeDensity densityWall = 3.0 * (cosIolet->GetPressure(iolet.GetTimeStep()) + visc *
 															stress(-ioletNormal, hydroVars.tau, fNeqWall));
@@ -295,6 +289,7 @@ namespace hemelb
 
 
 					// Below is the Nash BC
+					int boundaryId = site.GetIoletId();
 
 					// Set the density at the "ghost" site to be the density of the iolet.
 					distribn_t ghostDensity = iolet.GetBoundaryDensity(boundaryId);
@@ -339,15 +334,16 @@ namespace hemelb
 
 			protected:
 				/**
-				 * Sort the lattice directions in an ascending order based on their allignment
-				 * to the iolet normal vector. See equation A.1 in the paper.
+				 * Sort the lattice directions in an ascending order of how well they allign with
+				 * the iolet normal vector. See equation A.1 in the paper. Due to assumption 1,
+				 * the directions are the same for all sites linked to the same iolet.
 				 */
-				inline void SortDirectionsAlignToIOletNormal(const int boundaryId)
+				inline void SortDirectionsCloseToIOletNormal(iolets::InOutLet* localIOlet)
 				{
-        			// Assumption 1 is implied here
-					LatticePosition ioletNormal = iolet.GetIolets()[boundaryId]->GetNormal();
-
+					const LatticePosition& ioletNormal = localIOlet->GetNormal();
+					std::array<Direction, LatticeType::NUMVECTORS> dirs;
         			std::array<LatticeDistance, LatticeType::NUMVECTORS> dist;
+
         			for (Direction k = 0; k < LatticeType::NUMVECTORS; ++k)
 					{
 						const LatticePosition ck = LatticePosition(LatticeType::CXD[k],
@@ -357,11 +353,16 @@ namespace hemelb
 						dist[k] = LatticePosition(unitCk - ioletNormal).GetMagnitudeSquared();
           				dirs[k] = k;
         			}
+
 					// Sort dirs by comparing any two elements of dist
         			std::sort(dirs.begin(), dirs.end(), [&dist](Direction i, Direction j) {return dist[i] < dist[j];});
+
+					// Store the results in the iolet object
+					localIOlet->SetDirectionsCloseToNormal(dirs.begin(), dirs.end());
+
 					for (Direction k = 0; k < LatticeType::NUMVECTORS; ++k)
 					{
-						printf("%u %lf ", dirs[k], dist[dirs[k]]);
+						printf("%u %u %lf ", dirs[k], localIOlet->GetDirectionCloseToNormal(k), dist[dirs[k]]);
 					}
 					printf("\n");
       			}
@@ -378,6 +379,8 @@ namespace hemelb
 											  const distribn_t* &firstFluidFOld,
 											  const distribn_t* &secondFluidFOld)
 				{
+					const iolets::InOutLet* localIOlet = iolet.GetIolets()[site.GetIoletId()];
+
 					// The parameter i is assumed to be the stream direction
 					const LatticeVector ci = LatticeVector(LatticeType::CX[i],
 														   LatticeType::CY[i],
@@ -385,7 +388,7 @@ namespace hemelb
 					const LatticeVector outerWallSiteLocation = site.GetGlobalSiteCoords() + ci;
 
 					special = false;
-					Direction j = 0, dirP = dirs[0];
+					Direction j = 0, dirP = localIOlet->GetDirectionCloseToNormal(0);
 					do
 					{
 						cp = LatticeVector(LatticeType::CX[dirP], LatticeType::CY[dirP], LatticeType::CZ[dirP]);
@@ -433,7 +436,7 @@ namespace hemelb
 						}
 
 						j++;
-						dirP = dirs[j];
+						dirP = localIOlet->GetDirectionCloseToNormal(j);
 					}
 					while (dirP != 0);
 
@@ -441,7 +444,7 @@ namespace hemelb
 					{
 						special = true;
 						j = 0;
-						dirP = dirs[0];
+						dirP = localIOlet->GetDirectionCloseToNormal(0);
 						do
 						{
 							cp = LatticeVector(LatticeType::CX[dirP], LatticeType::CY[dirP], LatticeType::CZ[dirP]);
@@ -490,7 +493,7 @@ namespace hemelb
 							}
 
 							j++;
-							dirP = dirs[j];
+							dirP = localIOlet->GetDirectionCloseToNormal(j);
 						}
 						while (dirP != 0);
 					}
@@ -577,9 +580,6 @@ namespace hemelb
 				CollisionType &collider;
 				const geometry::neighbouring::NeighbouringLatticeData &neighbouringLatticeData;
 				iolets::BoundaryValues &iolet;
-				std::array<Direction, LatticeType::NUMVECTORS> dirs;
-				Direction dirG;
-				LatticeVector cg;
 			};
 		}
 	}

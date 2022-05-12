@@ -186,6 +186,20 @@ namespace hemelb
           }
 
           /**
+           * Set the lattice directions sorted in an ascending order of
+           * how well they allign with the normal vector.
+           */
+          void SetDirectionsCloseToNormal(Direction* begin, Direction* end)
+          {
+            dirsCloseToNormal.assign(begin, end);
+          }
+
+          const Direction& GetDirectionCloseToNormal(Direction i) const
+          {
+            return dirsCloseToNormal[i];
+          }
+
+          /**
            * Set the minimum density throughout the simulation.
            * @param minSimDensity
            */
@@ -209,6 +223,7 @@ namespace hemelb
           LatticePosition position;
           util::Vector3D<Dimensionless> normal;
           site_t centreSiteID;
+          std::vector<Direction> dirsCloseToNormal;
           BoundaryComms* comms;
           IoletExtraData* extraData;
           friend class IoletExtraData;
