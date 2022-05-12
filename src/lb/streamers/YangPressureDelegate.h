@@ -37,9 +37,6 @@ namespace hemelb
 					neighbouringLatticeData(initParams.latDat->GetNeighbouringData()),
 					iolet(*initParams.boundaryObject)
 				{
-
-					std::cout << "rank " << initParams.latDat->GetLocalRank() << " siteCount " << initParams.siteCount << " localIoletCount " << initParams.boundaryObject->GetLocalIoletCount() << " ioletType " << initParams.boundaryObject->GetIoletType() << std::endl;
-
 					// Find the lattice directions described by the mapping G and P.
 					for (int i = 0; i < iolet.GetLocalIoletCount(); ++i)
 					{
@@ -69,7 +66,7 @@ namespace hemelb
 								 * gives the second fluid site.
 								 */
 
-								// Skip if there is no iolet in this direction
+								// Skip if there is no iolet in this direction.
 								if (!localSite.HasIolet(i)) continue;
 
 								const LatticeVector ci = LatticeVector(LatticeType::CX[i],
@@ -97,17 +94,16 @@ namespace hemelb
 									{
 										if (firstFluidSiteHomeProc != initParams.latDat->GetLocalRank())
 										{
-											// Request data from another rank
+											// Request data from another rank.
 											initParams.neighbouringDataManager->RegisterNeededSite(
 												initParams.latDat->GetGlobalNoncontiguousSiteIdFromGlobalCoords(firstFluidSiteLocation));
 										}
 										if (secondFluidSiteHomeProc != initParams.latDat->GetLocalRank())
 										{
-											// Request data from another rank
+											// Request data from another rank.
 											initParams.neighbouringDataManager->RegisterNeededSite(
 												initParams.latDat->GetGlobalNoncontiguousSiteIdFromGlobalCoords(secondFluidSiteLocation));
 										}
-										//printf("site [%ld %ld %ld], dirG %u, dirP %u\n", localSiteLocation.x, localSiteLocation.y, localSiteLocation.z, localIOlet->GetDirectionCloseToNormal(0), dirP);
 										break;
 									}
 
@@ -130,7 +126,7 @@ namespace hemelb
 																			   LatticeType::CY[dirP],
 																			   LatticeType::CZ[dirP]);
 
-										// The only difference is the factor 2 in the next line
+										// The only difference is the factor 2 in the next line.
 										const LatticeVector firstFluidSiteLocation = outerWallSiteLocation + cp * 2;
 										proc_t firstFluidSiteHomeProc =
 											initParams.latDat->GetProcIdFromGlobalCoords(firstFluidSiteLocation);
@@ -144,17 +140,16 @@ namespace hemelb
 										{
 											if (firstFluidSiteHomeProc != initParams.latDat->GetLocalRank())
 											{
-												// Request data from another rank
+												// Request data from another rank.
 												initParams.neighbouringDataManager->RegisterNeededSite(
 													initParams.latDat->GetGlobalNoncontiguousSiteIdFromGlobalCoords(firstFluidSiteLocation));
 											}
 											if (secondFluidSiteHomeProc != initParams.latDat->GetLocalRank())
 											{
-												// Request data from another rank
+												// Request data from another rank.
 												initParams.neighbouringDataManager->RegisterNeededSite(
 													initParams.latDat->GetGlobalNoncontiguousSiteIdFromGlobalCoords(secondFluidSiteLocation));
 											}
-											printf("site [%ld %ld %ld], dirG %u, dirP %u\n", localSiteLocation.x, localSiteLocation.y, localSiteLocation.z, localIOlet->GetDirectionCloseToNormal(0), dirP);
 											break;
 										}
 
@@ -196,17 +191,14 @@ namespace hemelb
 					LatticeDistance wallDistance; // distance between the wall and the first fluid site
 					const distribn_t *firstFluidFOld, *secondFluidFOld;
 					GetFluidSitesData(site, direction, latticeData, special, cp, wallDistance, firstFluidFOld, secondFluidFOld);
-					//printf("site [%ld %ld %ld], dir %u, cp [%ld %ld %ld], wallDistance %lf, cg [%ld %ld %ld]\n",
-					//	site.GetGlobalSiteCoords().x, site.GetGlobalSiteCoords().y, site.GetGlobalSiteCoords().z,
-					//	direction, cp.x, cp.y, cp.z, wallDistance, cg.x, cg.y, cg.z);
 
-					// Calculate the densities, momenta, and equilibrium distributions and store them in HydroVars
+					// Calculate the densities, momenta, and equilibrium distributions and store them in HydroVars.
 					kernels::HydroVars<typename CollisionType::CKernel> hVfirstFluid(firstFluidFOld);
 					collider.kernel.CalculateDensityMomentumFeq(hVfirstFluid, 0); // the second argument is dummy
 					kernels::HydroVars<typename CollisionType::CKernel> hVsecondFluid(secondFluidFOld);
 					collider.kernel.CalculateDensityMomentumFeq(hVsecondFluid, 0); // the second argument is dummy
 
-					// Calculate the non-equilibrium distributions on the wall (equation 16)
+					// Calculate the non-equilibrium distributions on the wall (equation 16).
 					distribn_t fNeqWall[LatticeType::NUMVECTORS];
 					for (Direction i = 0; i < LatticeType::NUMVECTORS; ++i)
 					{
@@ -226,13 +218,13 @@ namespace hemelb
 						LatticeDensity densityWall = 3.0 * (localIOlet->GetPressure(iolet.GetTimeStep())
 															+ visc * stress(-ioletNormal, hydroVars.tau, fNeqWall));
 
-						// Interpolate the density at the first fluid site accounting for the BC (equation 12)
+						// Interpolate the density at the first fluid site accounting for the BC (equation 12).
 						LatticeDensity densityBC = (densityWall + wallDistance * hVsecondFluid.density) / (1.0 + wallDistance);
 
-						// Calculate the post-collision distributions at the second fluid site
+						// Calculate the post-collision distributions at the second fluid site.
 						collider.Collide(lbmParams, hVsecondFluid);
 
-						// Calculate the distribution of the unstreamed direction (equation 11)
+						// Calculate the distribution of the unstreamed direction (equation 11).
 						fNew = site.GetFOld<LatticeType>()[unstreamed]
 								+ site.GetFOld<LatticeType>()[direction]
 								+ 2.0 * LatticeType::EQMWEIGHTS[unstreamed] * (densityBC - hydroVars.density)
@@ -240,41 +232,41 @@ namespace hemelb
 					}
 					else
 					{
-						// Construct a HydroVars structure at the outer-wall node
+						// Construct a HydroVars structure at the outer-wall node.
 						distribn_t fOuterWall[LatticeType::NUMVECTORS];
 						kernels::HydroVars<typename CollisionType::CKernel> hVouterWall(fOuterWall);
 
-						// Calculate the required quantities at the outer-wall node
+						// Calculate the required quantities at the outer-wall node.
 						const LatticePosition sqBracket = momentumCorrection(cp, -ioletNormal, hydroVars.tau, fNeqWall);
 						distribn_t fNeqOuterWall;
 						if (special)
 						{
-							// Extrapolate the density and momentum (equation B.4)
+							// Extrapolate the density and momentum (equation B.4).
 							hVouterWall.density = 3.0 * hVfirstFluid.density - 2.0 * hVsecondFluid.density;
 							hVouterWall.momentum = (hVfirstFluid.momentum * (6.0 * wallDistance - 3.0)
 													+ hVsecondFluid.momentum * (4.0 - 4.0 * wallDistance)
 													- sqBracket * 3.0
 												   ) / (1.0 + 2.0 * wallDistance);
 
-							// Extrapolate the non-equilibrium distribution of the unstreamed direction (equation B.4)
+							// Extrapolate the non-equilibrium distribution of the unstreamed direction (equation B.4).
 							fNeqOuterWall = 3.0 * hVfirstFluid.GetFNeq().f[unstreamed]
 											- 2.0 * hVsecondFluid.GetFNeq().f[unstreamed];
 						}
 						else
 						{
-							// Extrapolate the density and momentum (equation 18)
+							// Extrapolate the density and momentum (equation 18).
 							hVouterWall.density = 2.0 * hVfirstFluid.density - hVsecondFluid.density;
 							hVouterWall.momentum = (hVfirstFluid.momentum * 4.0 * wallDistance
 													+ hVsecondFluid.momentum * (1.0 - 2.0 * wallDistance)
 													- sqBracket
 												   ) / (1.0 + 2.0 * wallDistance);
 
-							// Extrapolate the non-equilibrium distribution of the unstreamed direction (equation 20)
+							// Extrapolate the non-equilibrium distribution of the unstreamed direction (equation 20).
 							fNeqOuterWall = 2.0 * hVfirstFluid.GetFNeq().f[unstreamed]
 											- hVsecondFluid.GetFNeq().f[unstreamed];
 						}
 
-						// Calculate the equilibrium distributions at the outer-wall node
+						// Calculate the equilibrium distributions at the outer-wall node.
 						LatticeType::CalculateFeq(hVouterWall.density,
 												  hVouterWall.momentum.x,
 												  hVouterWall.momentum.y,
@@ -286,49 +278,7 @@ namespace hemelb
 						fNew = hVouterWall.GetFEq().f[unstreamed] + fNeqOuterWall * (1.0 - 1.0 / hydroVars.tau);
 					}
 
-
-					// Below is the Nash BC
-					int boundaryId = site.GetIoletId();
-
-					// Set the density at the "ghost" site to be the density of the iolet.
-					distribn_t ghostDensity = iolet.GetBoundaryDensity(boundaryId);
-
-					// Calculate the velocity at the ghost site, as the component normal to the iolet.
-					// util::Vector3D<float> ioletNormal = iolet.GetIolets()[boundaryId]->GetNormal();
-
-					// Note that the division by density compensates for the fact that v_x etc have momentum
-					// not velocity.
-					distribn_t component = (hydroVars.momentum / hydroVars.density).Dot(ioletNormal);
-
-					// TODO it's ugly that we have to do this.
-					// TODO having to give 0 as an argument is also ugly.
-					// TODO it's ugly that we have to give hydroVars a nonsense distribution vector
-					// that doesn't get used.
-					kernels::HydroVars<typename CollisionType::CKernel> ghostHydrovars(site);
-
-					ghostHydrovars.density = ghostDensity;
-					ghostHydrovars.momentum = ioletNormal * component * ghostDensity;
-
-					collider.kernel.CalculateFeq(ghostHydrovars, 0);
-
-					// Direction unstreamed = LatticeType::INVERSEDIRECTIONS[direction];
-
-					distribn_t fOld = ghostHydrovars.GetFEq()[unstreamed];
-					//*latticeData->GetFNew(site.GetIndex() * LatticeType::NUMVECTORS + unstreamed) = ghostHydrovars.GetFEq()[unstreamed];
-					if (unstreamed == dirG && cg == cp)
-					{
-						//printf("unstreamed [%ld %ld %ld]\n", site.GetGlobalSiteCoords().x, site.GetGlobalSiteCoords().y, site.GetGlobalSiteCoords().z);
-						*latticeData->GetFNew(site.GetIndex() * LatticeType::NUMVECTORS + unstreamed) = fNew;
-					}
-					else
-					{
-						*latticeData->GetFNew(site.GetIndex() * LatticeType::NUMVECTORS + unstreamed) = fNew;
-					}
-
-					if (iolet.GetTimeStep() % 50 == 0)
-					{
-						//printf("direction %u, Nash %.15lf, Yang %.15lf, dif %.5lf\n", direction, fOld, fNew, (fNew - fOld)/fOld);
-					}
+					*latticeData->GetFNew(site.GetIndex() * LatticeType::NUMVECTORS + unstreamed) = fNew;
 				}
 
 			protected:
@@ -337,7 +287,7 @@ namespace hemelb
 				 * the iolet normal vector. See equation A.1 in the paper. Due to assumption 1,
 				 * the directions are the same for all sites linked to the same iolet.
 				 */
-				inline void SortDirectionsCloseToIOletNormal(iolets::InOutLet* localIOlet)
+				void SortDirectionsCloseToIOletNormal(iolets::InOutLet* localIOlet)
 				{
 					const LatticePosition& ioletNormal = localIOlet->GetNormal();
 					std::array<Direction, LatticeType::NUMVECTORS> dirs;
@@ -353,34 +303,28 @@ namespace hemelb
           				dirs[k] = k;
         			}
 
-					// Sort dirs by comparing any two elements of dist
+					// Sort dirs by comparing any two elements of dist.
         			std::sort(dirs.begin(), dirs.end(), [&dist](Direction i, Direction j) {return dist[i] < dist[j];});
 
-					// Store the results in the iolet object
+					// Store the results in the iolet object.
 					localIOlet->SetDirectionsCloseToNormal(dirs.begin(), dirs.end());
-
-					for (Direction k = 0; k < LatticeType::NUMVECTORS; ++k)
-					{
-						printf("%u %u %lf ", dirs[k], localIOlet->GetDirectionCloseToNormal(k), dist[dirs[k]]);
-					}
-					printf("\n");
       			}
 
 				/**
 				 * Obtain the data at the two fluid sites. The logic used in the constructor is applied.
 				 */
-				inline void GetFluidSitesData(const geometry::Site<geometry::LatticeData> &site,
-											  const Direction &i,
-											  geometry::LatticeData *const latDat,
-											  bool &special,
-											  LatticeVector &cp,
-											  LatticeDistance &firstFluidWallDistance,
-											  const distribn_t* &firstFluidFOld,
-											  const distribn_t* &secondFluidFOld)
+				void GetFluidSitesData(const geometry::Site<geometry::LatticeData> &site,
+									   const Direction &i,
+									   geometry::LatticeData *const latDat,
+									   bool &special,
+									   LatticeVector &cp,
+									   LatticeDistance &firstFluidWallDistance,
+									   const distribn_t* &firstFluidFOld,
+									   const distribn_t* &secondFluidFOld)
 				{
 					const iolets::InOutLet* localIOlet = iolet.GetIolets()[site.GetIoletId()];
 
-					// The parameter i is assumed to be the stream direction
+					// The parameter i is assumed to be the stream direction.
 					const LatticeVector ci = LatticeVector(LatticeType::CX[i],
 														   LatticeType::CY[i],
 														   LatticeType::CZ[i]);
@@ -448,7 +392,7 @@ namespace hemelb
 						{
 							cp = LatticeVector(LatticeType::CX[dirP], LatticeType::CY[dirP], LatticeType::CZ[dirP]);
 
-							// The only difference is the factor 2 in the next line
+							// The only difference is the factor 2 in the next line.
 							const LatticeVector firstFluidSiteLocation = outerWallSiteLocation + cp * 2;
 							proc_t firstFluidSiteHomeProc = latDat->GetProcIdFromGlobalCoords(firstFluidSiteLocation);
 
@@ -527,7 +471,7 @@ namespace hemelb
 					{
 						stress += B_k(k, vec) * fNeq[k];
 					}
-					// Note that A_k = A_k* = 1/tau and h = 1 in lattice units
+					// Note that A_k = A_k* = 1/tau and h = 1 in lattice units.
 					stress *= -1.0 / tau;
 					return stress;
 				}
