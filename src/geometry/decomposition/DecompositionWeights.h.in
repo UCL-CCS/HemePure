@@ -45,6 +45,7 @@ namespace hemelb
       static const int hemelbSiteWeightsGZS_NEUTRAL = 1;
       static const int hemelbSiteWeightsJUNKYANG_NEUTRAL = 1; 
       static const int hemelbSiteWeightsNASHZEROTHORDERPRESSUREIOLET_NEUTRAL = 1;
+      static const int hemelbSiteWeightsYANGPRESSUREIOLET_NEUTRAL = 1;
       static const int hemelbSiteWeightsGRINBERGKARNIADAKISWKIOLET_NEUTRAL = 1;
       static const int hemelbSiteWeightsLADDIOLET_NEUTRAL = 1;
       

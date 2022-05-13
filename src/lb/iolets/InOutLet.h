@@ -144,6 +144,11 @@ namespace hemelb
           /// @todo: #632 This method must be moved to InOutletPressure
           virtual LatticeDensity GetDensity(LatticeTimeStep time_step) const = 0;
 
+          LatticePressure GetPressure(LatticeTimeStep time_step) const
+          {
+            return GetDensity(time_step) * Cs2;
+          }
+
           /// @todo: #632 Is this method ever implemented not empty?
           virtual void Reset(SimulationState& state) = 0;
 
@@ -186,6 +191,20 @@ namespace hemelb
           }
 
           /**
+           * Set the lattice directions sorted in an ascending order of
+           * how well they allign with the normal vector.
+           */
+          void SetDirectionsCloseToNormal(Direction* begin, Direction* end)
+          {
+            dirsCloseToNormal.assign(begin, end);
+          }
+
+          const Direction& GetDirectionCloseToNormal(Direction i) const
+          {
+            return dirsCloseToNormal[i];
+          }
+
+          /**
            * Set the minimum density throughout the simulation.
            * @param minSimDensity
            */
@@ -209,6 +228,7 @@ namespace hemelb
           LatticePosition position;
           util::Vector3D<Dimensionless> normal;
           site_t centreSiteID;
+          std::vector<Direction> dirsCloseToNormal;
           BoundaryComms* comms;
           IoletExtraData* extraData;
           friend class IoletExtraData;
