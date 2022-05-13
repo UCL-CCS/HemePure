@@ -479,7 +479,7 @@ namespace hemelb
 				inline LatticePosition tangentialVector(const LatticePosition vec, const LatticePosition normal)
 				{
 					distribn_t normalComp = vec.Dot(normal);
-					return (vec - vec * normalComp).Normalise();
+					return (vec - normal * normalComp).Normalise();
 				}
 
 				/**
