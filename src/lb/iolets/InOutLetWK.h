@@ -80,7 +80,7 @@ namespace hemelb
         
           virtual distribn_t GetScaleFactor(const LatticePosition& x) const;
           
-          LatticeDistance GetDistance(const LatticePosition& x) const;
+          LatticeDistance GetDistanceSquared(const LatticePosition& x) const;
           
           const distribn_t& GetResistance() const
           {

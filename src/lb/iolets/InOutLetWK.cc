@@ -21,7 +21,7 @@ namespace hemelb
 
       InOutLet* InOutLetWK::Clone() const
       {
-        InOutLetWK* copy = new InOutLetWK(*this);
+        InOutLet* copy = new InOutLetWK(*this);
         return copy;
       }
 
@@ -38,11 +38,11 @@ namespace hemelb
         comms->WaitAllComms();
       }
 
-      LatticeDistance InOutLetWK::GetDistance(const LatticePosition& x) const
+      LatticeDistance InOutLetWK::GetDistanceSquared(const LatticePosition& x) const
       {
         LatticePosition displ = x - position;
         LatticeDistance z = displ.Dot(normal);
-        return std::sqrt(displ.GetMagnitudeSquared() - z * z);
+        return displ.GetMagnitudeSquared() - z * z;
       }
 
       distribn_t InOutLetWK::GetScaleFactor(const LatticePosition& x) const
@@ -50,9 +50,7 @@ namespace hemelb
         // Q = vLocal (0.5pi a**2)(a**2/(a**2 - r**2)
         // where r is the distance from the centreline
         // a is the radius of the circular iolet
-        LatticePosition displ = x - position;
-        LatticeDistance z = displ.Dot(normal);
-        Dimensionless rFactor = (radius * radius)/(radius * radius - (displ.GetMagnitudeSquared() - z * z) );
+        Dimensionless rFactor = (radius * radius) / (radius * radius - GetDistanceSquared(x));
         return 0.5 * PI * radius * radius * rFactor;
       }
     }
