@@ -52,16 +52,19 @@ namespace hemelb
 
 						if (site.GetIndex() == wkIolet->GetCentreSiteID())
 						{
-							LatticePressure pressure = (ghostDensity - 1.0) * Cs2;
+							LatticePressure pressure = wkIolet->GetPressure(0);
 							distribn_t R0 = wkIolet->GetResistance();
 							distribn_t C0 = wkIolet->GetCapacitance();
 
 							LatticePosition sitePos(site.GetGlobalSiteCoords());
 							distribn_t scaleFactor = wkIolet->GetScaleFactor(sitePos);
 
-							// Set the density at the "ghost" site to be the density prediceted by the 2-element WK.
-							LatticeDensity ghostDensityNew = ((1.0/C0)*scaleFactor*std::abs(component) + (1.0 - 1.0/(R0*C0))*pressure)/Cs2 + 1.0;
-							//LatticeDensity ghostDensityNew = ((R0/(1.0 + R0*C0))*(scaleFactor*std::abs(component) + C0*pressure))/Cs2 + 1.0;
+							// Explicit integration scheme
+							//LatticeDensity ghostDensityNew = ((1.0/C0)*scaleFactor*std::abs(component) + (1.0 - 1.0/(R0*C0))*pressure)/Cs2;
+
+							// Semi-implicit integration scheme
+							LatticeDensity ghostDensityNew = ((R0/(1.0 + R0*C0))*(scaleFactor*std::abs(component) + C0*pressure))/Cs2;
+
 							wkIolet->SetDensityNew(ghostDensityNew);
 						}
 
