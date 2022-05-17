@@ -35,30 +35,9 @@ namespace hemelb
 							const Direction& direction)
 					{
 						int boundaryId = site.GetIoletId();
-						iolets::InOutLetWK* wkIolet = dynamic_cast<iolets::InOutLetWK*>(iolet.GetIolets()[boundaryId]);
-
-						if (site.GetIndex() == wkIolet->GetCentreSiteID())
-						{
-							LatticePressure pressure = wkIolet->GetPressure(0); // 0 is dummy
-							distribn_t R0 = wkIolet->GetResistance();
-							distribn_t C0 = wkIolet->GetCapacitance();
-
-							LatticePosition sitePos(site.GetGlobalSiteCoords());
-							distribn_t scaleFactor = wkIolet->GetScaleFactor(sitePos);
-
-							// Calculate the velocity at the ghost site, as the component normal to the iolet.
-							util::Vector3D<Dimensionless> ioletNormal = wkIolet->GetNormal();
-							distribn_t component = hydroVars.velocity.Dot(ioletNormal);
-
-							// Explicit integration scheme
-							//LatticePressure pressureNew = (1.0/C0)*scaleFactor*std::abs(component) + (1.0 - 1.0/(R0*C0))*pressure;
-
-							// Semi-implicit integration scheme
-							LatticePressure pressureNew = R0/(1.0 + R0*C0) * (scaleFactor*std::abs(component) + C0*pressure);
-
-							wkIolet->SetDensityNew(pressureNew / Cs2);
-						}
-
+						iolets::InOutLet* localIOlet = iolet.GetIolets()[boundaryId];
+						localIOlet->DoPreStreamCoupling(site.GetIndex(), site.GetGlobalSiteCoords(),
+														hydroVars.density, hydroVars.velocity);
 						nashDelegate.StreamLink(lbmParams, latticeData, site, hydroVars, direction);
 					}
 					
@@ -67,8 +46,8 @@ namespace hemelb
 							const Direction& direction)
 					{
 						int boundaryId = site.GetIoletId();
-						iolets::InOutLetWK* wkIolet = dynamic_cast<iolets::InOutLetWK*>(iolet.GetIolets()[boundaryId]);
-						wkIolet->SetDensity(wkIolet->GetDensityNew(0)); // 0 is dummy
+						iolets::InOutLet* localIOlet = iolet.GetIolets()[boundaryId];
+						localIOlet->DoPostStreamCoupling(site.GetIndex(), site.GetGlobalSiteCoords());
 					}
 
 				protected:

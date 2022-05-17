@@ -223,6 +223,16 @@ namespace hemelb
             extraData = ed;
           }
 
+          /**
+           * Carry out coupling with an external system at the iolet.
+           */
+          virtual void DoPreStreamCoupling(const site_t& siteID,
+                                           const LatticeVector& sitePos,
+                                           const LatticeDensity& density,
+                                           const LatticeVelocity& velocity);
+
+          virtual void DoPostStreamCoupling(const site_t& siteID, const LatticeVector& sitePos);
+
         protected:
           LatticeDensity minimumSimulationDensity;
           LatticePosition position;

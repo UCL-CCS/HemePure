@@ -16,6 +16,19 @@ namespace hemelb
         // pass
       }
 
+      void InOutLet::DoPreStreamCoupling(const site_t& siteID,
+                                         const LatticeVector& sitePos,
+                                         const LatticeDensity& density,
+                                         const LatticeVelocity& velocity)
+      {
+        // pass
+      }
+
+      void InOutLet::DoPostStreamCoupling(const site_t& siteID, const LatticeVector& sitePos)
+      {
+        // pass
+      }
+
       namespace
       {
         unsigned SmallestMagnitudeComponent(const LatticeVector r)
