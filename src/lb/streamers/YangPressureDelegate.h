@@ -178,11 +178,12 @@ namespace hemelb
 						   kernels::HydroVars<typename CollisionType::CKernel> &hydroVars,
 						   const Direction &direction)
 				{
-					if (!site.HasIolet(direction)) return;
-
 					iolets::InOutLet* localIOlet = iolet.GetIolets()[site.GetIoletId()];
 					const LatticePosition& ioletNormal = localIOlet->GetNormal();
-					distribn_t fNew;
+
+					// Couple with an external system if there is
+					localIOlet->DoPreStreamCoupling(site.GetIndex(), site.GetGlobalSiteCoords(),
+													hydroVars.density, hydroVars.velocity);
 
 					// Obtain cp, wallDistance, and the old distributions at the first and second fluid nodes.
 					// Here wall is referred to as the iolet plane.
@@ -209,6 +210,8 @@ namespace hemelb
 					Direction unstreamed = LatticeType::INVERSEDIRECTIONS[direction];
 					Direction dirG = localIOlet->GetDirectionCloseToNormal(0);
 					LatticeVector cg = LatticeVector(LatticeType::CX[dirG], LatticeType::CY[dirG], LatticeType::CZ[dirG]);
+					distribn_t fNew;
+
 					if (unstreamed == dirG && cg == cp)
 					{
 						// Calculate the density on the wall (equation 13).
@@ -279,6 +282,17 @@ namespace hemelb
 					}
 
 					*latticeData->GetFNew(site.GetIndex() * LatticeType::NUMVECTORS + unstreamed) = fNew;
+				}
+
+				inline void PostStepLink(geometry::LatticeData* const latticeData,
+						const geometry::Site<geometry::LatticeData>& site,
+						const Direction& direction)
+				{
+					int boundaryId = site.GetIoletId();
+					iolets::InOutLet* localIOlet = iolet.GetIolets()[boundaryId];
+
+					// Finalise the coupling with the external system
+					localIOlet->DoPostStreamCoupling(site.GetIndex(), site.GetGlobalSiteCoords());
 				}
 
 			protected:
