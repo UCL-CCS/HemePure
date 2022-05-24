@@ -35,6 +35,11 @@ namespace hemelb
 							const Direction& direction)
 					{
 						int boundaryId = site.GetIoletId();
+						iolets::InOutLet* localIOlet = iolet.GetIolets()[boundaryId];
+
+						// Couple with an external system if there is
+						localIOlet->DoPreStreamCoupling(site.GetIndex(), site.GetGlobalSiteCoords(),
+														hydroVars.density, hydroVars.velocity);
 
 						// Set the density at the "ghost" site to be the density of the iolet.
 						distribn_t ghostDensity = iolet.GetBoundaryDensity(boundaryId);
@@ -62,6 +67,18 @@ namespace hemelb
 						*latticeData->GetFNew(site.GetIndex() * LatticeType::NUMVECTORS + unstreamed)
 							= ghostHydrovars.GetFEq()[unstreamed];
 					}
+
+					inline void PostStepLink(geometry::LatticeData* const latticeData,
+							const geometry::Site<geometry::LatticeData>& site,
+							const Direction& direction)
+					{
+						int boundaryId = site.GetIoletId();
+						iolets::InOutLet* localIOlet = iolet.GetIolets()[boundaryId];
+
+						// Finalise the coupling with the external system
+						localIOlet->DoPostStreamCoupling(site.GetIndex(), site.GetGlobalSiteCoords());
+					}
+
 				protected:
 					CollisionType& collider;
 					iolets::BoundaryValues& iolet;

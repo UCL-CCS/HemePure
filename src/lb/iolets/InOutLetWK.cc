@@ -21,7 +21,7 @@ namespace hemelb
 
       InOutLet* InOutLetWK::Clone() const
       {
-        InOutLetWK* copy = new InOutLetWK(*this);
+        InOutLet* copy = new InOutLetWK(*this);
         return copy;
       }
 
@@ -38,11 +38,11 @@ namespace hemelb
         comms->WaitAllComms();
       }
 
-      LatticeDistance InOutLetWK::GetDistance(const LatticePosition& x) const
+      LatticeDistance InOutLetWK::GetDistanceSquared(const LatticePosition& x) const
       {
         LatticePosition displ = x - position;
         LatticeDistance z = displ.Dot(normal);
-        return std::sqrt(displ.GetMagnitudeSquared() - z * z);
+        return displ.GetMagnitudeSquared() - z * z;
       }
 
       distribn_t InOutLetWK::GetScaleFactor(const LatticePosition& x) const
@@ -50,10 +50,38 @@ namespace hemelb
         // Q = vLocal (0.5pi a**2)(a**2/(a**2 - r**2)
         // where r is the distance from the centreline
         // a is the radius of the circular iolet
-        LatticePosition displ = x - position;
-        LatticeDistance z = displ.Dot(normal);
-        Dimensionless rFactor = (radius * radius)/(radius * radius - (displ.GetMagnitudeSquared() - z * z) );
+        Dimensionless rFactor = (radius * radius) / (radius * radius - GetDistanceSquared(x));
         return 0.5 * PI * radius * radius * rFactor;
+      }
+
+      void InOutLetWK::DoPreStreamCoupling(const site_t& siteID,
+                                           const LatticeVector& sitePos,
+                                           const LatticeDensity& density,
+                                           const LatticeVelocity& velocity)
+      {
+        if (siteID == centreSiteID)
+				{
+					LatticePressure pressure = GetPressure(0); // the argument is dummy
+					distribn_t R0 = resistance, C0 = capacitance;
+					distribn_t scaleFactor = GetScaleFactor(sitePos);
+					distribn_t component = velocity.Dot(normal);
+
+					// Explicit integration scheme
+					//LatticePressure pressureNew = (1.0/C0)*scaleFactor*std::abs(component) + (1.0 - 1.0/(R0*C0))*pressure;
+
+					// Semi-implicit integration scheme
+					LatticePressure pressureNew = R0/(1.0 + R0*C0) * (scaleFactor*std::abs(component) + C0*pressure);
+
+					densityNew = pressureNew / Cs2;
+				}
+      }
+
+      void InOutLetWK::DoPostStreamCoupling(const site_t& siteID, const LatticeVector& sitePos)
+      {
+        if (siteID == centreSiteID)
+        {
+          density = densityNew;
+        }
       }
     }
   }

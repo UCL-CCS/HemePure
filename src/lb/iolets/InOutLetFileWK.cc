@@ -25,7 +25,7 @@ namespace hemelb
 
       InOutLet* InOutLetFileWK::Clone() const
       {
-        InOutLetFileWK* copy = new InOutLetFileWK(*this);
+        InOutLet* copy = new InOutLetFileWK(*this);
         return copy;
       }
 
