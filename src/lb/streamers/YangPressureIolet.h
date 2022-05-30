@@ -3,14 +3,13 @@
 // the HemeLB team and/or their institutions, as detailed in the
 // file AUTHORS. This software is provided under the terms of the
 // license in the file LICENSE.
-#ifndef HEMELB_LB_STREAMERS_GRINBERGKARNIADAKISWKIOLET_H
-#define HEMELB_LB_STREAMERS_GRINBERGKARNIADAKISWKIOLET_H
+#ifndef HEMELB_LB_STREAMERS_YANGPRESSUREIOLET_H
+#define HEMELB_LB_STREAMERS_YANGPRESSUREIOLET_H
 
 #include "lb/streamers/StreamerTypeFactory.h"
-#include "lb/streamers/GrinbergKarniadakisWKDelegate.h"
+#include "lb/streamers/YangPressureDelegate.h"
 #include "lb/streamers/SimpleBounceBackDelegate.h"
 #include "lb/streamers/BouzidiFirdaousLallemandDelegate.h"
-#include "lb/streamers/JunkYangFactory.h"
 
 namespace hemelb
 {
@@ -20,47 +19,41 @@ namespace hemelb
     {
 
       template<class CollisionType>
-      struct GrinbergKarniadakisWKIolet
+      struct YangPressureIolet
       {
-          typedef IoletStreamerTypeFactory<CollisionType, GrinbergKarniadakisWKDelegate<CollisionType> > Type;
+          typedef IoletStreamerTypeFactory<CollisionType, YangPressureDelegate<CollisionType> > Type;
       };
 
       template<class CollisionType>
-      struct GrinbergKarniadakisWKIoletSBB
+      struct YangPressureIoletSBB
       {
           typedef WallIoletStreamerTypeFactory<CollisionType, SimpleBounceBackDelegate<CollisionType> ,
-              GrinbergKarniadakisWKDelegate<CollisionType> > Type;
+              YangPressureDelegate<CollisionType> > Type;
       };
 
       template<class CollisionType>
-      struct GrinbergKarniadakisWKIoletBFL
+      struct YangPressureIoletBFL
       {
           typedef WallIoletStreamerTypeFactory<CollisionType, BouzidiFirdaousLallemandDelegate<CollisionType> ,
-              GrinbergKarniadakisWKDelegate<CollisionType> > Type;
+              YangPressureDelegate<CollisionType> > Type;
       };
 
       template<class CollisionType>
-      struct GrinbergKarniadakisWKIoletGZS
+      struct YangPressureIoletGZS
       {
           typedef WallIoletStreamerTypeFactory<CollisionType, GuoZhengShiDelegate<CollisionType> ,
-              GrinbergKarniadakisWKDelegate<CollisionType> > Type;
+              YangPressureDelegate<CollisionType> > Type;
       };
 
       template<class CollisionType>
-      struct GrinbergKarniadakisWKIoletGZSE
+      struct YangPressureIoletGZSE
       {
           typedef WallIoletStreamerTypeFactory<CollisionType, GuoZhengShiElasticWallDelegate<CollisionType> ,
-              GrinbergKarniadakisWKDelegate<CollisionType> > Type;
-      };
-
-      template<class CollisionType>
-      struct GrinbergKarniadakisWKIoletJY
-      {
-          typedef JunkYangFactory<CollisionType, GrinbergKarniadakisWKDelegate<CollisionType> > Type;
+              YangPressureDelegate<CollisionType> > Type;
       };
 
     }
   }
 }
 
-#endif /* HEMELB_LB_STREAMERS_NASHZEROTHORDERPRESSUREIOLET_H */
+#endif /* HEMELB_LB_STREAMERS_YANGPRESSUREIOLET_H */

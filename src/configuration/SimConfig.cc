@@ -269,9 +269,9 @@ namespace hemelb
 				{
 					newIolet = DoIOForPressureInOutlet(currentIoletNode);
 				}
-				else if (conditionType == "windkessel")
+				else if (conditionType == "yangpressure")
 				{
-					newIolet = DoIOForWindkesselPressureInOutlet(currentIoletNode);
+					newIolet = DoIOForYangPressureInOutlet(currentIoletNode);
 				}
 				else if (conditionType == "velocity")
 				{
@@ -303,6 +303,14 @@ namespace hemelb
 			{
 				newIolet = DoIOForFilePressureInOutlet(ioletEl);
 			}
+			else if (conditionSubtype == "WK")
+			{
+				newIolet = DoIOForWKPressureInOutlet(ioletEl);
+			}
+			else if (conditionSubtype == "fileWK")
+			{
+				newIolet = DoIOForFileWKPressureInOutlet(ioletEl);
+			}
 			else
 			{
 				throw Exception() << "Invalid boundary condition subtype '" << conditionSubtype << "' in "
@@ -312,30 +320,36 @@ namespace hemelb
 			return newIolet;
 		}
 
-		lb::iolets::InOutLet* SimConfig::DoIOForWindkesselPressureInOutlet(const io::xml::Element& ioletEl)
+		lb::iolets::InOutLet* SimConfig::DoIOForYangPressureInOutlet(const io::xml::Element& ioletEl)
 		{
-		      //CheckIoletMatchesCMake(ioletEl, "GRINBERGKARNIADAKISWKIOLET");
-		      io::xml::Element conditionEl = ioletEl.GetChildOrThrow("condition");
-		      const std::string& conditionSubtype = conditionEl.GetAttributeOrThrow("subtype");
+			CheckIoletMatchesCMake(ioletEl, "YANGPRESSUREIOLET");
+			io::xml::Element conditionEl = ioletEl.GetChildOrThrow("condition");
+			const std::string& conditionSubtype = conditionEl.GetAttributeOrThrow("subtype");
 
-		      lb::iolets::InOutLet* newIolet = NULL;
-		      if (conditionSubtype == "GKmodel")
-		      {
-		        CheckIoletMatchesCMake(ioletEl, "GRINBERGKARNIADAKISWKIOLET");
-		        newIolet = DoIOForGrinbergKarniadakisWKInOutlet(ioletEl);
-		      }
-		      else if (conditionSubtype == "fileGKmodel")
-		      {
-		        CheckIoletMatchesCMake(ioletEl, "GRINBERGKARNIADAKISWKIOLET");
-		        newIolet = DoIOForFileGrinbergKarniadakisWKInOutlet(ioletEl);
-		      }
-		      else
-		      {
-			throw Exception() << "Invalid boundary condition subtype '" << conditionSubtype << "' in "
-			    << ioletEl.GetPath();
-		      }
+			lb::iolets::InOutLet* newIolet = NULL;
+			if (conditionSubtype == "cosine")
+			{
+				newIolet = DoIOForCosinePressureInOutlet(ioletEl);
+			}
+			else if (conditionSubtype == "file")
+			{
+				newIolet = DoIOForFilePressureInOutlet(ioletEl);
+			}
+			else if (conditionSubtype == "WK")
+			{
+				newIolet = DoIOForWKPressureInOutlet(ioletEl);
+			}
+			else if (conditionSubtype == "fileWK")
+			{
+				newIolet = DoIOForFileWKPressureInOutlet(ioletEl);
+			}
+			else
+			{
+				throw Exception() << "Invalid boundary condition subtype '" << conditionSubtype << "' in "
+					<< ioletEl.GetPath();
+			}
 
-		      return newIolet;
+			return newIolet;
 		}
 
 		lb::iolets::InOutLet* SimConfig::DoIOForVelocityInOutlet(const io::xml::Element& ioletEl)
@@ -670,7 +684,7 @@ namespace hemelb
 			return newIolet;
 		}
 
-		lb::iolets::InOutLetWK* SimConfig::DoIOForGrinbergKarniadakisWKInOutlet(
+		lb::iolets::InOutLetWK* SimConfig::DoIOForWKPressureInOutlet(
 			const io::xml::Element& ioletEl)
 		{
 		      lb::iolets::InOutLetWK* newIolet = new lb::iolets::InOutLetWK();
@@ -692,15 +706,14 @@ namespace hemelb
 		      return newIolet;
 		}
 
-
-		lb::iolets::InOutLetFileWK* SimConfig::DoIOForFileGrinbergKarniadakisWKInOutlet(
+		lb::iolets::InOutLetFileWK* SimConfig::DoIOForFileWKPressureInOutlet(
 			const io::xml::Element& ioletEl)
 		{
 		      lb::iolets::InOutLetFileWK* newIolet = new lb::iolets::InOutLetFileWK();
 		      DoIOForBaseInOutlet(ioletEl, newIolet);
 
 		      const io::xml::Element conditionEl = ioletEl.GetChildOrThrow("condition");
-	              std::string wkFilePath = conditionEl.GetChildOrThrow("path").GetAttributeOrThrow("value");
+			  std::string wkFilePath = conditionEl.GetChildOrThrow("path").GetAttributeOrThrow("value");
 
 		      wkFilePath = util::NormalizePathRelativeToPath(wkFilePath, xmlFilePath);
 		      newIolet->SetFilePath(wkFilePath);

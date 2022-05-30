@@ -190,6 +190,16 @@ namespace hemelb
       public:
         typedef typename streamers::NashZerothOrderPressureIolet<Collision>::Type Type;
     };
+
+    /**
+     * The Yang 2010 pressure boundary condition.
+     */
+    template<class Collision>
+    class YANGPRESSUREIOLET
+    {
+      public:
+        typedef typename streamers::YangPressureIolet<Collision>::Type Type;
+    };
     
     /**
      * The inlet/outlet condition based on Ladd's modified bounce-back on
@@ -201,16 +211,6 @@ namespace hemelb
         typedef typename streamers::LaddIolet<Collision>::Type Type;
     };
 
-     /**
-     * Our 2-element Windkessel based on Grinberg and Karniadakis and Nash BC for iolets
-     */
-    template<class Collision>
-    class GRINBERGKARNIADAKISWKIOLET
-    {
-      public:
-        typedef typename streamers::GrinbergKarniadakisWKIolet<Collision>::Type Type;
-    };
-    
     /**
      * The following classes have names corresponding to the options given in the build system for
      * HEMELB_WALL_INLET_BOUNDARY / HEMELB_WALL_OUTLET_BOUNDARY
@@ -226,22 +226,22 @@ namespace hemelb
     };
 
     /**
+     * Yang in/outlet + SBB
+     */
+    template<class Collision>
+    class YANGPRESSURESBB
+    {
+      public:
+        typedef typename streamers::YangPressureIoletSBB<Collision>::Type Type;
+    };
+
+    /**
      * Ladd in/outlet + SBB
      */
     template<class Collision>
     struct LADDIOLETSBB
     {
         typedef typename streamers::LaddIoletSBB<Collision>::Type Type;
-    };
-
-    /**
-     * G+K in/outlet + SBB
-     */
-    template<class Collision>
-    class GRINBERGKARNIADAKISWKSBB
-    {
-      public:
-        typedef typename streamers::GrinbergKarniadakisWKIoletSBB<Collision>::Type Type;
     };
 
     /**
@@ -255,22 +255,22 @@ namespace hemelb
     };
 
     /**
+     * Yang in/outlet + BFL
+     */
+    template<class Collision>
+    class YANGPRESSUREBFL
+    {
+      public:
+        typedef typename streamers::YangPressureIoletBFL<Collision>::Type Type;
+    };
+
+    /**
      * Ladd in/outlet + BFL
      */
     template<class Collision>
     struct LADDIOLETBFL
     {
         typedef typename streamers::LaddIoletBFL<Collision>::Type Type;
-    };
-    
-    /**
-     * G+K in/outlet + BFL
-     */
-    template<class Collision>
-    class GRINBERGKARNIADAKISWKBFL
-    {
-      public:
-        typedef typename streamers::GrinbergKarniadakisWKIoletBFL<Collision>::Type Type;
     };
 
     /**
@@ -281,6 +281,16 @@ namespace hemelb
     {
       public:
         typedef typename streamers::NashZerothOrderPressureIoletGZS<Collision>::Type Type;
+    };
+
+    /**
+     * Yang in/outlet + GZS
+     */
+    template<class Collision>
+    class YANGPRESSUREGZS
+    {
+      public:
+        typedef typename streamers::YangPressureIoletGZS<Collision>::Type Type;
     };
 
     /**
@@ -303,7 +313,17 @@ namespace hemelb
     };
 
     /**
-     * Ladd in/outlet + GZS
+     * Yang in/outlet + GZSElastic
+     */
+    template<class Collision>
+    class YANGPRESSUREGZSE
+    {
+      public:
+        typedef typename streamers::YangPressureIoletGZSE<Collision>::Type Type;
+    };
+
+    /**
+     * Ladd in/outlet + GZSElastic
      */
     template<class Collision>
     struct LADDIOLETGZSE
