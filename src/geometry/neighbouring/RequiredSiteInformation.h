@@ -28,6 +28,7 @@ namespace hemelb
           ShearStress = 6,
           VonMisesStress = 7,
           ShearRate = 8,
+          WallExtension = 9,
           Length
         };
       }
