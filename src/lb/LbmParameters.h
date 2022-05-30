@@ -77,6 +77,8 @@ namespace hemelb
         StressTypes StressType;
         
 	distribn_t ElasticWallStiffness;
+	
+	distribn_t BoundaryVelocityRatio;
 
       private:
         PhysicalTime timestep;

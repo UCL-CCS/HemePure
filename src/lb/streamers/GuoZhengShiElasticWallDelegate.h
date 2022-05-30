@@ -105,7 +105,7 @@ namespace hemelb
             distribn_t fWall[LatticeType::NUMVECTORS];
             kernels::HydroVars<typename CollisionType::CKernel> hydroVarsWall(fWall);
 	   
-	    double gamma = lbmParams->ElasticWallStiffness; //Wall stiffness 	    
+	    distribn_t gamma = lbmParams->ElasticWallStiffness; //Wall stiffness 	    
 	    
 	    //LBM pressure version
 	    //double dr = std::max((hydroVars.density - 1.0)/(3.0*gamma),0.0) + 1.0;
@@ -162,7 +162,9 @@ namespace hemelb
 	    //double F = 0.525;
 	    //double F = 0.85; //cylinder results
 	    //double F = 0.025; //forearem arteries, dx=5e-5
-	    double F = 0.5; //forearem arteries, dx=2.1e-4
+	    //double F = 0.5; //forearem arteries, dx=2.1e-4
+	    distribn_t F = lbmParams->BoundaryVelocityRatio; //Ratio of velocities at edge of simulation domain 	    
+	    
 	    if (dr > (1.0-F)){
 		    hydroVarsWall.momentum = hydroVars.momentum * (F + dr - 1.)/dr; //Rejig from paper writeup July 2021
 	    } else {
