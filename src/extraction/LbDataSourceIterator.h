@@ -87,6 +87,12 @@ namespace hemelb
 				util::Vector3D<PhysicalStress> GetTraction() const;
 
 				/**
+				 * Returns the elastic wall extension at the site.
+				 * @return wall extension
+				 */
+				FloatingType GetWallExtension() const;
+
+				/**
 				 * Returns a pointer to the velocity distribution of a site.
 				 * @return pointer to a velocity distribution
 				 */

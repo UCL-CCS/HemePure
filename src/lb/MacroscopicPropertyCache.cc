@@ -20,6 +20,7 @@ namespace hemelb
       stressTensorCache(simState, latticeData.GetLocalFluidSiteCount()),
       tractionCache(simState, latticeData.GetLocalFluidSiteCount()),
       tangentialProjectionTractionCache(simState, latticeData.GetLocalFluidSiteCount()),
+      wallExtensionCache(simState, latticeData.GetLocalFluidSiteCount()),
       siteCount(latticeData.GetLocalFluidSiteCount())
     {
       ResetRequirements();
@@ -35,6 +36,7 @@ namespace hemelb
       stressTensorCache.UnsetRefreshFlag();
       tractionCache.UnsetRefreshFlag();
       tangentialProjectionTractionCache.UnsetRefreshFlag();
+      wallExtensionCache.UnsetRefreshFlag();
     }
 
     site_t MacroscopicPropertyCache::GetSiteCount() const

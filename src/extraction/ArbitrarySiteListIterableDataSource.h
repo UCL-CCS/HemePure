@@ -90,6 +90,14 @@ namespace hemelb
         }
 
         /**
+         * Returns the elastic wall extension at the site.
+         * @return
+         */
+        float GetWallExtension() const {
+          return 0.0;
+        }
+
+        /**
          * Resets the iterator to the beginning again.
          */
         void Reset() {
