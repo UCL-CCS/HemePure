@@ -43,6 +43,7 @@ namespace hemelb
       static const int hemelbSiteWeightsSIMPLEBOUNCEBACK_NEUTRAL = 1;
       static const int hemelbSiteWeightsBFL_NEUTRAL = 1;
       static const int hemelbSiteWeightsGZS_NEUTRAL = 1;
+      static const int hemelbSiteWeightsGZSElastic_NEUTRAL = 1;
       static const int hemelbSiteWeightsJUNKYANG_NEUTRAL = 1; 
       static const int hemelbSiteWeightsNASHZEROTHORDERPRESSUREIOLET_NEUTRAL = 1;
       static const int hemelbSiteWeightsYANGPRESSUREIOLET_NEUTRAL = 1;
