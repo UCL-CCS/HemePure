@@ -178,7 +178,7 @@ namespace hemelb
 			// Optional element
 			// <boundary_velocity_ratio value="float" units="lattice" />
 			const io::xml::Element bvrEl = simEl.GetChildOrNull("boundary_velocity_ratio");
-			if (ewsEl != io::xml::Element::Missing())
+			if (bvrEl != io::xml::Element::Missing())
 			{
 				GetDimensionalValue(bvrEl, "lattice", boundaryVelocityRatio);
 			}
