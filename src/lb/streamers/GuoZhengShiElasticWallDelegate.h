@@ -34,53 +34,6 @@ namespace hemelb
             collider(delegatorCollider),bValues(initParams.boundaryObject)
           {
 
-	    //Womersley Pressure version
-	    //Data to import
-	    //do similar to gamma
-	    //Ensure in LU
-	    double womersleyNumber = 3.544907701811032;
-	    double period = 6000.0;
-	    double cO = 1.178511301977579; //sqrt(thick*E/2*rho)
-	    double poisson = 0.5;
-	    double pressureGrad = -7.406795112344784e-07;
-	  	    
-	    omega = 2.0 * PI / period;
-	    
-	    Complex lambda = pow(Complex(0.0,1.0),1.5) * womersleyNumber;
-            Complex g = 2.0 * util::BesselJ1ComplexArgument(lambda) / ( lambda * util::BesselJ0ComplexArgument(lambda));
-
-	    //Build terms of frequency equation, we will ASSUME that the wall thickness is 0.1*Radius and rho_wall == rho_fluid
-	    //Quadratic equation of form Ax^2 + Bx + C = 0
-	    double thick = 0.1;
-	    Complex A = (g - 1.0) * (poisson * poisson - 1);
-       	    Complex B = thick * (g - 1.0) + (2.0 * poisson - 0.5) * g - 2.0;
-	    Complex C = 2.0*thick + g;
-    
-	    Complex rt1 = (-B + sqrt(B * B - 4.0 * A * C)) / (2.0 * A);
-	    Complex rt2 = (-B - sqrt(B * B - 4.0 * A * C)) / (2.0 * A);
-    
-	    Complex nu;
-            if ((rt1.real() > rt2.real()) || ((rt1.real() == rt2.real()) && (rt1.imag() > rt2.imag())))
-	    {
-		    nu = rt1;
-	    }
-	    else
-	    {
-		    nu = rt2;
-	    }
-    
-	    Complex M = (2.0 + nu * (2.0 * poisson - 1.0)) / (nu * (2.0 * poisson - g));
-
-	    Complex c = cO*sqrt(2.0/((1.0-poisson)*(1.0-poisson)*nu));
-	    Complex H = abs(Complex(0.0,1.0)*c*pressureGrad/omega);
-
-	    double mod1 = abs(H)*cos(std::arg(H)) - abs(H*(1.0-M)/c)*cos(std::arg(H*(1.0-M)/c));
-	    double mod2 = abs(H)*sin(std::arg(H)) - abs(H*(1.0-M)/c)*sin(std::arg(H*(1.0-M)/c));
-	    Pm = sqrt(mod1*mod1 + mod2*mod2);
-	    Pt = atan(mod2/mod1);
-	    if (mod1<0){
-		Pt += PI;
-	    }
           }
 
  
@@ -113,45 +66,6 @@ namespace hemelb
 	    
 	    //Dynamic pressure version
 	   // double dr = std::max(0.5*hydroVars.density*hydroVars.momentum.GetMagnitudeSquared()/gamma,0.0) + 1.0;
-	    
-
-
-	    const distribn_t* neighbourFOld;
-	    util::Vector3D<float> ioletNormal = LatticeVector(1,0,0);
-	    
-	    // Find the neighbour's global location and which proc it's on.
-	    LatticeVector neighbourGlobalLocation = site.GetGlobalSiteCoords() + LatticeVector(lrint(ioletNormal.x), lrint(ioletNormal.y), lrint(ioletNormal.z));
-	    //LatticeVector neighbourGlobalLocation = site.GetGlobalSiteCoords() + LatticeVector(0,0,-1);
-	    //std::cout<< "neighbour at " << neighbourGlobalLocation.x << "," << neighbourGlobalLocation.y << "," << neighbourGlobalLocation.z << std::endl;
-	    proc_t neighbourProcessor = latDat->GetProcIdFromGlobalCoords(neighbourGlobalLocation);
-	    //std::cout << "On Proc " << neighbourProcessor << std::endl;
-	    
-	    LatticeVelocity neighbourMomentum;
-	    if (neighbourProcessor == latDat->GetLocalRank())
-	    {
-		      // If it's local, get a Site object for it.
-		      geometry::Site<geometry::LatticeData> nextSiteOut =
-			  latDat->GetSite(latDat->GetContiguousSiteId(neighbourGlobalLocation));
-		      neighbourFOld = nextSiteOut.GetFOld<LatticeType> ();
-
-		    
-		    LatticeVelocity neighbourVelocity;
-		    distribn_t neighbourFEq[LatticeType::NUMVECTORS];
-			  // Go ahead and calculate the density, momentum and eqm distribution.
-		    distribn_t neighbourDensity;
-		    //LatticeVelocity neighbourMomentum;
-			    // Note that nextNodeOutVelocity is passed as the momentum argument, this
-			    // is because it is immediately divided by density when the function returns.
-		    LatticeType::CalculateDensityMomentumFEq(neighbourFOld,
-							     neighbourDensity,
-							     neighbourMomentum.x,
-							     neighbourMomentum.y,
-							     neighbourMomentum.z,
-							     neighbourVelocity.x,
-							     neighbourVelocity.y,
-							     neighbourVelocity.z,
-							     neighbourFEq);
-	    }
 
 	    hydroVars.coverageFactor = dr-1.0;
 
@@ -208,8 +122,6 @@ namespace hemelb
           // the collision
           CollisionType collider;
 	  iolets::BoundaryValues* bValues;
-
-	double Pt, Pm, omega;
       };
 
     }

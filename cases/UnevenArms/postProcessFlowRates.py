@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 stepSize = 500
-DX = 0.00002
+DX = 0.0002
 
 ForkIn = np.array([[23,23,203]])
 
@@ -45,6 +45,6 @@ plt.subplot(3,1,3)
 plt.plot(np.divide(ForkOutV[0][1::3],ForkOutV[1][1::3]),'-')
 #plt.title("Velocity")
 #plt.xlabel("Simulation Steps")
-plt.ylabel("Velocity [Units]")
+plt.ylabel("Ratio 0/1")
 plt.legend()
 plt.show()
