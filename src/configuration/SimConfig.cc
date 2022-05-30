@@ -552,9 +552,9 @@ namespace hemelb
 			{
 				field.type = extraction::OutputField::TangentialProjectionTraction;
 			}
-			else if (type == "coveragefactor") //JM only makes sense with LBGKPSM kernel
+			else if (type == "wallextension")
 			{
-				field.type = extraction::OutputField::CoverageFactor;
+				field.type = extraction::OutputField::WallExtension;
 			}
 			else if (type == "distributions")
 			{

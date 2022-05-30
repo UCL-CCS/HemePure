@@ -190,6 +190,11 @@ namespace hemelb
 
 									propertyCache.tangentialProjectionTractionCache.Put(site.GetIndex(), tangentialProjectionTractionOnAPoint);
 								}
+
+								if (propertyCache.wallExtensionCache.RequiresRefresh())
+								{
+									propertyCache.wallExtensionCache.Put(site.GetIndex(), hydroVars.wallExtension);
+								}
 							}
 				};
 		}

@@ -67,7 +67,7 @@ namespace hemelb
 	    //Dynamic pressure version
 	   // double dr = std::max(0.5*hydroVars.density*hydroVars.momentum.GetMagnitudeSquared()/gamma,0.0) + 1.0;
 
-	    hydroVars.coverageFactor = dr-1.0;
+	    hydroVars.wallExtension = dr-1.0;
 
             hydroVarsWall.density = hydroVars.density;
             //hydroVarsWall.momentum = hydroVars.momentum * (dr - 1.)/dr;

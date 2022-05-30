@@ -77,6 +77,11 @@ namespace hemelb
 			return converter.ConvertStressToPhysicalUnits(propertyCache.tangentialProjectionTractionCache.Get(position));
 		}
 
+		FloatingType LbDataSourceIterator::GetWallExtension() const
+		{
+			return converter.ConvertDistanceToPhysicalUnits(propertyCache.wallExtensionCache.Get(position));
+		}
+
 	    	const distribn_t* LbDataSourceIterator::GetDistribution() const
 	    	{
 	    		return data.GetFNew(position * data.GetLatticeInfo().GetNumVectors());
