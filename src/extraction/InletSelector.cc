@@ -32,6 +32,10 @@ namespace hemelb
 				//}
 				return true;
 			}
+			else
+			{
+				return false;
+			}
 		}
 	}
 }
