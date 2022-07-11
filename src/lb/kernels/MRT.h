@@ -25,6 +25,12 @@ namespace hemelb
       struct HydroVars<MRT<MomentBasis> > : public HydroVarsBase<typename MomentBasis::Lattice>
       {
         public:
+          template<class DataSource>
+						HydroVars(geometry::Site<DataSource> const &_site) :
+							HydroVarsBase<typename MomentBasis::Lattice>(_site)
+					{
+					}
+
           HydroVars(const distribn_t* const f) :
               HydroVarsBase<typename MomentBasis::Lattice>(f)
           {
