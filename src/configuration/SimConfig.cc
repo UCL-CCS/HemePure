@@ -174,6 +174,14 @@ namespace hemelb
 			{
 				GetDimensionalValue(ewsEl, "lattice", elasticWallStiffness);
 			}
+			
+			// Optional element
+			// <boundary_velocity_ratio value="float" units="lattice" />
+			const io::xml::Element bvrEl = simEl.GetChildOrNull("boundary_velocity_ratio");
+			if (bvrEl != io::xml::Element::Missing())
+			{
+				GetDimensionalValue(bvrEl, "lattice", boundaryVelocityRatio);
+			}
 
 		}
 
@@ -544,9 +552,9 @@ namespace hemelb
 			{
 				field.type = extraction::OutputField::TangentialProjectionTraction;
 			}
-			else if (type == "coveragefactor") //JM only makes sense with LBGKPSM kernel
+			else if (type == "wallextension")
 			{
-				field.type = extraction::OutputField::CoverageFactor;
+				field.type = extraction::OutputField::WallExtension;
 			}
 			else if (type == "distributions")
 			{

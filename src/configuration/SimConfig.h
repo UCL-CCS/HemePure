@@ -162,9 +162,14 @@ namespace hemelb
           return colloidConfigPath;
         }
 
-	float GetElasticWallStiffness() const
+	distribn_t GetElasticWallStiffness() const
 	{
 	  return elasticWallStiffness;
+	}
+	
+	distribn_t GetBoundaryVelocityRatio() const
+	{
+	  return boundaryVelocityRatio;
 	}
 	/**
          * True if the XML file has a section specifying colloids.
@@ -332,7 +337,8 @@ namespace hemelb
         util::UnitConverter* unitConverter;
 	ICConfig icConfig;
 
-	float elasticWallStiffness;
+	distribn_t elasticWallStiffness;
+	distribn_t boundaryVelocityRatio;
     };
   }
 }

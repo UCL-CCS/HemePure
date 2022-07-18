@@ -292,7 +292,10 @@ namespace hemelb
                     << static_cast<WrittenDataType> (dataSource.GetTangentialProjectionTraction().y)
                     << static_cast<WrittenDataType> (dataSource.GetTangentialProjectionTraction().z);
                 break;
-              
+              case OutputField::WallExtension:
+                xdrWriter
+                    << static_cast<WrittenDataType> (dataSource.GetWallExtension());
+                break;
               case OutputField::Distributions:
 
 		unsigned numComponents;
@@ -361,6 +364,7 @@ namespace hemelb
         case OutputField::VonMisesStress:
         case OutputField::ShearStress:
         case OutputField::ShearRate:
+        case OutputField::WallExtension:
         case OutputField::MpiRank:
           return 1;
         case OutputField::Velocity:
