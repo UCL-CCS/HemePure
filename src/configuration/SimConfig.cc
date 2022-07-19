@@ -376,6 +376,10 @@ namespace hemelb
 			{
 				newIolet = DoIOForFileVelocityInOutlet(ioletEl);
 			}
+			else if (conditionSubtype == "readWrite")
+			{
+				newIolet = DoIOForReadWriteVelocityInOutlet(ioletEl);
+			}
 			else
 			{
 				throw Exception() << "Invalid boundary condition subtype '" << conditionSubtype << "' in "
@@ -829,9 +833,41 @@ namespace hemelb
 
 			velocityFilePath = util::NormalizePathRelativeToPath(velocityFilePath, xmlFilePath);
 			newIolet->SetFilePath(velocityFilePath);
+			std::cout << "path is here:" << velocityFilePath << std::endl;
 
 			const io::xml::Element radiusEl = conditionEl.GetChildOrThrow("radius");
 			newIolet->SetRadius(GetDimensionalValueInLatticeUnits<LatticeDistance>(radiusEl, "m"));
+
+			return newIolet;
+		}
+
+		lb::iolets::InOutLetReadWriteVelocity* SimConfig::DoIOForReadWriteVelocityInOutlet(
+				const io::xml::Element& ioletEl)
+		{
+			lb::iolets::InOutLetReadWriteVelocity* newIolet = new lb::iolets::InOutLetReadWriteVelocity();
+			DoIOForBaseInOutlet(ioletEl, newIolet);
+
+			const io::xml::Element conditionEl = ioletEl.GetChildOrThrow("condition");
+
+			const io::xml::Element radiusEl = conditionEl.GetChildOrThrow("radius");
+			newIolet->SetRadius(GetDimensionalValueInLatticeUnits<LatticeDistance>(radiusEl, "m"));
+
+			const io::xml::Element freqEl = conditionEl.GetChildOrThrow("frequency");
+			newIolet->SetCouplingFrequency(GetDimensionalValueInLatticeUnits<Dimensionless>(freqEl, "dimensionless"));
+
+			std::string velFilePath = conditionEl.GetChildOrThrow("velocityFilePath").GetAttributeOrThrow("value");
+			velFilePath = util::NormalizePathRelativeToPath(velFilePath, xmlFilePath);
+			newIolet->SetVelocityFilePath(velFilePath);
+
+			const io::xml::Element velConvFactorEl = conditionEl.GetChildOrThrow("velocityConversionFactor");
+			newIolet->SetVelocityConversionFactor(GetDimensionalValueInLatticeUnits<Dimensionless>(velConvFactorEl, "dimensionless"));
+
+			std::string pressFilePath = conditionEl.GetChildOrThrow("pressureFilePath").GetAttributeOrThrow("value");
+			pressFilePath = util::NormalizePathRelativeToPath(pressFilePath, xmlFilePath);
+			newIolet->SetPressureFilePath(pressFilePath);
+
+			const io::xml::Element pressConvFactorEl = conditionEl.GetChildOrThrow("pressureConversionFactor");
+			newIolet->SetPressureConversionFactor(GetDimensionalValueInLatticeUnits<Dimensionless>(pressConvFactorEl, "dimensionless"));
 
 			return newIolet;
 		}

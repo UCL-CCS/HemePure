@@ -269,6 +269,9 @@ namespace hemelb
         lb::iolets::InOutLetFileVelocity* DoIOForFileVelocityInOutlet(
             const io::xml::Element& ioletEl);
 
+        lb::iolets::InOutLetReadWriteVelocity* DoIOForReadWriteVelocityInOutlet(
+            const io::xml::Element& ioletEl);
+
         void DoIOForProperties(const io::xml::Element& xmlNode);
         void DoIOForProperty(io::xml::Element xmlNode, bool isLoading);
         extraction::OutputField DoIOForPropertyField(const io::xml::Element& xmlNode);
