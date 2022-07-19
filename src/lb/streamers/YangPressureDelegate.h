@@ -182,7 +182,7 @@ namespace hemelb
 					const LatticePosition& ioletNormal = localIOlet->GetNormal();
 
 					// Couple with an external system if there is
-					localIOlet->DoPreStreamCoupling(site.GetIndex(), site.GetGlobalSiteCoords(),
+					localIOlet->DoPreStreamCoupling(site.GetIndex(), iolet.GetTimeStep(), site.GetGlobalSiteCoords(),
 													hydroVars.density, hydroVars.velocity);
 
 					// Obtain cp, wallDistance, and the old distributions at the first and second fluid nodes.
@@ -292,7 +292,7 @@ namespace hemelb
 					iolets::InOutLet* localIOlet = iolet.GetIolets()[boundaryId];
 
 					// Finalise the coupling with the external system
-					localIOlet->DoPostStreamCoupling(site.GetIndex(), site.GetGlobalSiteCoords());
+					localIOlet->DoPostStreamCoupling(site.GetIndex(), iolet.GetTimeStep(), site.GetGlobalSiteCoords());
 				}
 
 			protected:

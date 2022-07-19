@@ -227,11 +227,14 @@ namespace hemelb
            * Carry out coupling with an external system at the iolet.
            */
           virtual void DoPreStreamCoupling(const site_t& siteID,
+                                           const LatticeTimeStep& timeStep,
                                            const LatticeVector& sitePos,
                                            const LatticeDensity& density,
                                            const LatticeVelocity& velocity);
 
-          virtual void DoPostStreamCoupling(const site_t& siteID, const LatticeVector& sitePos);
+          virtual void DoPostStreamCoupling(const site_t& siteID,
+                                            const LatticeTimeStep& timeStep,
+                                            const LatticeVector& sitePos);
 
         protected:
           LatticeDensity minimumSimulationDensity;
