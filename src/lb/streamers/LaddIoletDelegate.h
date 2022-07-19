@@ -50,6 +50,10 @@ namespace hemelb
                 dynamic_cast<iolets::InOutLetVelocity*>(bValues->GetIolets()[boundaryId]);
             LatticePosition sitePos(site.GetGlobalSiteCoords());
 
+            // Couple with an external system if there is
+						iolet->DoPreStreamCoupling(site.GetIndex(), bValues->GetTimeStep(), site.GetGlobalSiteCoords(),
+														           hydroVars.density, hydroVars.velocity);
+
             LatticePosition halfWay(sitePos);
             halfWay.x += 0.5 * LatticeType::CX[ii];
             halfWay.y += 0.5 * LatticeType::CY[ii];
@@ -71,6 +75,18 @@ namespace hemelb
                                                                                         ii))) =
                 hydroVars.GetFPostCollision()[ii] - correction;
           }
+
+          inline void PostStepLink(geometry::LatticeData* const latticeData,
+							const geometry::Site<geometry::LatticeData>& site,
+							const Direction& direction)
+					{
+						int boundaryId = site.GetIoletId();
+						iolets::InOutLet* localIOlet = bValues->GetIolets()[boundaryId];
+
+						// Finalise the coupling with the external system
+						localIOlet->DoPostStreamCoupling(site.GetIndex(), bValues->GetTimeStep(), site.GetGlobalSiteCoords());
+					}
+
         private:
           iolets::BoundaryValues* bValues;
       };

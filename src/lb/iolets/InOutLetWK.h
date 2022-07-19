@@ -103,11 +103,14 @@ namespace hemelb
           }
 
           void DoPreStreamCoupling(const site_t& siteID,
+                                   const LatticeTimeStep& timeStep,
                                    const LatticeVector& sitePos,
                                    const LatticeDensity& density,
                                    const LatticeVelocity& velocity);
 
-          void DoPostStreamCoupling(const site_t& siteID, const LatticeVector& sitePos);
+          void DoPostStreamCoupling(const site_t& siteID,
+                                    const LatticeTimeStep& timeStep,
+                                    const LatticeVector& sitePos);
 
         protected:
           LatticeDensity density, densityNew;

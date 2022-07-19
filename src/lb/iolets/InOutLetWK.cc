@@ -55,6 +55,7 @@ namespace hemelb
       }
 
       void InOutLetWK::DoPreStreamCoupling(const site_t& siteID,
+                                           const LatticeTimeStep& timeStep,
                                            const LatticeVector& sitePos,
                                            const LatticeDensity& density,
                                            const LatticeVelocity& velocity)
@@ -76,7 +77,9 @@ namespace hemelb
 				}
       }
 
-      void InOutLetWK::DoPostStreamCoupling(const site_t& siteID, const LatticeVector& sitePos)
+      void InOutLetWK::DoPostStreamCoupling(const site_t& siteID,
+                                            const LatticeTimeStep& timeStep,
+                                            const LatticeVector& sitePos)
       {
         if (siteID == centreSiteID)
         {

@@ -13,7 +13,7 @@ namespace hemelb
     namespace iolets
     {
       InOutLetVelocity::InOutLetVelocity() :
-          radius(0.)
+          InOutLet(), radius(0.)
       {
       }
 

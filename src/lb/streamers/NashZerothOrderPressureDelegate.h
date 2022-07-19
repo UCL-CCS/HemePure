@@ -38,7 +38,7 @@ namespace hemelb
 						iolets::InOutLet* localIOlet = iolet.GetIolets()[boundaryId];
 
 						// Couple with an external system if there is
-						localIOlet->DoPreStreamCoupling(site.GetIndex(), site.GetGlobalSiteCoords(),
+						localIOlet->DoPreStreamCoupling(site.GetIndex(), iolet.GetTimeStep(), site.GetGlobalSiteCoords(),
 														hydroVars.density, hydroVars.velocity);
 
 						// Set the density at the "ghost" site to be the density of the iolet.
@@ -76,7 +76,7 @@ namespace hemelb
 						iolets::InOutLet* localIOlet = iolet.GetIolets()[boundaryId];
 
 						// Finalise the coupling with the external system
-						localIOlet->DoPostStreamCoupling(site.GetIndex(), site.GetGlobalSiteCoords());
+						localIOlet->DoPostStreamCoupling(site.GetIndex(), iolet.GetTimeStep(), site.GetGlobalSiteCoords());
 					}
 
 				protected:

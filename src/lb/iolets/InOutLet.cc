@@ -17,6 +17,7 @@ namespace hemelb
       }
 
       void InOutLet::DoPreStreamCoupling(const site_t& siteID,
+                                         const LatticeTimeStep& timeStep,
                                          const LatticeVector& sitePos,
                                          const LatticeDensity& density,
                                          const LatticeVelocity& velocity)
@@ -24,7 +25,9 @@ namespace hemelb
         // pass
       }
 
-      void InOutLet::DoPostStreamCoupling(const site_t& siteID, const LatticeVector& sitePos)
+      void InOutLet::DoPostStreamCoupling(const site_t& siteID,
+                                          const LatticeTimeStep& timeStep,
+                                          const LatticeVector& sitePos)
       {
         // pass
       }
