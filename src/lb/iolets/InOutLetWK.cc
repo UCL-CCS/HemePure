@@ -64,13 +64,13 @@ namespace hemelb
 					LatticePressure pressure = GetPressure(0); // the argument is dummy
 					distribn_t R0 = resistance, C0 = capacitance;
 					distribn_t scaleFactor = GetScaleFactor(sitePos);
-					distribn_t component = velocity.Dot(normal);
+					distribn_t component = velocity.Dot(-normal); // note that outlet normals point inwards
 
 					// Explicit integration scheme
-					//LatticePressure pressureNew = (1.0/C0)*scaleFactor*std::abs(component) + (1.0 - 1.0/(R0*C0))*pressure;
+					//LatticePressure pressureNew = (1.0/C0)*scaleFactor*component + (1.0 - 1.0/(R0*C0))*pressure;
 
 					// Semi-implicit integration scheme
-					LatticePressure pressureNew = R0/(1.0 + R0*C0) * (scaleFactor*std::abs(component) + C0*pressure);
+					LatticePressure pressureNew = R0/(1.0 + R0*C0) * (scaleFactor*component + C0*pressure);
 
 					densityNew = pressureNew / Cs2;
 				}
