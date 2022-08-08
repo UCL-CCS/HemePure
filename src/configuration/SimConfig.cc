@@ -703,6 +703,10 @@ namespace hemelb
 		      const io::xml::Element radiusEl = conditionEl.GetChildOrThrow("radius");
 		      newIolet->SetRadius(GetDimensionalValueInLatticeUnits<LatticeDistance>(radiusEl, "m"));
 
+			  distribn_t tempArea;
+		      GetDimensionalValue(conditionEl.GetChildOrThrow("area"), "m^2", tempArea);
+		      newIolet->SetArea(unitConverter->ConvertAreaToLatticeUnits(tempArea));
+
 		      return newIolet;
 		}
 

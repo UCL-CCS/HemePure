@@ -64,7 +64,7 @@ namespace hemelb
           }
           
 	        /**
-           * Note that the radius and max speed for these are specified in LATTICE UNITS in the XML file.
+           * Note that the radius and area for these are specified in LATTICE UNITS in the XML file.
            * This is indeed a horrible hack.
            * @return
            */
@@ -76,6 +76,16 @@ namespace hemelb
           void SetRadius(const LatticeDistance& r)
           {
             radius = r;
+          }
+
+          const distribn_t& GetArea() const
+          {
+            return area;
+          }
+
+          void SetArea(const distribn_t& a)
+          {
+            area = a;
           }
         
           virtual distribn_t GetScaleFactor(const LatticePosition& x) const;
@@ -113,10 +123,11 @@ namespace hemelb
                                     const LatticeVector& sitePos);
 
         protected:
-          LatticeDensity density, densityNew;
           LatticeDistance radius;
-          distribn_t resistance;
-          distribn_t capacitance;
+          distribn_t area, resistance, capacitance;
+          LatticeDensity density, densityNew;
+          distribn_t flowRate, flowRateNew;
+          site_t siteCount;
       };
     }
   }
