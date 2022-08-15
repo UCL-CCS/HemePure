@@ -27,6 +27,11 @@ namespace hemelb
               SimpleBounceBackDelegate<CollisionType>(delegatorCollider, initParams),
                   bValues(initParams.boundaryObject)
           {
+            // Adapted from YangPressureDelegate
+					  for (int i = 0; i < bValues->GetLocalIoletCount(); ++i)
+					  {
+						  SortDirectionsCloseToIOletNormal(bValues->GetLocalIolet(i));
+					  }
           }
 
           inline void StreamLink(const LbmParameters* lbmParams,
@@ -49,6 +54,14 @@ namespace hemelb
             iolets::InOutLetVelocity* iolet =
                 dynamic_cast<iolets::InOutLetVelocity*>(bValues->GetIolets()[boundaryId]);
             LatticePosition sitePos(site.GetGlobalSiteCoords());
+            Direction unstreamed = LatticeType::INVERSEDIRECTIONS[ii];
+
+            // Couple with an external system if there is
+            if (unstreamed == ii)
+            {
+						  iolet->DoPreStreamCoupling(site.GetIndex(), bValues->GetTimeStep(), sitePos,
+							  							           hydroVars.density, hydroVars.velocity);
+            }
 
             LatticePosition halfWay(sitePos);
             halfWay.x += 0.5 * LatticeType::CX[ii];
@@ -71,6 +84,47 @@ namespace hemelb
                                                                                         ii))) =
                 hydroVars.GetFPostCollision()[ii] - correction;
           }
+
+          inline void PostStepLink(geometry::LatticeData* const latticeData,
+							const geometry::Site<geometry::LatticeData>& site,
+							const Direction& ii)
+					{
+						int boundaryId = site.GetIoletId();
+						iolets::InOutLet* localIOlet = bValues->GetIolets()[boundaryId];
+            Direction unstreamed = LatticeType::INVERSEDIRECTIONS[ii];
+
+						// Finalise the coupling with the external system
+            if (unstreamed == ii)
+            {
+						  localIOlet->DoPostStreamCoupling(site.GetIndex(), bValues->GetTimeStep(), site.GetGlobalSiteCoords());
+            }
+					}
+
+        protected:
+          // Copied from YangPressureDelegate
+					void SortDirectionsCloseToIOletNormal(iolets::InOutLet* localIOlet)
+					{
+						const LatticePosition& ioletNormal = localIOlet->GetNormal();
+						std::array<Direction, LatticeType::NUMVECTORS> dirs;
+        		std::array<LatticeDistance, LatticeType::NUMVECTORS> dist;
+
+	        	for (Direction k = 0; k < LatticeType::NUMVECTORS; ++k)
+						{
+							const LatticePosition ck = LatticePosition(LatticeType::CXD[k],
+					          							                       LatticeType::CYD[k],
+		                													           LatticeType::CZD[k]);
+							const LatticePosition unitCk = ck.GetNormalised();
+							dist[k] = LatticePosition(unitCk - ioletNormal).GetMagnitudeSquared();
+        			dirs[k] = k;
+      			}
+
+						// Sort dirs by comparing any two elements of dist.
+      			std::sort(dirs.begin(), dirs.end(), [&dist](Direction i, Direction j) {return dist[i] < dist[j];});
+
+						// Store the results in the iolet object.
+						localIOlet->SetDirectionsCloseToNormal(dirs.begin(), dirs.end());
+      		}
+
         private:
           iolets::BoundaryValues* bValues;
       };
