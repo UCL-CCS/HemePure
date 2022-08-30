@@ -438,6 +438,10 @@ namespace hemelb
 			{
 				file->geometry = new extraction::GeometrySurfaceSelector();
 			}
+			else if (type == "surfaceWithinSphere")
+			{
+				file->geometry = DoIOForSurfaceWithinSphere(geometryEl);
+			}
 			else if (type == "surfacepoint")
 			{
 				file->geometry = DoIOForSurfacePoint(geometryEl);
@@ -509,6 +513,20 @@ namespace hemelb
 			GetDimensionalValue(radiusEl, "m", radius);
 
 			return new extraction::SphereGeometrySelector(point, radius);
+		}
+
+		extraction::SurfaceWithinSphereSelector* SimConfig::DoIOForSurfaceWithinSphere(
+				const io::xml::Element& geometryEl)
+		{
+			io::xml::Element pointEl = geometryEl.GetChildOrThrow("point");
+			PhysicalPosition point;
+			GetDimensionalValue(pointEl, "m", point);
+
+			io::xml::Element radiusEl = geometryEl.GetChildOrNull("radius");
+			PhysicalDistance radius;
+			GetDimensionalValue(radiusEl, "m", radius);
+
+			return new extraction::SurfaceWithinSphereSelector(point, radius);
 		}
 
 		extraction::SurfacePointSelector* SimConfig::DoIOForSurfacePoint(

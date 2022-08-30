@@ -278,6 +278,7 @@ namespace hemelb
             const io::xml::Element& xmlNode);
         extraction::PlaneGeometrySelector* DoIOForPlaneGeometry(const io::xml::Element&);
         extraction::SphereGeometrySelector* DoIOForSphereGeometry(const io::xml::Element&);
+        extraction::SurfaceWithinSphereSelector* DoIOForSurfaceWithinSphere(const io::xml::Element&);
         extraction::SurfacePointSelector* DoIOForSurfacePoint(const io::xml::Element&);
 
         void DoIOForInitialConditions(io::xml::Element parent);
