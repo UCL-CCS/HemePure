@@ -20,6 +20,8 @@ namespace hemelb
     {
         PropertyOutputFile()
         {
+          start = 0;
+          stop = 1000000000;
           geometry = NULL;
         }
 
@@ -29,7 +31,7 @@ namespace hemelb
         }
 
         std::string filename;
-        unsigned long frequency;
+        unsigned long frequency, start, stop;
         GeometrySelector* geometry;
         std::vector<OutputField> fields;
     };

@@ -204,7 +204,9 @@ namespace hemelb
 
     bool LocalPropertyOutput::ShouldWrite(unsigned long timestepNumber) const
     {
-      return ( (timestepNumber % outputSpec->frequency) == 0);
+      return (timestepNumber >= outputSpec->start)
+          & (timestepNumber <= outputSpec->stop)
+          & ( (timestepNumber % outputSpec->frequency) == 0);
     }
 
     const PropertyOutputFile* LocalPropertyOutput::GetOutputSpec() const

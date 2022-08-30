@@ -402,6 +402,8 @@ namespace hemelb
 			file->filename = propertyoutputEl.GetAttributeOrThrow("file");
 
 			propertyoutputEl.GetAttributeOrThrow("period", file->frequency);
+			propertyoutputEl.GetAttributeOrNull("start", file->start);
+			propertyoutputEl.GetAttributeOrNull("stop", file->stop);
 
 			io::xml::Element geometryEl = propertyoutputEl.GetChildOrThrow("geometry");
 			const std::string& type = geometryEl.GetAttributeOrThrow("type");
@@ -415,6 +417,10 @@ namespace hemelb
 			else if (type == "line")
 			{
 				file->geometry = DoIOForLineGeometry(geometryEl);
+			}
+			else if (type == "sphere")
+			{
+				file->geometry = DoIOForSphereGeometry(geometryEl);
 			}
 			else if (type == "inlet")
 			{
@@ -433,6 +439,10 @@ namespace hemelb
 			else if (type == "surface")
 			{
 				file->geometry = new extraction::GeometrySurfaceSelector();
+			}
+			else if (type == "surfaceWithinSphere")
+			{
+				file->geometry = DoIOForSurfaceWithinSphere(geometryEl);
 			}
 			else if (type == "surfacepoint")
 			{
@@ -491,6 +501,34 @@ namespace hemelb
 				return new extraction::PlaneGeometrySelector(point, normal, radius);
 			}
 
+		}
+
+		extraction::SphereGeometrySelector* SimConfig::DoIOForSphereGeometry(
+				const io::xml::Element& geometryEl)
+		{
+			io::xml::Element pointEl = geometryEl.GetChildOrThrow("point");
+			PhysicalPosition point;
+			GetDimensionalValue(pointEl, "m", point);
+
+			io::xml::Element radiusEl = geometryEl.GetChildOrThrow("radius");
+			PhysicalDistance radius;
+			GetDimensionalValue(radiusEl, "m", radius);
+
+			return new extraction::SphereGeometrySelector(point, radius);
+		}
+
+		extraction::SurfaceWithinSphereSelector* SimConfig::DoIOForSurfaceWithinSphere(
+				const io::xml::Element& geometryEl)
+		{
+			io::xml::Element pointEl = geometryEl.GetChildOrThrow("point");
+			PhysicalPosition point;
+			GetDimensionalValue(pointEl, "m", point);
+
+			io::xml::Element radiusEl = geometryEl.GetChildOrThrow("radius");
+			PhysicalDistance radius;
+			GetDimensionalValue(radiusEl, "m", radius);
+
+			return new extraction::SurfaceWithinSphereSelector(point, radius);
 		}
 
 		extraction::SurfacePointSelector* SimConfig::DoIOForSurfacePoint(
