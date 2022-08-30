@@ -9,6 +9,7 @@
 
 #include "extraction/StraightLineGeometrySelector.h"
 #include "extraction/PlaneGeometrySelector.h"
+#include "extraction/SphereGeometrySelector.h"
 #include "extraction/InletSelector.h"
 #include "extraction/OutletSelector.h"
 #include "extraction/WholeGeometrySelector.h"

@@ -416,6 +416,10 @@ namespace hemelb
 			{
 				file->geometry = DoIOForLineGeometry(geometryEl);
 			}
+			else if (type == "sphere")
+			{
+				file->geometry = DoIOForSphereGeometry(geometryEl);
+			}
 			else if (type == "inlet")
 			{
 				file->geometry = new extraction::InletSelector();
@@ -491,6 +495,20 @@ namespace hemelb
 				return new extraction::PlaneGeometrySelector(point, normal, radius);
 			}
 
+		}
+
+		extraction::SphereGeometrySelector* SimConfig::DoIOForSphereGeometry(
+				const io::xml::Element& geometryEl)
+		{
+			io::xml::Element pointEl = geometryEl.GetChildOrThrow("point");
+			PhysicalPosition point;
+			GetDimensionalValue(pointEl, "m", point);
+
+			io::xml::Element radiusEl = geometryEl.GetChildOrNull("radius");
+			PhysicalDistance radius;
+			GetDimensionalValue(radiusEl, "m", radius);
+
+			return new extraction::SphereGeometrySelector(point, radius);
 		}
 
 		extraction::SurfacePointSelector* SimConfig::DoIOForSurfacePoint(

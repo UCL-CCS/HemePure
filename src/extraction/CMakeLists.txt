@@ -9,6 +9,7 @@ add_library(hemelb_extraction
 	LocalPropertyOutput.cc
 	IterableDataSource.cc
 	PlaneGeometrySelector.cc
+	SphereGeometrySelector.cc
 	PropertyActor.cc
 	PropertyWriter.cc
 	InletSelector.cc
