@@ -508,7 +508,7 @@ namespace hemelb
 			PhysicalPosition point;
 			GetDimensionalValue(pointEl, "m", point);
 
-			io::xml::Element radiusEl = geometryEl.GetChildOrNull("radius");
+			io::xml::Element radiusEl = geometryEl.GetChildOrThrow("radius");
 			PhysicalDistance radius;
 			GetDimensionalValue(radiusEl, "m", radius);
 
@@ -522,7 +522,7 @@ namespace hemelb
 			PhysicalPosition point;
 			GetDimensionalValue(pointEl, "m", point);
 
-			io::xml::Element radiusEl = geometryEl.GetChildOrNull("radius");
+			io::xml::Element radiusEl = geometryEl.GetChildOrThrow("radius");
 			PhysicalDistance radius;
 			GetDimensionalValue(radiusEl, "m", radius);
 
