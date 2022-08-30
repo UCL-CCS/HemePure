@@ -402,6 +402,8 @@ namespace hemelb
 			file->filename = propertyoutputEl.GetAttributeOrThrow("file");
 
 			propertyoutputEl.GetAttributeOrThrow("period", file->frequency);
+			propertyoutputEl.GetAttributeOrNull("start", file->start);
+			propertyoutputEl.GetAttributeOrNull("stop", file->stop);
 
 			io::xml::Element geometryEl = propertyoutputEl.GetChildOrThrow("geometry");
 			const std::string& type = geometryEl.GetAttributeOrThrow("type");
