@@ -74,6 +74,16 @@ namespace hemelb
           return beta;
         }
 
+        // A parameter used in the relaxation of some collision operators.
+        void SetRelaxationParameter(const distribn_t& param)
+        {
+          relaxationParameter = param;
+        }
+        distribn_t GetRelaxationParameter() const
+        {
+          return relaxationParameter;
+        }
+
         StressTypes StressType;
         
 	distribn_t ElasticWallStiffness;
@@ -85,6 +95,7 @@ namespace hemelb
         PhysicalDistance voxelSize;
         distribn_t omega;
         distribn_t tau;
+        distribn_t relaxationParameter;
         distribn_t stressParameter;
         distribn_t beta; ///< Viscous dissipation in ELBM
     };

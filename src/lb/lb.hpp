@@ -361,6 +361,7 @@ namespace hemelb
 				outletCount = outlets.size();
 				mParams.StressType = mSimConfig->GetStressType();
 
+				mParams.SetRelaxationParameter(mSimConfig->GetRelaxationParameter());
 				mParams.ElasticWallStiffness = mSimConfig->GetElasticWallStiffness();
 				mParams.BoundaryVelocityRatio = mSimConfig->GetBoundaryVelocityRatio();
 			}

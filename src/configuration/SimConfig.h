@@ -133,6 +133,10 @@ namespace hemelb
         {
           return warmUpSteps;
         }
+        distribn_t GetRelaxationParameter() const
+        {
+          return relaxationParameter;
+        }
         PhysicalTime GetTimeStepLength() const
         {
           return timeStepSeconds;
@@ -334,6 +338,7 @@ namespace hemelb
         PhysicalTime timeStepSeconds;
         unsigned long totalTimeSteps;
         unsigned long warmUpSteps;
+        distribn_t relaxationParameter;
         PhysicalDistance voxelSizeMetres;
         PhysicalPosition geometryOriginMetres;
         util::UnitConverter* unitConverter;

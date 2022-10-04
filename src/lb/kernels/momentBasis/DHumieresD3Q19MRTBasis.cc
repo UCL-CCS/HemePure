@@ -60,22 +60,23 @@ namespace hemelb
           }
         }
 
-        void DHumieresD3Q19MRTBasis::SetUpCollisionMatrix(std::vector<distribn_t>& collisionMatrix, distribn_t tau)
+        void DHumieresD3Q19MRTBasis::SetUpCollisionMatrix(std::vector<distribn_t>& collisionMatrix,
+                                                          distribn_t relaxationTime)
         {
-          // Relaxation values taken from d'Humieres 2002, except for the kinematic viscosity where the usual tau formula is used.
+          // Relaxation values taken from d'Humieres 2002.
           collisionMatrix.clear();
           collisionMatrix.push_back(1.19); // e (s1)
           collisionMatrix.push_back(1.4); // epsilon (s2)
           collisionMatrix.push_back(1.2); // q_x (s4)
           collisionMatrix.push_back(1.2); // q_y (s4)
           collisionMatrix.push_back(1.2); // q_z (s4)
-          collisionMatrix.push_back(1.0 / tau); // 3p_xx (s9)
+          collisionMatrix.push_back(relaxationTime); // 3p_xx (s9)
           collisionMatrix.push_back(1.4); // 3pi_xx s10
-          collisionMatrix.push_back(1.0 / tau); // 3p_ww (s9)
+          collisionMatrix.push_back(relaxationTime); // 3p_ww (s9)
           collisionMatrix.push_back(1.4); // 3pi_ww s10
-          collisionMatrix.push_back(1.0 / tau); // p_xy (s13 = s9)
-          collisionMatrix.push_back(1.0 / tau); // p_yz (s13 = s9)
-          collisionMatrix.push_back(1.0 / tau); // p_xz (s13 = s9)
+          collisionMatrix.push_back(relaxationTime); // p_xy (s13 = s9)
+          collisionMatrix.push_back(relaxationTime); // p_yz (s13 = s9)
+          collisionMatrix.push_back(relaxationTime); // p_xz (s13 = s9)
           collisionMatrix.push_back(1.98); // m_x (s16)
           collisionMatrix.push_back(1.98); // m_y (s16)
           collisionMatrix.push_back(1.98); // m_z (s16)
