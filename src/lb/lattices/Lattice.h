@@ -1078,9 +1078,9 @@ inline static double hsum_double_avx512(__m512d v) {
 						/**
 						 * Calculate the full stress tensor at a given fluid site (including both pressure and deviatoric part)
 						 *
-						 * The stress tensor is assembled based on the formula:
+						 * The stress tensor is assembled based on the formula (Ferziger et al., 2020):
 						 *
-						 *    \sigma = p*I + 2*\mu*S = p*I - \Pi^{(neq)}
+						 *    \sigma = -p*I + 2*\mu*S = -p*I - \Pi^{(neq)}
 						 *
 						 * where p is hydrodynamic pressure, I is the identity tensor, S is the strain rate tensor, and \mu is the
 						 * viscosity. -2*\mu*S can be shown to be equals to the non equilibrium part of the moment flux tensor \Pi^{(neq)}.
@@ -1102,14 +1102,14 @@ inline static double hsum_double_avx512(__m512d v) {
 						{
 							// Initialises the stress tensor to the deviatoric part, i.e. -\Pi^{(neq)}
 							stressTensor = CalculatePiTensor(fNonEquilibrium);
-							stressTensor *= 1 - 1 / (2 * tau);
+							stressTensor *= -(1.0 - 1.0 / (2.0 * tau));
 
-							// Add the pressure component to the stress tensor. The reference pressure given
+							// Subtract the pressure component from the stress tensor. The reference pressure given
 							// by the REFERENCE_PRESSURE_mmHg constant is mapped to rho=1. Here we subtract 1
 							// and when the tensor is turned into physical units REFERENCE_PRESSURE_mmHg will
 							// be added.
 							LatticePressure pressure = (density - 1) * Cs2;
-							stressTensor.addDiagonal(pressure);
+							stressTensor.addDiagonal(-pressure);
 						}
 
 						/**
@@ -1146,7 +1146,7 @@ inline static double hsum_double_avx512(__m512d v) {
 							// of the moment flux tensor pi.
 							distribn_t temp = iStressParameter * (-sqrt(2.0));
 
-							// Computes the second moment of the equilibrium function f.
+							// Computes the second moment of the non-equilibrium function f.
 							util::Matrix3D pi = CalculatePiTensor(f);
 
 							for (unsigned i = 0; i < 3; i++)
