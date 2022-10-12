@@ -338,7 +338,6 @@ namespace hemelb
         PhysicalPosition geometryOriginMetres;
         util::UnitConverter* unitConverter;
         ICConfig icConfig;
-
         distribn_t relaxationParameter;
         distribn_t elasticWallStiffness;
         distribn_t boundaryVelocityRatio;
