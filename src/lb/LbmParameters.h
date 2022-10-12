@@ -85,19 +85,17 @@ namespace hemelb
         }
 
         StressTypes StressType;
-        
-	distribn_t ElasticWallStiffness;
-	
-	distribn_t BoundaryVelocityRatio;
+        distribn_t ElasticWallStiffness;
+        distribn_t BoundaryVelocityRatio;
 
       private:
         PhysicalTime timestep;
         PhysicalDistance voxelSize;
         distribn_t omega;
         distribn_t tau;
-        distribn_t relaxationParameter;
         distribn_t stressParameter;
         distribn_t beta; ///< Viscous dissipation in ELBM
+        distribn_t relaxationParameter;
     };
   }
 }
