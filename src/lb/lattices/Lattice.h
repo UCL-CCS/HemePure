@@ -983,45 +983,20 @@ inline static double hsum_double_avx512(__m512d v) {
 						inline static void CalculateVonMisesStress(const distribn_t f[], distribn_t &stress,
 								const double iStressParameter)
 						{
-							// Recall that sigma_ij = Sum_l f(l) * C_il * C_jl
+							util::Matrix3D pi = CalculatePiTensor(f);
 
-							// First calculate sigma_xx - sigma_yy.
-							// Using standard form of sigma_ij, sigma_xx - sigma_yy
-							//   = Sum_l f(l) * (Cx(l) * Cx(l) - Cy(l) * Cy(l))
-							// We calculate sigma_yy - sigma_zz and sigma_xx and sigma_zz
-							// in the same way.
-							distribn_t sigma_xx_yy = 0.0;
-							distribn_t sigma_yy_zz = 0.0;
-							distribn_t sigma_xx_zz = 0.0;
+							distribn_t sigma_xx_yy = pi[0][0] - pi[1][1];
+							distribn_t sigma_yy_zz = pi[1][1] - pi[2][2];
+							distribn_t sigma_zz_xx = pi[2][2] - pi[0][0];
+							distribn_t sigma_xy = pi[0][1];
+							distribn_t sigma_yz = pi[1][2];
+							distribn_t sigma_zx = pi[2][0];
 
-							// We will also require sigma_xy, sigma_yz and sigma_xz, calculated in the usual
-							// way.
-							distribn_t sigma_xy = 0.0;
-							distribn_t sigma_xz = 0.0;
-							distribn_t sigma_yz = 0.0;
+							distribn_t temp1 = sigma_xx_yy * sigma_xx_yy + sigma_yy_zz * sigma_yy_zz
+								+ sigma_zz_xx * sigma_zz_xx;
+							distribn_t temp2 = sigma_xy * sigma_xy + sigma_yz * sigma_yz + sigma_zx * sigma_zx;
 
-							for (Direction direction = 0; direction < DmQn::NUMVECTORS; ++direction)
-							{
-								sigma_xx_yy += f[direction]
-									* (DmQn::CX[direction] * DmQn::CX[direction]
-											- DmQn::CY[direction] * DmQn::CY[direction]);
-								sigma_yy_zz += f[direction]
-									* (DmQn::CY[direction] * DmQn::CY[direction]
-											- DmQn::CZ[direction] * DmQn::CZ[direction]);
-								sigma_xx_zz += f[direction]
-									* (DmQn::CX[direction] * DmQn::CX[direction]
-											- DmQn::CZ[direction] * DmQn::CZ[direction]);
-
-								sigma_xy += f[direction] * DmQn::CX[direction] * DmQn::CY[direction];
-								sigma_xz += f[direction] * DmQn::CX[direction] * DmQn::CZ[direction];
-								sigma_yz += f[direction] * DmQn::CY[direction] * DmQn::CZ[direction];
-							}
-
-							distribn_t a = sigma_xx_yy * sigma_xx_yy + sigma_yy_zz * sigma_yy_zz
-								+ sigma_xx_zz * sigma_xx_zz;
-							distribn_t b = sigma_xy * sigma_xy + sigma_xz * sigma_xz + sigma_yz * sigma_yz;
-
-							stress = iStressParameter * sqrt(a + 6.0 * b);
+							stress = iStressParameter * sqrt(temp1 + 6.0 * temp2);
 						}
 
 						/**
@@ -1161,67 +1136,20 @@ inline static double hsum_double_avx512(__m512d v) {
 							stress = sqrt(square_stress_vector - normal_stress * normal_stress);
 						}
 
-						/**
-						 * Despite its name, this method does not compute the whole pi tensor (i.e. momentum flux tensor). What it does is
-						 * computing the second moment of a distribution function. If this distribution happens to be f_eq, the resulting
-						 * tensor will be the equilibrium part of pi. However, if the distribution function is f_neq, the result WON'T be
-						 * the non equilibrium part of pi. In order to get it, you will have to multiply by (1 - timestep/2*tau)
-						 *
-						 * @param f distribution function
-						 * @return second moment of the distribution function f
-						 */
-						inline static util::Matrix3D CalculatePiTensor(const distribn_t* const f)
-						{
-							util::Matrix3D ret;
-
-							// Fill in 0,0 1,0 1,1 2,0 2,1 2,2
-							for (int ii = 0; ii < 3; ++ii)
-							{
-								for (int jj = 0; jj <= ii; ++jj)
-								{
-									ret[ii][jj] = 0.0;
-									for (unsigned int l = 0; l < DmQn::NUMVECTORS; ++l)
-									{
-										ret[ii][jj] += f[l] * DmQn::discreteVelocityVectors[ii][l]
-											* DmQn::discreteVelocityVectors[jj][l];
-									}
-								}
-							}
-
-							// Exploit the symmetry to fill in 0,1 0,2 1,2
-							for (int ii = 0; ii < 3; ++ii)
-							{
-								for (int jj = ii + 1; jj < 3; ++jj)
-								{
-									ret[ii][jj] = ret[jj][ii];
-								}
-							}
-
-							return ret;
-						}
-
 						inline static distribn_t CalculateShearRate(const distribn_t &iTau,
 								const distribn_t iFNeq[],
 								const distribn_t &iDensity)
 						{
+							util::Matrix3D pi = CalculatePiTensor(iFNeq);
 							distribn_t shear_rate = 0.0;
-							distribn_t strain_rate_tensor_i_j;
-
 							for (unsigned row = 0; row < 3; row++)
 							{
 								for (unsigned column = 0; column < 3; column++)
 								{
-									strain_rate_tensor_i_j = CalculateStrainRateTensorComponent(row,
-											column,
-											iTau,
-											iFNeq,
-											iDensity);
-									shear_rate += strain_rate_tensor_i_j * strain_rate_tensor_i_j;
+									shear_rate += pi[row][column] * pi[row][column];
 								}
 							}
-
-							shear_rate = sqrt(shear_rate);
-
+							shear_rate = sqrt(shear_rate) / (-2.0 * iTau * Cs2 * iDensity);
 							return shear_rate;
 						}
 
@@ -1371,24 +1299,43 @@ inline static double hsum_double_avx512(__m512d v) {
 						}
 
 					private:
-						inline static distribn_t CalculateStrainRateTensorComponent(const unsigned &iRow,
-								const unsigned &iColumn,
-								const distribn_t &iTau,
-								const distribn_t iFNeq[],
-								const distribn_t &iDensity)
+						/**
+						 * Despite its name, this method does not compute the whole pi tensor (i.e. momentum flux tensor). What it does is
+						 * computing the second moment of a distribution function. If this distribution happens to be f_eq, the resulting
+						 * tensor will be the equilibrium part of pi. However, if the distribution function is f_neq, the result WON'T be
+						 * the non equilibrium part of pi. In order to get it, you will have to multiply by (1 - timestep/2*tau)
+						 *
+						 * @param f distribution function
+						 * @return second moment of the distribution function f
+						 */
+						inline static util::Matrix3D CalculatePiTensor(const distribn_t* const f)
 						{
-							distribn_t strain_rate_tensor_i_j = 0.0;
+							util::Matrix3D ret;
 
-							for (Direction vec_index = 0; vec_index < DmQn::NUMVECTORS; vec_index++)
+							// Fill in 0,0 1,0 1,1 2,0 2,1 2,2
+							for (int ii = 0; ii < 3; ++ii)
 							{
-								strain_rate_tensor_i_j += iFNeq[vec_index]
-									* (DmQn::discreteVelocityVectors[iRow][vec_index]
-											* DmQn::discreteVelocityVectors[iColumn][vec_index]);
+								for (int jj = 0; jj <= ii; ++jj)
+								{
+									ret[ii][jj] = 0.0;
+									for (unsigned int l = 0; l < DmQn::NUMVECTORS; ++l)
+									{
+										ret[ii][jj] += f[l] * DmQn::discreteVelocityVectors[ii][l]
+											* DmQn::discreteVelocityVectors[jj][l];
+									}
+								}
 							}
 
-							strain_rate_tensor_i_j *= -1.0 / (2.0 * iTau * iDensity * Cs2);
+							// Exploit the symmetry to fill in 0,1 0,2 1,2
+							for (int ii = 0; ii < 3; ++ii)
+							{
+								for (int jj = ii + 1; jj < 3; ++jj)
+								{
+									ret[ii][jj] = ret[jj][ii];
+								}
+							}
 
-							return strain_rate_tensor_i_j;
+							return ret;
 						}
 
 						/**
