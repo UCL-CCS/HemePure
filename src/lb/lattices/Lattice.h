@@ -980,10 +980,10 @@ inline static double hsum_double_avx512(__m512d v) {
 						}
 
 						// von Mises stress computation given the non-equilibrium distribution functions.
-						inline static void CalculateVonMisesStress(const distribn_t f[], distribn_t &stress,
-								const double iStressParameter)
+						inline static void CalculateVonMisesStress(const distribn_t tau, const distribn_t f[],
+								distribn_t &stress)
 						{
-							util::Matrix3D pi = CalculatePiTensor(f);
+							util::Matrix3D pi = CalculatePiTensor(tau, f);
 
 							distribn_t sigma_xx_yy = pi[0][0] - pi[1][1];
 							distribn_t sigma_yy_zz = pi[1][1] - pi[2][2];
@@ -996,7 +996,7 @@ inline static double hsum_double_avx512(__m512d v) {
 								+ sigma_zz_xx * sigma_zz_xx;
 							distribn_t temp2 = sigma_xy * sigma_xy + sigma_yz * sigma_yz + sigma_zx * sigma_zx;
 
-							stress = iStressParameter * sqrt(temp1 + 6.0 * temp2);
+							stress = sqrt(0.5 * (temp1 + 6.0 * temp2));
 						}
 
 						/**
@@ -1060,12 +1060,6 @@ inline static double hsum_double_avx512(__m512d v) {
 						 * where p is hydrodynamic pressure, I is the identity tensor, S is the strain rate tensor, and \mu is the
 						 * viscosity. -2*\mu*S can be shown to be equals to the non equilibrium part of the moment flux tensor \Pi^{(neq)}.
 						 *
-						 * \Pi^{(neq)} is assumed to be defined as in Chen&Doolen 1998:
-						 *
-						 *    \Pi^{(neq)} = (1 - 1/(2*\tau)) * \sum_over_i e_i e_i f^{(neq)}_i
-						 *
-						 * where \tau is the relaxation time and e_i is the i-th direction vector
-						 *
 						 * @param density density at a given site
 						 * @param tau relaxation time
 						 * @param fNonEquilibrium non equilibrium part of the distribution function
@@ -1076,8 +1070,7 @@ inline static double hsum_double_avx512(__m512d v) {
 								util::Matrix3D& stressTensor)
 						{
 							// Initialises the stress tensor to the deviatoric part, i.e. -\Pi^{(neq)}
-							stressTensor = CalculatePiTensor(fNonEquilibrium);
-							stressTensor *= -(1.0 - 1.0 / (2.0 * tau));
+							stressTensor = CalculatePiTensor(tau, fNonEquilibrium) * -1.0;
 
 							// Subtract the pressure component from the stress tensor. The reference pressure given
 							// by the REFERENCE_PRESSURE_mmHg constant is mapped to rho=1. Here we subtract 1
@@ -1098,10 +1091,10 @@ inline static double hsum_double_avx512(__m512d v) {
 						 * instead).
 						 */
 						inline static void CalculateWallShearStressMagnitude(const distribn_t &density,
+								const distribn_t tau,
 								const distribn_t f[],
 								const util::Vector3D<double> nor,
-								distribn_t &stress,
-								const double &iStressParameter)
+								distribn_t &stress)
 						{
 							// sigma_ij is the force
 							// per unit area in
@@ -1117,17 +1110,13 @@ inline static double hsum_double_avx512(__m512d v) {
 							// unit area normal to the
 							// surface
 
-							// Multiplying the second moment of the non equilibrium function by temp gives the non equilibrium part
-							// of the moment flux tensor pi.
-							distribn_t temp = iStressParameter * (-sqrt(2.0));
-
-							// Computes the second moment of the non-equilibrium function f.
-							util::Matrix3D pi = CalculatePiTensor(f);
+							// Computes the non-equilibrium part of the momentum flux tensor.
+							util::Matrix3D pi = CalculatePiTensor(tau, f);
 
 							for (unsigned i = 0; i < 3; i++)
 							{
 								for (unsigned j = 0; j < 3; j++)
-									stress_vector[i] += pi[i][j] * nor[j] * temp;
+									stress_vector[i] += pi[i][j] * nor[j];
 
 								square_stress_vector += stress_vector[i] * stress_vector[i];
 								normal_stress += stress_vector[i] * nor[i];
@@ -1140,7 +1129,7 @@ inline static double hsum_double_avx512(__m512d v) {
 								const distribn_t iFNeq[],
 								const distribn_t &iDensity)
 						{
-							util::Matrix3D pi = CalculatePiTensor(iFNeq);
+							util::Matrix3D pi = CalculatePiTensor(iTau, iFNeq);
 							distribn_t shear_rate = 0.0;
 							for (unsigned row = 0; row < 3; row++)
 							{
@@ -1150,6 +1139,7 @@ inline static double hsum_double_avx512(__m512d v) {
 								}
 							}
 							shear_rate = sqrt(shear_rate) / (-2.0 * iTau * Cs2 * iDensity);
+							shear_rate /= (1.0 - 1.0 / (2.0 * iTau));
 							return shear_rate;
 						}
 
@@ -1300,15 +1290,30 @@ inline static double hsum_double_avx512(__m512d v) {
 
 					private:
 						/**
-						 * Despite its name, this method does not compute the whole pi tensor (i.e. momentum flux tensor). What it does is
-						 * computing the second moment of a distribution function. If this distribution happens to be f_eq, the resulting
-						 * tensor will be the equilibrium part of pi. However, if the distribution function is f_neq, the result WON'T be
-						 * the non equilibrium part of pi. In order to get it, you will have to multiply by (1 - timestep/2*tau)
+						 * This method computes the non-equilibrium part of the pi tensor (i.e. momentum flux tensor)
+						 * by using the non-equilibrium part of the distribution function.
 						 *
-						 * @param f distribution function
-						 * @return second moment of the distribution function f
+						 * The pi tensor is related to the strain rate tensor S by
+						 *
+						 *    \Pi^{(neq)} = -2*\mu*S,
+						 *
+						 * where \mu is the dynamic viscosity.
+						 *
+						 * For LBGK, S is given by (Chen & Doolen, 1998; Zhang et al., 2018)
+						 *
+						 *    S = - \sum_i e_i e_i f^{(neq)}_i / (2*\rho_0*Cs2*\tau),
+						 *
+						 * where e_i is the i-th direction vector, and \rho_0 is the reference density. By using the
+						 * relation \mu / (\rho_0*Cs2) = \tau - 0.5, we arrive at
+						 *
+						 *    \Pi^{(neq)} = (\sum_i e_i e_i f^{(neq)}_i) * (1 - 1/(2*\tau)).
+						 *
+						 * @param tau relaxation time
+						 * @param fNonEquilibrium non-equilibrium part of the distribution function
+						 * @return non-equilibrium part of the pi tensor
 						 */
-						inline static util::Matrix3D CalculatePiTensor(const distribn_t* const f)
+						inline static util::Matrix3D CalculatePiTensor(const distribn_t tau,
+								const distribn_t* const fNonEquilibrium)
 						{
 							util::Matrix3D ret;
 
@@ -1320,9 +1325,10 @@ inline static double hsum_double_avx512(__m512d v) {
 									ret[ii][jj] = 0.0;
 									for (unsigned int l = 0; l < DmQn::NUMVECTORS; ++l)
 									{
-										ret[ii][jj] += f[l] * DmQn::discreteVelocityVectors[ii][l]
+										ret[ii][jj] += fNonEquilibrium[l] * DmQn::discreteVelocityVectors[ii][l]
 											* DmQn::discreteVelocityVectors[jj][l];
 									}
+									ret[ii][jj] *= (1.0 - 1.0 / (2.0 * tau));
 								}
 							}
 

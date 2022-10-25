@@ -111,10 +111,10 @@ namespace hemelb
 									else
 									{
 										LatticeType::CalculateWallShearStressMagnitude(hydroVars.density,
+												hydroVars.tau,
 												hydroVars.GetFNeq().f,
 												site.GetWallNormal(),
-												stress,
-												lbmParams->GetStressParameter());
+												stress);
 									}
 
 									propertyCache.wallShearStressMagnitudeCache.Put(site.GetIndex(), stress);
@@ -123,9 +123,9 @@ namespace hemelb
 								if (propertyCache.vonMisesStressCache.RequiresRefresh())
 								{
 									distribn_t stress;
-									StreamerImpl::CollisionType::CKernel::LatticeType::CalculateVonMisesStress(hydroVars.GetFNeq().f,
-											stress,
-											lbmParams->GetStressParameter());
+									StreamerImpl::CollisionType::CKernel::LatticeType::CalculateVonMisesStress(hydroVars.tau,
+											hydroVars.GetFNeq().f,
+											stress);
 
 									propertyCache.vonMisesStressCache.Put(site.GetIndex(), stress);
 								}
