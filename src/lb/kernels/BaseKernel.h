@@ -176,7 +176,7 @@ namespace hemelb
 
 					// The LB parameters object. Currently only used in LBGKNN to access the current
 					// time step.
-					const LbmParameters* lbmParams;
+					LbmParameters* lbmParams;
 
 					// The neighbouring data manager, for kernels / collisions / streamers that
 					// require data from other cores.
