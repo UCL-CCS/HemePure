@@ -1150,7 +1150,7 @@ inline static double hsum_double_avx512(__m512d v) {
 								}
 							}
 							shear_rate = sqrt(shear_rate) / (-2.0 * Cs2 * iDensity);
-							shear_rate /= iTau - 0.5;
+							shear_rate /= (iTau - 0.5);
 							return shear_rate;
 						}
 
