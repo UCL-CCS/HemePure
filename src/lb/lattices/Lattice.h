@@ -1134,6 +1134,7 @@ inline static double hsum_double_avx512(__m512d v) {
 							stress = sqrt(square_stress_vector - normal_stress * normal_stress);
 						}
 
+						// This method computes the sum of squared element of the strain rate tensor.
 						inline static distribn_t CalculateShearRate(const distribn_t &iTau,
 								const distribn_t fPostCollision[],
 								const distribn_t f[],
@@ -1148,8 +1149,8 @@ inline static double hsum_double_avx512(__m512d v) {
 									shear_rate += pi[row][column] * pi[row][column];
 								}
 							}
-							shear_rate = sqrt(shear_rate) / (-2.0 * iTau * Cs2 * iDensity);
-							shear_rate /= (1.0 - 1.0 / (2.0 * iTau));
+							shear_rate = sqrt(shear_rate) / (-2.0 * Cs2 * iDensity);
+							shear_rate /= iTau - 0.5;
 							return shear_rate;
 						}
 
