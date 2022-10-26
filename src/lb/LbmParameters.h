@@ -40,7 +40,6 @@ namespace hemelb
                   / (Cs2 * voxelSize * voxelSize);
 
           omega = -1.0 / tau;
-          stressParameter = (1.0 - 1.0 / (2.0 * tau)) / sqrt(2.0);
           beta = -1.0 / (2.0 * tau);
         }
 
@@ -62,11 +61,6 @@ namespace hemelb
         distribn_t GetTau() const
         {
           return tau;
-        }
-
-        distribn_t GetStressParameter() const
-        {
-          return stressParameter;
         }
 
         distribn_t GetBeta() const
@@ -93,7 +87,6 @@ namespace hemelb
         PhysicalDistance voxelSize;
         distribn_t omega;
         distribn_t tau;
-        distribn_t stressParameter;
         distribn_t beta; ///< Viscous dissipation in ELBM
         distribn_t relaxationParameter;
     };
