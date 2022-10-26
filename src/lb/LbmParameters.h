@@ -26,19 +26,19 @@ namespace hemelb
     struct LbmParameters
     {
       public:
-        LbmParameters(PhysicalTime timeStepLength, PhysicalDistance voxelSize)
+        LbmParameters(PhysicalTime timeStepLength, PhysicalDistance voxelSize) :
+            timestep(timeStepLength), voxelSize(voxelSize)
         {
-          Update(timeStepLength, voxelSize);
+          tau = 0.5
+              + (timestep * BLOOD_VISCOSITY_Pa_s / BLOOD_DENSITY_Kg_per_m3)
+                  / (Cs2 * voxelSize * voxelSize);
+          omega = -1.0 / tau;
+          beta = -1.0 / (2.0 * tau);
         }
 
-        void Update(PhysicalTime timeStepLength, PhysicalDistance voxelSizeMetres)
+        void Update(const distribn_t& relaxationTime)
         {
-          timestep = timeStepLength;
-          voxelSize = voxelSizeMetres;
-          tau = 0.5
-              + (timeStepLength * BLOOD_VISCOSITY_Pa_s / BLOOD_DENSITY_Kg_per_m3)
-                  / (Cs2 * voxelSize * voxelSize);
-
+          tau = relaxationTime;
           omega = -1.0 / tau;
           beta = -1.0 / (2.0 * tau);
         }
