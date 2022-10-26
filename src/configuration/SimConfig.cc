@@ -15,6 +15,9 @@
 #include "util/fileutils.h"
 #include "lb/InitialCondition.h"
 
+#define QUOTE_RAW(x) #x
+#define QUOTE_CONTENTS(x) QUOTE_RAW(x)
+
 namespace hemelb
 {
 	namespace configuration
@@ -157,6 +160,15 @@ namespace hemelb
 				totalTimeSteps += warmUpSteps;
 			}
 
+			// Required element for some kernels
+			const std::string hemeKernel = QUOTE_CONTENTS(HEMELB_KERNEL);
+			if (hemeKernel == "TRT" || hemeKernel == "MRT")
+			{
+				// <relaxation_parameter value="unsigned" units="lattice" />
+				const io::xml::Element rpEl = simEl.GetChildOrThrow("relaxation_parameter");
+				GetDimensionalValue(rpEl, "lattice", relaxationParameter);
+			}
+
 			// Required element
 			// <voxel_size value="float" units="m" />
 			const io::xml::Element vsEl = simEl.GetChildOrThrow("voxel_size");
@@ -230,8 +242,6 @@ namespace hemelb
 			const std::string& ioletTypeName = ioletEl.GetName();
 			std::string hemeIoletBC;
 
-#define QUOTE_RAW(x) #x
-#define QUOTE_CONTENTS(x) QUOTE_RAW(x)
 			if (ioletTypeName == "inlet")
 				hemeIoletBC = QUOTE_CONTENTS(HEMELB_INLET_BOUNDARY);
 			else if (ioletTypeName == "outlet")

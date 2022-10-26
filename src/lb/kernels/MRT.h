@@ -157,7 +157,8 @@ namespace hemelb
            */
           void InitState(const InitParams& initParams)
           {
-            MomentBasis::SetUpCollisionMatrix(collisionMatrix, initParams.lbmParams->GetTau());
+            initParams.lbmParams->Update(1.0 / initParams.lbmParams->GetRelaxationParameter());
+            MomentBasis::SetUpCollisionMatrix(collisionMatrix, initParams.lbmParams->GetRelaxationParameter());
           }
 
       };

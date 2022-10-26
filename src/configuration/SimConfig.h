@@ -161,17 +161,20 @@ namespace hemelb
         {
           return colloidConfigPath;
         }
+        distribn_t GetRelaxationParameter() const
+        {
+          return relaxationParameter;
+        }
+        distribn_t GetElasticWallStiffness() const
+        {
+          return elasticWallStiffness;
+        }
+        distribn_t GetBoundaryVelocityRatio() const
+        {
+          return boundaryVelocityRatio;
+        }
 
-	distribn_t GetElasticWallStiffness() const
-	{
-	  return elasticWallStiffness;
-	}
-	
-	distribn_t GetBoundaryVelocityRatio() const
-	{
-	  return boundaryVelocityRatio;
-	}
-	/**
+        /**
          * True if the XML file has a section specifying colloids.
          * @return
          */
@@ -183,13 +186,12 @@ namespace hemelb
          */
         LatticeDensity GetInitialPressure() const;
 
-
         // Get the initial condtion config
         inline const ICConfig& GetInitialCondition() const {
-	  return icConfig;
-	}
+          return icConfig;
+        }
         
-	const util::UnitConverter& GetUnitConverter() const;
+        const util::UnitConverter& GetUnitConverter() const;
 
         /**
          * Return the configuration of various checks/test
@@ -312,8 +314,6 @@ namespace hemelb
         std::string mapFilePath;
         int latticeId;
 
-
-
         float maxVelocity;
         float maxStress;
         lb::StressTypes stressType;
@@ -337,10 +337,10 @@ namespace hemelb
         PhysicalDistance voxelSizeMetres;
         PhysicalPosition geometryOriginMetres;
         util::UnitConverter* unitConverter;
-	ICConfig icConfig;
-
-	distribn_t elasticWallStiffness;
-	distribn_t boundaryVelocityRatio;
+        ICConfig icConfig;
+        distribn_t relaxationParameter;
+        distribn_t elasticWallStiffness;
+        distribn_t boundaryVelocityRatio;
     };
   }
 }
