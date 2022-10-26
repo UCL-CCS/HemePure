@@ -112,7 +112,7 @@ namespace hemelb
 						fPostCollision[direction] = value;
 					}
 
-					inline const FVector<LatticeType>& GetFPostCollision()
+					inline const FVector<LatticeType>& GetFPostCollision() const
 					{
 						return fPostCollision;
 					}

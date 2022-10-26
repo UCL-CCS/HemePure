@@ -112,7 +112,8 @@ namespace hemelb
 									{
 										LatticeType::CalculateWallShearStressMagnitude(hydroVars.density,
 												hydroVars.tau,
-												hydroVars.GetFNeq().f,
+												hydroVars.GetFPostCollision().f,
+												hydroVars.f,
 												site.GetWallNormal(),
 												stress);
 									}
@@ -124,7 +125,8 @@ namespace hemelb
 								{
 									distribn_t stress;
 									StreamerImpl::CollisionType::CKernel::LatticeType::CalculateVonMisesStress(hydroVars.tau,
-											hydroVars.GetFNeq().f,
+											hydroVars.GetFPostCollision().f,
+											hydroVars.f,
 											stress);
 
 									propertyCache.vonMisesStressCache.Put(site.GetIndex(), stress);
@@ -134,7 +136,8 @@ namespace hemelb
 								{
 									distribn_t shear_rate =
 										StreamerImpl::CollisionType::CKernel::LatticeType::CalculateShearRate(hydroVars.tau,
-												hydroVars.GetFNeq().f,
+												hydroVars.GetFPostCollision().f,
+												hydroVars.f,
 												hydroVars.density);
 
 									propertyCache.shearRateCache.Put(site.GetIndex(), shear_rate);
@@ -145,7 +148,8 @@ namespace hemelb
 									util::Matrix3D stressTensor;
 									StreamerImpl::CollisionType::CKernel::LatticeType::CalculateStressTensor(hydroVars.density,
 											hydroVars.tau,
-											hydroVars.GetFNeq().f,
+											hydroVars.GetFPostCollision().f,
+											hydroVars.f,
 											stressTensor);
 
 									propertyCache.stressTensorCache.Put(site.GetIndex(), stressTensor);
@@ -163,7 +167,8 @@ namespace hemelb
 									{
 										LatticeType::CalculateTractionOnAPoint(hydroVars.density,
 												hydroVars.tau,
-												hydroVars.GetFNeq().f,
+												hydroVars.GetFPostCollision().f,
+												hydroVars.f,
 												site.GetWallNormal(),
 												tractionOnAPoint);
 									}
@@ -183,7 +188,8 @@ namespace hemelb
 									{
 										LatticeType::CalculateTangentialProjectionTraction(hydroVars.density,
 												hydroVars.tau,
-												hydroVars.GetFNeq().f,
+												hydroVars.GetFPostCollision().f,
+												hydroVars.f,
 												site.GetWallNormal(),
 												tangentialProjectionTractionOnAPoint);
 									}

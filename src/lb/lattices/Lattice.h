@@ -980,10 +980,12 @@ inline static double hsum_double_avx512(__m512d v) {
 						}
 
 						// von Mises stress computation given the non-equilibrium distribution functions.
-						inline static void CalculateVonMisesStress(const distribn_t tau, const distribn_t f[],
+						inline static void CalculateVonMisesStress(const distribn_t tau,
+								const distribn_t fPostCollision[],
+								const distribn_t f[],
 								distribn_t &stress)
 						{
-							util::Matrix3D pi = CalculatePiTensor(tau, f);
+							util::Matrix3D pi = CalculatePiTensor(tau, fPostCollision, f);
 
 							distribn_t sigma_xx_yy = pi[0][0] - pi[1][1];
 							distribn_t sigma_yy_zz = pi[1][1] - pi[2][2];
@@ -1007,17 +1009,19 @@ inline static double hsum_double_avx512(__m512d v) {
 						 *
 						 * @param density density at a given site
 						 * @param tau relaxation time
-						 * @param fNonEquilibrium non equilibrium part of the distribution function
+						 * @param fPostCollision post-collision distribution function
+						 * @param f distribution function
 						 * @param wallNormal wall normal at a given point
 						 * @param traction traction vector at a given point
 						 */
 						inline static void CalculateTractionOnAPoint(
-								const distribn_t density, const distribn_t tau, const distribn_t fNonEquilibrium[],
+								const distribn_t density, const distribn_t tau, const distribn_t fPostCollision[],
+								const distribn_t f[],
 								const util::Vector3D<Dimensionless>& wallNormal,
 								util::Vector3D<LatticeStress>& traction)
 						{
 							util::Matrix3D sigma;
-							CalculateStressTensor(density, tau, fNonEquilibrium, sigma);
+							CalculateStressTensor(density, tau, fPostCollision, f, sigma);
 
 							// Multiply the stress tensor by the surface normal
 							sigma.timesVector(wallNormal, traction);
@@ -1033,17 +1037,19 @@ inline static double hsum_double_avx512(__m512d v) {
 						 *
 						 * @param density density at a given site
 						 * @param tau relaxation time
-						 * @param fNonEquilibrium non equilibrium part of the distribution function
+						 * @param fPostCollision post-collision distribution function
+						 * @param f distribution function
 						 * @param wallNormal wall normal at a given point
 						 * @param tractionTangentialComponent tangential projection of the traction vector
 						 */
 						inline static void CalculateTangentialProjectionTraction(
-								const distribn_t density, const distribn_t tau, const distribn_t fNonEquilibrium[],
+								const distribn_t density, const distribn_t tau, const distribn_t fPostCollision[],
+								const distribn_t f[],
 								const util::Vector3D<Dimensionless>& wallNormal,
 								util::Vector3D<LatticeStress>& tractionTangentialComponent)
 						{
 							util::Vector3D<LatticeStress> traction;
-							CalculateTractionOnAPoint(density, tau, fNonEquilibrium, wallNormal, traction);
+							CalculateTractionOnAPoint(density, tau, fPostCollision, f, wallNormal, traction);
 
 							LatticeStress magnitudeNormalProjectionTraction = traction.Dot(wallNormal);
 
@@ -1062,15 +1068,17 @@ inline static double hsum_double_avx512(__m512d v) {
 						 *
 						 * @param density density at a given site
 						 * @param tau relaxation time
-						 * @param fNonEquilibrium non equilibrium part of the distribution function
+						 * @param fPostCollision post-collision distribution function
+						 * @param f distribution function
 						 * @param stressTensor full stress tensor at a given site
 						 */
 						inline static void CalculateStressTensor(const distribn_t density, const distribn_t tau,
-								const distribn_t fNonEquilibrium[],
+								const distribn_t fPostCollision[],
+								const distribn_t f[],
 								util::Matrix3D& stressTensor)
 						{
 							// Initialises the stress tensor to the deviatoric part, i.e. -\Pi^{(neq)}
-							stressTensor = CalculatePiTensor(tau, fNonEquilibrium) * -1.0;
+							stressTensor = CalculatePiTensor(tau, fPostCollision, f) * -1.0;
 
 							// Subtract the pressure component from the stress tensor. The reference pressure given
 							// by the REFERENCE_PRESSURE_mmHg constant is mapped to rho=1. Here we subtract 1
@@ -1092,6 +1100,7 @@ inline static double hsum_double_avx512(__m512d v) {
 						 */
 						inline static void CalculateWallShearStressMagnitude(const distribn_t &density,
 								const distribn_t tau,
+								const distribn_t fPostCollision[],
 								const distribn_t f[],
 								const util::Vector3D<double> nor,
 								distribn_t &stress)
@@ -1111,7 +1120,7 @@ inline static double hsum_double_avx512(__m512d v) {
 							// surface
 
 							// Computes the non-equilibrium part of the momentum flux tensor.
-							util::Matrix3D pi = CalculatePiTensor(tau, f);
+							util::Matrix3D pi = CalculatePiTensor(tau, fPostCollision, f);
 
 							for (unsigned i = 0; i < 3; i++)
 							{
@@ -1126,10 +1135,11 @@ inline static double hsum_double_avx512(__m512d v) {
 						}
 
 						inline static distribn_t CalculateShearRate(const distribn_t &iTau,
-								const distribn_t iFNeq[],
+								const distribn_t fPostCollision[],
+								const distribn_t f[],
 								const distribn_t &iDensity)
 						{
-							util::Matrix3D pi = CalculatePiTensor(iTau, iFNeq);
+							util::Matrix3D pi = CalculatePiTensor(iTau, fPostCollision, f);
 							distribn_t shear_rate = 0.0;
 							for (unsigned row = 0; row < 3; row++)
 							{
@@ -1299,21 +1309,29 @@ inline static double hsum_double_avx512(__m512d v) {
 						 *
 						 * where \mu is the dynamic viscosity.
 						 *
-						 * For LBGK, S is given by (Chen & Doolen, 1998; Zhang et al., 2018)
+						 * For the LBGK and MRT models, S is given by (Zhang et al., 2018)
 						 *
-						 *    S = - \sum_i e_i e_i f^{(neq)}_i / (2*\rho_0*Cs2*\tau),
+						 *    S = \sum_i e_i e_i \Omega_i / (2*\rho_0*Cs2),
 						 *
-						 * where e_i is the i-th direction vector, and \rho_0 is the reference density. By using the
-						 * relation \mu / (\rho_0*Cs2) = \tau - 0.5, we arrive at
+						 * where e_i is the i-th direction vector, \Omega is the collision operator in the LB equation,
+						 * and \rho_0 is the reference density. Here \Omega is obtained by subtracting the distribution
+						 * function from the post-collision distribution function.
 						 *
-						 *    \Pi^{(neq)} = (\sum_i e_i e_i f^{(neq)}_i) * (1 - 1/(2*\tau)).
+						 * The equation for the pi tensor is simplified by using the relation
+						 *
+						 *    \mu / (\rho_0*Cs2) = \tau - 0.5,
+						 *
+						 * where \tau is the relaxation time governing the viscosity. As a result,
+						 *
+						 *    \Pi^{(neq)} = (\sum_i e_i e_i \Omega_i) * [-(\tau - 0.5)].
 						 *
 						 * @param tau relaxation time
-						 * @param fNonEquilibrium non-equilibrium part of the distribution function
+						 * @param fPostCollision post-collision distribution function
+						 * @param f distribution function
 						 * @return non-equilibrium part of the pi tensor
 						 */
 						inline static util::Matrix3D CalculatePiTensor(const distribn_t tau,
-								const distribn_t* const fNonEquilibrium)
+								const distribn_t* const fPostCollision, const distribn_t* const f)
 						{
 							util::Matrix3D ret;
 
@@ -1325,10 +1343,10 @@ inline static double hsum_double_avx512(__m512d v) {
 									ret[ii][jj] = 0.0;
 									for (unsigned int l = 0; l < DmQn::NUMVECTORS; ++l)
 									{
-										ret[ii][jj] += fNonEquilibrium[l] * DmQn::discreteVelocityVectors[ii][l]
+										ret[ii][jj] += (fPostCollision[l] - f[l]) * DmQn::discreteVelocityVectors[ii][l]
 											* DmQn::discreteVelocityVectors[jj][l];
 									}
-									ret[ii][jj] *= (1.0 - 1.0 / (2.0 * tau));
+									ret[ii][jj] *= -(tau - 0.5);
 								}
 							}
 
