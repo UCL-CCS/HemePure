@@ -491,10 +491,10 @@ namespace hemelb
 					distribn_t stress = 0;
 					for (Direction k = 0; k < LatticeType::NUMVECTORS; ++k)
 					{
-						stress += B_k(k, vec) * fNeq[k];
+						stress += B_k(k, vec) * (fNeq[k] + fNeq[LatticeType::INVERSEDIRECTIONS[k]]);
 					}
-					// Note that A_k = A_k* = 1/tau and h = 1 in lattice units.
-					stress *= -1.0 / tau;
+					// Note that h = 1 in lattice units.
+					stress *= -1.0 / (2.0 * tau);
 					return stress;
 				}
 
