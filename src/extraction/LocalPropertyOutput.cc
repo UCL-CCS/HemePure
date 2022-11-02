@@ -294,6 +294,12 @@ namespace hemelb
                     << static_cast<WrittenDataType> (dataSource.GetTangentialProjectionTraction().y)
                     << static_cast<WrittenDataType> (dataSource.GetTangentialProjectionTraction().z);
                 break;
+              case OutputField::NormalProjectionTraction:
+                xdrWriter
+                    << static_cast<WrittenDataType> (dataSource.GetNormalProjectionTraction().x)
+                    << static_cast<WrittenDataType> (dataSource.GetNormalProjectionTraction().y)
+                    << static_cast<WrittenDataType> (dataSource.GetNormalProjectionTraction().z);
+                break;
               case OutputField::WallExtension:
                 xdrWriter
                     << static_cast<WrittenDataType> (dataSource.GetWallExtension());
@@ -372,6 +378,7 @@ namespace hemelb
         case OutputField::Velocity:
         case OutputField::Traction:
         case OutputField::TangentialProjectionTraction:
+        case OutputField::NormalProjectionTraction:
           return 3;
         case OutputField::StressTensor:
           return 6; // We only store the upper triangular part of the symmetric tensor

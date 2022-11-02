@@ -1057,6 +1057,27 @@ inline static double hsum_double_avx512(__m512d v) {
 						}
 
 						/**
+						 * Calculates the normal component of the traction vector with respect to the wall surface.
+						 *
+						 * @param density density at a given site
+						 * @param tau relaxation time
+						 * @param fPostCollision post-collision distribution function
+						 * @param f distribution function
+						 * @param wallNormal wall normal at a given point
+						 * @param tractionNormalComponent normal projection of the traction vector
+						 */
+						inline static void CalculateNormalProjectionTraction(
+								const distribn_t density, const distribn_t tau, const distribn_t fPostCollision[],
+								const distribn_t f[],
+								const util::Vector3D<Dimensionless>& wallNormal,
+								util::Vector3D<LatticeStress>& tractionNormalComponent)
+						{
+							util::Vector3D<LatticeStress> traction;
+							CalculateTractionOnAPoint(density, tau, fPostCollision, f, wallNormal, traction);
+							tractionNormalComponent = wallNormal * traction.Dot(wallNormal);
+						}
+
+						/**
 						 * Calculate the full stress tensor at a given fluid site (including both pressure and deviatoric part)
 						 *
 						 * The stress tensor is assembled based on the formula (Ferziger et al., 2020):
