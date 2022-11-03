@@ -84,6 +84,11 @@ namespace hemelb
         util::RefreshableCache<util::Vector3D<LatticeStress> > tangentialProjectionTractionCache;
 
         /**
+         * The cache of normal component of the traction vectors of each fluid site on this core.
+         */
+        util::RefreshableCache<util::Vector3D<LatticeStress> > normalProjectionTractionCache;
+
+        /**
          * The cache of elastic wall extension of each fluid site on this core.
          */
         util::RefreshableCache<distribn_t> wallExtensionCache;

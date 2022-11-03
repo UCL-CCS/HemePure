@@ -240,7 +240,7 @@ namespace hemelb
 					}
 
 					const util::Vector3D<float>& normal = blockReadIn.Sites[localSiteId].wallNormalAvailable ?
-						blockReadIn.Sites[localSiteId].wallNormal :
+						blockReadIn.Sites[localSiteId].wallNormal.GetNormalised() :
 						util::Vector3D<float>(NO_VALUE);
 
 					forceAtSite.push_back(LatticeForceVector(0, 0, 0));

@@ -1057,6 +1057,27 @@ inline static double hsum_double_avx512(__m512d v) {
 						}
 
 						/**
+						 * Calculates the normal component of the traction vector with respect to the wall surface.
+						 *
+						 * @param density density at a given site
+						 * @param tau relaxation time
+						 * @param fPostCollision post-collision distribution function
+						 * @param f distribution function
+						 * @param wallNormal wall normal at a given point
+						 * @param tractionNormalComponent normal projection of the traction vector
+						 */
+						inline static void CalculateNormalProjectionTraction(
+								const distribn_t density, const distribn_t tau, const distribn_t fPostCollision[],
+								const distribn_t f[],
+								const util::Vector3D<Dimensionless>& wallNormal,
+								util::Vector3D<LatticeStress>& tractionNormalComponent)
+						{
+							util::Vector3D<LatticeStress> traction;
+							CalculateTractionOnAPoint(density, tau, fPostCollision, f, wallNormal, traction);
+							tractionNormalComponent = wallNormal * traction.Dot(wallNormal);
+						}
+
+						/**
 						 * Calculate the full stress tensor at a given fluid site (including both pressure and deviatoric part)
 						 *
 						 * The stress tensor is assembled based on the formula (Ferziger et al., 2020):
@@ -1310,17 +1331,17 @@ inline static double hsum_double_avx512(__m512d v) {
 						 *
 						 * where \mu is the dynamic viscosity.
 						 *
-						 * For the LBGK and MRT models, S is given by (Zhang et al., 2018)
+						 * For the LBGK and MRT models, S is given by (Chai et al., 2011)
 						 *
-						 *    S = \sum_i e_i e_i \Omega_i / (2*\rho_0*Cs2),
+						 *    S = \sum_i e_i e_i \Omega_i / (2*\rho*Cs2),
 						 *
-						 * where e_i is the i-th direction vector, \Omega is the collision operator in the LB equation,
-						 * and \rho_0 is the reference density. Here \Omega is obtained by subtracting the distribution
-						 * function from the post-collision distribution function.
+						 * where e_i is the i-th direction vector, and \Omega is the collision operator in the LB
+						 * equation obtained by subtracting the distribution function from the post-collision
+						 * distribution function.
 						 *
 						 * The equation for the pi tensor is simplified by using the relation
 						 *
-						 *    \mu / (\rho_0*Cs2) = \tau - 0.5,
+						 *    \mu / (\rho*Cs2) = \tau - 0.5,
 						 *
 						 * where \tau is the relaxation time governing the viscosity. As a result,
 						 *

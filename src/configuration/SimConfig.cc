@@ -600,6 +600,10 @@ namespace hemelb
 			{
 				field.type = extraction::OutputField::TangentialProjectionTraction;
 			}
+			else if (type == "normalprojectiontraction")
+			{
+				field.type = extraction::OutputField::NormalProjectionTraction;
+			}
 			else if (type == "wallextension")
 			{
 				field.type = extraction::OutputField::WallExtension;
