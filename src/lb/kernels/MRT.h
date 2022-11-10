@@ -62,14 +62,18 @@ namespace hemelb
           {
             InitState(initParams);
 
-            // Pre-compute the reduced moment basis divided by the basis times basis transposed.
+            // Pre-compute M^T * (M * M^T)^{-1} * \hat{S} which remains constant during the simulation
             for (Direction direction = 0; direction < MomentBasis::Lattice::NUMVECTORS; ++direction)
             {
               for (unsigned momentIndex = 0; momentIndex < MomentBasis::NUM_KINETIC_MOMENTS; momentIndex++)
               {
-                normalisedReducedMomentBasis[momentIndex][direction] =
+                // Compute M^T * (M * M^T)^{-1}
+                const distribn_t normalisedReducedMomentBasis =
                     MomentBasis::REDUCED_MOMENT_BASIS[momentIndex][direction]
                         / MomentBasis::BASIS_TIMES_BASIS_TRANSPOSED[momentIndex];
+                // Multiply by \hat{S}
+                momentsRelaxationMatrix[momentIndex][direction] =
+                    normalisedReducedMomentBasis * collisionMatrix[momentIndex];
               }
             }
           }
@@ -122,8 +126,7 @@ namespace hemelb
               distribn_t collision = 0.;
               for (unsigned momentIndex = 0; momentIndex < MomentBasis::NUM_KINETIC_MOMENTS; momentIndex++)
               {
-                collision += collisionMatrix[momentIndex] * normalisedReducedMomentBasis[momentIndex][direction]
-                    * hydroVars.m_neq[momentIndex];
+                collision += momentsRelaxationMatrix[momentIndex][direction] * hydroVars.m_neq[momentIndex];
               }
               hydroVars.SetFPostCollision(direction, hydroVars.f[direction] - collision);
             }
@@ -148,7 +151,8 @@ namespace hemelb
           /** MRT collision matrix (\hat{S}, diagonal). It corresponds to the inverse of the relaxation time for each mode. */
           std::array<distribn_t, MomentBasis::NUM_KINETIC_MOMENTS> collisionMatrix;
 
-          double normalisedReducedMomentBasis[MomentBasis::NUM_KINETIC_MOMENTS][MomentBasis::Lattice::NUMVECTORS];
+          // The negative of the relaxation matrix in moment space: M^T * (M * M^T)^{-1} * \hat{S}
+          distribn_t momentsRelaxationMatrix[MomentBasis::NUM_KINETIC_MOMENTS][MomentBasis::Lattice::NUMVECTORS];
 
           /**
            *  Helper method to set/update member variables. Called from the constructor and Reset()
