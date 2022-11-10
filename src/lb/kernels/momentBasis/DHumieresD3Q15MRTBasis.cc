@@ -38,20 +38,6 @@ namespace hemelb
         const distribn_t DHumieresD3Q15MRTBasis::BASIS_TIMES_BASIS_TRANSPOSED[NUM_KINETIC_MOMENTS] =
             { 18., 360., 40., 40., 40., 12., 4., 8., 8., 8., 8. };
 
-        void DHumieresD3Q15MRTBasis::ProjectVelsIntoMomentSpace(const distribn_t * const velDistributions,
-                                                                distribn_t * const moments)
-        {
-          for (unsigned momentIndex = 0; momentIndex < NUM_KINETIC_MOMENTS; momentIndex++)
-          {
-            moments[momentIndex] = 0.;
-            for (Direction velocityIndex = 0; velocityIndex < Lattice::NUMVECTORS; velocityIndex++)
-            {
-              moments[momentIndex] += REDUCED_MOMENT_BASIS[momentIndex][velocityIndex]
-                  * velDistributions[velocityIndex];
-            }
-          }
-        }
-
         void DHumieresD3Q15MRTBasis::SetUpCollisionMatrix(std::array<distribn_t, NUM_KINETIC_MOMENTS>& collisionMatrix,
                                                           distribn_t relaxationRate)
         {

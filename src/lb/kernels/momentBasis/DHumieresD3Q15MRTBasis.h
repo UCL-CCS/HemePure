@@ -39,15 +39,6 @@ namespace hemelb
             static const double BASIS_TIMES_BASIS_TRANSPOSED[NUM_KINETIC_MOMENTS];
 
             /**
-             * Projects a velocity distributions vector into the (reduced) MRT moment space.
-             *
-             * @param velDistributions velocity distributions vector
-             * @param moments equivalent vector in the moment space
-             */
-            static void ProjectVelsIntoMomentSpace(const distribn_t * const velDistributions,
-                                                   distribn_t * const moments);
-
-            /**
              * Sets up the MRT collision matrix \hat{S}
              *
              * @param collisionMatrix MRT collision matrix, diagonal

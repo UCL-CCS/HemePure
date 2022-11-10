@@ -62,16 +62,19 @@ namespace hemelb
           {
             InitState(initParams);
 
-            // Pre-compute M^T * (M * M^T)^{-1} * \hat{S} which remains constant during the simulation
+            // Pre-compute quantities which remains constant during the simulation
             for (Direction direction = 0; direction < MomentBasis::Lattice::NUMVECTORS; ++direction)
             {
               for (unsigned momentIndex = 0; momentIndex < MomentBasis::NUM_KINETIC_MOMENTS; momentIndex++)
               {
-                // Compute M^T * (M * M^T)^{-1}
+                // Compute M^T
+                reducedMomentBasisTransposed[direction][momentIndex] =
+                    MomentBasis::REDUCED_MOMENT_BASIS[momentIndex][direction];
+
+                // Compute M^T * (M * M^T)^{-1} * \hat{S}
                 const distribn_t normalisedReducedMomentBasis =
                     MomentBasis::REDUCED_MOMENT_BASIS[momentIndex][direction]
                         / MomentBasis::BASIS_TIMES_BASIS_TRANSPOSED[momentIndex];
-                // Multiply by \hat{S}
                 momentsRelaxationMatrix[momentIndex][direction] =
                     normalisedReducedMomentBasis * collisionMatrix[momentIndex];
               }
@@ -95,8 +98,7 @@ namespace hemelb
               hydroVars.f_neq.f[ii] = hydroVars.f[ii] - hydroVars.f_eq.f[ii];
             }
 
-            /** @todo #222 consider computing m_neq directly in the momentum space. See d'Humieres 2002. */
-            MomentBasis::ProjectVelsIntoMomentSpace(hydroVars.f_neq.f, hydroVars.m_neq);
+            ProjectVelsIntoMomentSpace(hydroVars.f_neq.f, hydroVars.m_neq);
           }
 
           inline void DoCalculateFeq(HydroVars<MRT>& hydroVars, site_t index)
@@ -112,8 +114,7 @@ namespace hemelb
               hydroVars.f_neq.f[ii] = hydroVars.f[ii] - hydroVars.f_eq.f[ii];
             }
 
-            /** @todo #222 consider computing m_neq directly in the moment space. See d'Humieres 2002. */
-            MomentBasis::ProjectVelsIntoMomentSpace(hydroVars.f_neq.f, hydroVars.m_neq);
+            ProjectVelsIntoMomentSpace(hydroVars.f_neq.f, hydroVars.m_neq);
           }
 
           inline void DoCollide(const LbmParameters* const lbmParams, HydroVars<MRT>& hydroVars)
@@ -138,6 +139,25 @@ namespace hemelb
           }
 
           /**
+           * Projects a velocity distributions vector into the (reduced) MRT moment space.
+           * @param velDistributions velocity distributions vector
+           * @param moments equivalent vector in the moment space
+           */
+          inline void ProjectVelsIntoMomentSpace(const distribn_t * const velDistributions,
+                                                 distribn_t * const moments)
+          {
+            for (unsigned momentIndex = 0; momentIndex < MomentBasis::NUM_KINETIC_MOMENTS; momentIndex++)
+            {
+              distribn_t moment = 0.;
+              for (Direction velocityIndex = 0; velocityIndex < MomentBasis::Lattice::NUMVECTORS; velocityIndex++)
+              {
+                moment += reducedMomentBasisTransposed[velocityIndex][momentIndex] * velDistributions[velocityIndex];
+              }
+              moments[momentIndex] = moment;
+            }
+          }
+
+          /**
            *  This method is used in unit testing in order to make an MRT kernel behave as LBGK, regardless of the
            *  moment basis, by setting all the relaxation parameters to be the same.
            */
@@ -150,6 +170,9 @@ namespace hemelb
         private:
           /** MRT collision matrix (\hat{S}, diagonal). It corresponds to the inverse of the relaxation time for each mode. */
           std::array<distribn_t, MomentBasis::NUM_KINETIC_MOMENTS> collisionMatrix;
+
+          // Transpose of the reduced moment basis
+          distribn_t reducedMomentBasisTransposed[MomentBasis::Lattice::NUMVECTORS][MomentBasis::NUM_KINETIC_MOMENTS];
 
           // The negative of the relaxation matrix in moment space: M^T * (M * M^T)^{-1} * \hat{S}
           distribn_t momentsRelaxationMatrix[MomentBasis::NUM_KINETIC_MOMENTS][MomentBasis::Lattice::NUMVECTORS];
