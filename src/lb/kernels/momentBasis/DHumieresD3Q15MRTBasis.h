@@ -51,9 +51,9 @@ namespace hemelb
              * Sets up the MRT collision matrix \hat{S}
              *
              * @param collisionMatrix MRT collision matrix, diagonal
-             * @param relaxationTime LB relaxation time used to relax some of the moments
+             * @param relaxationRate LB relaxation rate used to relax some of the moments
              */
-            static void SetUpCollisionMatrix(std::vector<distribn_t>& collisionMatrix, distribn_t relaxationTime);
+            static void SetUpCollisionMatrix(std::array<distribn_t, NUM_KINETIC_MOMENTS>& collisionMatrix, distribn_t relaxationRate);
         };
       }
     }

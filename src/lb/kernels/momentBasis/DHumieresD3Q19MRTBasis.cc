@@ -4,7 +4,6 @@
 // file AUTHORS. This software is provided under the terms of the
 // license in the file LICENSE.
 
-#include <cassert>
 #include "lb/kernels/momentBasis/DHumieresD3Q19MRTBasis.h"
 
 namespace hemelb
@@ -60,27 +59,25 @@ namespace hemelb
           }
         }
 
-        void DHumieresD3Q19MRTBasis::SetUpCollisionMatrix(std::vector<distribn_t>& collisionMatrix,
-                                                          distribn_t relaxationTime)
+        void DHumieresD3Q19MRTBasis::SetUpCollisionMatrix(std::array<distribn_t, NUM_KINETIC_MOMENTS>& collisionMatrix,
+                                                          distribn_t relaxationRate)
         {
           // Relaxation values taken from d'Humieres 2002.
-          collisionMatrix.clear();
-          collisionMatrix.push_back(1.19); // e (s1)
-          collisionMatrix.push_back(1.4); // epsilon (s2)
-          collisionMatrix.push_back(1.2); // q_x (s4)
-          collisionMatrix.push_back(1.2); // q_y (s4)
-          collisionMatrix.push_back(1.2); // q_z (s4)
-          collisionMatrix.push_back(relaxationTime); // 3p_xx (s9)
-          collisionMatrix.push_back(1.4); // 3pi_xx s10
-          collisionMatrix.push_back(relaxationTime); // 3p_ww (s9)
-          collisionMatrix.push_back(1.4); // 3pi_ww s10
-          collisionMatrix.push_back(relaxationTime); // p_xy (s13 = s9)
-          collisionMatrix.push_back(relaxationTime); // p_yz (s13 = s9)
-          collisionMatrix.push_back(relaxationTime); // p_xz (s13 = s9)
-          collisionMatrix.push_back(1.98); // m_x (s16)
-          collisionMatrix.push_back(1.98); // m_y (s16)
-          collisionMatrix.push_back(1.98); // m_z (s16)
-          assert(collisionMatrix.size() == DHumieresD3Q19MRTBasis::NUM_KINETIC_MOMENTS);
+          collisionMatrix.at(0) = 1.19; // e (s1)
+          collisionMatrix.at(1) = 1.4; // epsilon (s2)
+          collisionMatrix.at(2) = 1.2; // q_x (s4)
+          collisionMatrix.at(3) = 1.2; // q_y (s4)
+          collisionMatrix.at(4) = 1.2; // q_z (s4)
+          collisionMatrix.at(5) = relaxationRate; // 3p_xx (s9)
+          collisionMatrix.at(6) = 1.4; // 3pi_xx s10
+          collisionMatrix.at(7) = relaxationRate; // 3p_ww (s9)
+          collisionMatrix.at(8) = 1.4; // 3pi_ww s10
+          collisionMatrix.at(9) = relaxationRate; // p_xy (s13 = s9)
+          collisionMatrix.at(10) = relaxationRate; // p_yz (s13 = s9)
+          collisionMatrix.at(11) = relaxationRate; // p_xz (s13 = s9)
+          collisionMatrix.at(12) = 1.98; // m_x (s16)
+          collisionMatrix.at(13) = 1.98; // m_y (s16)
+          collisionMatrix.at(14) = 1.98; // m_z (s16)
         }
 
       }

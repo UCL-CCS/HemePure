@@ -146,7 +146,7 @@ namespace hemelb
 
         private:
           /** MRT collision matrix (\hat{S}, diagonal). It corresponds to the inverse of the relaxation time for each mode. */
-          std::vector<distribn_t> collisionMatrix;
+          std::array<distribn_t, MomentBasis::NUM_KINETIC_MOMENTS> collisionMatrix;
 
           double normalisedReducedMomentBasis[MomentBasis::NUM_KINETIC_MOMENTS][MomentBasis::Lattice::NUMVECTORS];
 
