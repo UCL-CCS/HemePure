@@ -50,12 +50,12 @@ namespace hemelb
         {
           for (unsigned momentIndex = 0; momentIndex < NUM_KINETIC_MOMENTS; momentIndex++)
           {
-            moments[momentIndex] = 0.;
+            distribn_t moment = 0.;
             for (Direction velocityIndex = 0; velocityIndex < Lattice::NUMVECTORS; velocityIndex++)
             {
-              moments[momentIndex] += REDUCED_MOMENT_BASIS[momentIndex][velocityIndex]
-                  * velDistributions[velocityIndex];
+              moment += REDUCED_MOMENT_BASIS[momentIndex][velocityIndex] * velDistributions[velocityIndex];
             }
+            moments[momentIndex] = moment;
           }
         }
 
