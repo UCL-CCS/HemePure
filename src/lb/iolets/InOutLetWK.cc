@@ -39,12 +39,10 @@ namespace hemelb
         comms->Receive(&density);
         comms->Send(&densityNew);
 
-        if (comms->GetNumProcs() > 1)
-        {
-          const BoundaryCommunicator& bcComm = comms->GetCommunicator();
-          flowRate = bcComm.Reduce(flowRateNew, MPI_SUM, bcComm.GetBCProcRank());
-          siteCount = bcComm.Reduce(siteCount, MPI_SUM, bcComm.GetBCProcRank());
-        }
+        // Here the reductions are blocking communications; they have to be made non-blocking
+        const BoundaryCommunicator& bcComm = comms->GetCommunicator();
+        flowRate = bcComm.Reduce(flowRateNew, MPI_SUM, bcComm.GetBCProcRank());
+        siteCount = bcComm.Reduce(siteCount, MPI_SUM, bcComm.GetBCProcRank());
         if (siteCount != 0)
         {
           flowRate = flowRate * area / siteCount;
@@ -99,7 +97,6 @@ namespace hemelb
         if (siteID == centreSiteID)
         {
           density = densityNew;
-          flowRate = flowRateNew;
         }
       }
     }
