@@ -25,11 +25,12 @@ namespace hemelb
           BoundaryComms(SimulationState* iSimState, int centreRank, const BoundaryCommunicator& boundaryComm);
           ~BoundaryComms();
 
-          void Wait();
-
           // It is up to the caller to make sure only BCproc calls send
           void Send(distribn_t* density);
           void Receive(distribn_t* density);
+          void FinishSend();
+          void Wait();
+          void WaitAllComms();
 
           int GetNumProcs() const
           {
@@ -40,14 +41,7 @@ namespace hemelb
             return bcComm;
           }
 
-          void ReceiveDoubles(double* double_array, int size);
-          void WaitAllComms();
-          void FinishSend();
-
         private:
-          // This is necessary to support BC proc having fluid sites
-          bool hasBoundary;
-
           int nProcs;
 
           BoundaryCommunicator bcComm;
