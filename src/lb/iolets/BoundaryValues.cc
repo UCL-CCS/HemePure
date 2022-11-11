@@ -185,11 +185,12 @@ namespace hemelb
 
       void BoundaryValues::FinishReceive()
       {
+        // This function is called at LBM::PreSend()
         for (int i = 0; i < localIoletCount; i++)
         {
           if (GetLocalIolet(i)->IsCommsRequired())
           {
-            //GetLocalIolet(i)->GetComms()->Wait();
+            GetLocalIolet(i)->GetComms()->WaitAllComms();
           }
         }
       }

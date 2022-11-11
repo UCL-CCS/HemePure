@@ -32,12 +32,15 @@ namespace hemelb
 
       void InOutLetWK::DoComms(const BoundaryCommunicator& boundaryComm, const LatticeTimeStep timeStep)
       {
+        /**
+         * Here the send and receive requests are placed. The message is received at or before the wait
+         * barrier set by BoundaryValues::FinishReceive().
+         */
+        comms->Receive(&density);
+        comms->Send(&densityNew);
+
         if (comms->GetNumProcs() > 1)
         {
-          comms->Receive(&density);
-          comms->Send(&densityNew);
-          comms->WaitAllComms();
-
           const BoundaryCommunicator& bcComm = comms->GetCommunicator();
           flowRate = bcComm.Reduce(flowRateNew, MPI_SUM, bcComm.GetBCProcRank());
           siteCount = bcComm.Reduce(siteCount, MPI_SUM, bcComm.GetBCProcRank());
