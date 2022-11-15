@@ -30,12 +30,12 @@ namespace hemelb
 
           virtual LatticeDensity GetDensityMin() const
           {
-            //pass;
+            return 1.0;
           }
 
           virtual LatticeDensity GetDensityMax() const
           {
-            //pass;
+            return 1.0;
           }
 
           LatticeDensity GetDensity(LatticeTimeStep time_step) const

@@ -8,6 +8,7 @@
 #define HEMELB_LB_KERNELS_MOMENTBASIS_DHUMIERESD3Q15MRTBASIS_H
 
 #include "lb/lattices/D3Q15.h"
+#include <array>
 
 namespace hemelb
 {
