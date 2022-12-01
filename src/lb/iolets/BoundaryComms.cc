@@ -45,28 +45,6 @@ namespace hemelb
         }
       }
 
-      void BoundaryComms::Wait()
-      {
-        HEMELB_MPI_CALL(
-            MPI_Wait, (&receiveRequest, &receiveStatus)
-        );
-      }
-
-      void BoundaryComms::WaitAllComms()
-      {
-        // Now wait for all to complete
-        if (bcComm.IsCurrentProcTheBCProc())
-        {
-          HEMELB_MPI_CALL(
-              MPI_Waitall, (nProcs, sendRequest, sendStatus)
-          );
-        }
-
-        HEMELB_MPI_CALL(
-            MPI_Wait, (&receiveRequest, &receiveStatus)
-        );
-      }
-
       void BoundaryComms::Send(distribn_t* density)
       {
         if (bcComm.IsCurrentProcTheBCProc())
@@ -111,6 +89,19 @@ namespace hemelb
               MPI_Waitall, (nProcs, sendRequest, sendStatus)
           );
         }
+      }
+
+      void BoundaryComms::Wait()
+      {
+        HEMELB_MPI_CALL(
+            MPI_Wait, (&receiveRequest, &receiveStatus)
+        );
+      }
+
+      void BoundaryComms::WaitAllComms()
+      {
+        FinishSend();
+        Wait();
       }
 
     }

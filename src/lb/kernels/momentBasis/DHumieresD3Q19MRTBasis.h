@@ -8,6 +8,7 @@
 #define HEMELB_LB_KERNELS_MOMENTBASIS_DHUMIERESD3Q19MRTBASIS_H
 
 #include "lb/lattices/D3Q19.h"
+#include <array>
 
 namespace hemelb
 {
