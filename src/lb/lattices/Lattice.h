@@ -1296,21 +1296,19 @@ inline static double hsum_double_avx512(__m512d v) {
 
 						inline static LatticeInfo& GetLatticeInfo()
 						{
-							if (singletonInfo == nullptr)
+							util::Vector3D<int> vectors[DmQn::NUMVECTORS];
+							Direction inverseVectorIndices[DmQn::NUMVECTORS];
+
+							for (Direction direction = 0; direction < DmQn::NUMVECTORS; ++direction)
 							{
-								util::Vector3D<int> vectors[DmQn::NUMVECTORS];
-								Direction inverseVectorIndices[DmQn::NUMVECTORS];
-
-								for (Direction direction = 0; direction < DmQn::NUMVECTORS; ++direction)
-								{
-									vectors[direction] = util::Vector3D<int>(DmQn::CX[direction],
-											DmQn::CY[direction],
-											DmQn::CZ[direction]);
-									inverseVectorIndices[direction] = DmQn::INVERSEDIRECTIONS[direction];
-								}
-
-								singletonInfo = new LatticeInfo(DmQn::NUMVECTORS, vectors, inverseVectorIndices);
+								vectors[direction] = util::Vector3D<int>(DmQn::CX[direction],
+										DmQn::CY[direction],
+										DmQn::CZ[direction]);
+								inverseVectorIndices[direction] = DmQn::INVERSEDIRECTIONS[direction];
 							}
+
+							static LatticeInfo* singletonInfo;
+							singletonInfo = new LatticeInfo(DmQn::NUMVECTORS, vectors, inverseVectorIndices);
 
 							return *singletonInfo;
 						}
@@ -1423,8 +1421,6 @@ inline static double hsum_double_avx512(__m512d v) {
 
 								return zetaHighOrders;
 							}
-
-						static LatticeInfo* singletonInfo;
 				};
 		}
 	}
