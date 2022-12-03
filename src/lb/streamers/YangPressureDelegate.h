@@ -164,6 +164,7 @@ namespace hemelb
 										hemelb::log::Logger::Log<hemelb::log::Error, hemelb::log::OnePerCore>(
 											"A higher resolution is required at the site location [%ld, %ld, %ld]",
 											localSiteLocation.x, localSiteLocation.y, localSiteLocation.z);
+										std::exit(15);
 									}
 								}
 							}
