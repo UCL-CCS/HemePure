@@ -25,7 +25,7 @@ namespace hemelb
       }
     }
 
-    MpiEnvironment::~MpiEnvironment()
+    MpiEnvironment::~MpiEnvironment() noexcept(false)
     {
       if (doesOwnMpi)
       {
