@@ -47,11 +47,6 @@ make -j && echo "Done HemeLB Source"
 cd ../..
 }
 
-make -j && echo "Done HemeLB Source"
-
-cd ../..
-}
-
 SRCbuild_ARCHER2(){
 cd src
 FOLDER=build
@@ -69,5 +64,5 @@ cd ../..
 
 
 MODULES
-#DEPbuild
+DEPbuild
 SRCbuild

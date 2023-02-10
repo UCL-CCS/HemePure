@@ -127,7 +127,6 @@ namespace hemelb
           distribn_t area, resistance, capacitance;
           LatticeDensity density, densityNew;
           distribn_t flowRate, flowRateNew;
-          site_t siteCount;
       };
     }
   }
