@@ -33,7 +33,7 @@ namespace hemelb
          * If this instance created the MPI env, shut it down.
          * Otherwise, does nothing.
          */
-        ~MpiEnvironment();
+        ~MpiEnvironment() noexcept(false);
 
         /**
          * Query if MPI is initialised

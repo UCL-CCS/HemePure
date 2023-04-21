@@ -980,48 +980,25 @@ inline static double hsum_double_avx512(__m512d v) {
 						}
 
 						// von Mises stress computation given the non-equilibrium distribution functions.
-						inline static void CalculateVonMisesStress(const distribn_t f[], distribn_t &stress,
-								const double iStressParameter)
+						inline static void CalculateVonMisesStress(const distribn_t tau,
+								const distribn_t fPostCollision[],
+								const distribn_t f[],
+								distribn_t &stress)
 						{
-							// Recall that sigma_ij = Sum_l f(l) * C_il * C_jl
+							util::Matrix3D pi = CalculatePiTensor(tau, fPostCollision, f);
 
-							// First calculate sigma_xx - sigma_yy.
-							// Using standard form of sigma_ij, sigma_xx - sigma_yy
-							//   = Sum_l f(l) * (Cx(l) * Cx(l) - Cy(l) * Cy(l))
-							// We calculate sigma_yy - sigma_zz and sigma_xx and sigma_zz
-							// in the same way.
-							distribn_t sigma_xx_yy = 0.0;
-							distribn_t sigma_yy_zz = 0.0;
-							distribn_t sigma_xx_zz = 0.0;
+							distribn_t sigma_xx_yy = pi[0][0] - pi[1][1];
+							distribn_t sigma_yy_zz = pi[1][1] - pi[2][2];
+							distribn_t sigma_zz_xx = pi[2][2] - pi[0][0];
+							distribn_t sigma_xy = pi[0][1];
+							distribn_t sigma_yz = pi[1][2];
+							distribn_t sigma_zx = pi[2][0];
 
-							// We will also require sigma_xy, sigma_yz and sigma_xz, calculated in the usual
-							// way.
-							distribn_t sigma_xy = 0.0;
-							distribn_t sigma_xz = 0.0;
-							distribn_t sigma_yz = 0.0;
+							distribn_t temp1 = sigma_xx_yy * sigma_xx_yy + sigma_yy_zz * sigma_yy_zz
+								+ sigma_zz_xx * sigma_zz_xx;
+							distribn_t temp2 = sigma_xy * sigma_xy + sigma_yz * sigma_yz + sigma_zx * sigma_zx;
 
-							for (Direction direction = 0; direction < DmQn::NUMVECTORS; ++direction)
-							{
-								sigma_xx_yy += f[direction]
-									* (DmQn::CX[direction] * DmQn::CX[direction]
-											- DmQn::CY[direction] * DmQn::CY[direction]);
-								sigma_yy_zz += f[direction]
-									* (DmQn::CY[direction] * DmQn::CY[direction]
-											- DmQn::CZ[direction] * DmQn::CZ[direction]);
-								sigma_xx_zz += f[direction]
-									* (DmQn::CX[direction] * DmQn::CX[direction]
-											- DmQn::CZ[direction] * DmQn::CZ[direction]);
-
-								sigma_xy += f[direction] * DmQn::CX[direction] * DmQn::CY[direction];
-								sigma_xz += f[direction] * DmQn::CX[direction] * DmQn::CZ[direction];
-								sigma_yz += f[direction] * DmQn::CY[direction] * DmQn::CZ[direction];
-							}
-
-							distribn_t a = sigma_xx_yy * sigma_xx_yy + sigma_yy_zz * sigma_yy_zz
-								+ sigma_xx_zz * sigma_xx_zz;
-							distribn_t b = sigma_xy * sigma_xy + sigma_xz * sigma_xz + sigma_yz * sigma_yz;
-
-							stress = iStressParameter * sqrt(a + 6.0 * b);
+							stress = sqrt(0.5 * (temp1 + 6.0 * temp2));
 						}
 
 						/**
@@ -1032,17 +1009,19 @@ inline static double hsum_double_avx512(__m512d v) {
 						 *
 						 * @param density density at a given site
 						 * @param tau relaxation time
-						 * @param fNonEquilibrium non equilibrium part of the distribution function
+						 * @param fPostCollision post-collision distribution function
+						 * @param f distribution function
 						 * @param wallNormal wall normal at a given point
 						 * @param traction traction vector at a given point
 						 */
 						inline static void CalculateTractionOnAPoint(
-								const distribn_t density, const distribn_t tau, const distribn_t fNonEquilibrium[],
+								const distribn_t density, const distribn_t tau, const distribn_t fPostCollision[],
+								const distribn_t f[],
 								const util::Vector3D<Dimensionless>& wallNormal,
 								util::Vector3D<LatticeStress>& traction)
 						{
 							util::Matrix3D sigma;
-							CalculateStressTensor(density, tau, fNonEquilibrium, sigma);
+							CalculateStressTensor(density, tau, fPostCollision, f, sigma);
 
 							// Multiply the stress tensor by the surface normal
 							sigma.timesVector(wallNormal, traction);
@@ -1058,17 +1037,19 @@ inline static double hsum_double_avx512(__m512d v) {
 						 *
 						 * @param density density at a given site
 						 * @param tau relaxation time
-						 * @param fNonEquilibrium non equilibrium part of the distribution function
+						 * @param fPostCollision post-collision distribution function
+						 * @param f distribution function
 						 * @param wallNormal wall normal at a given point
 						 * @param tractionTangentialComponent tangential projection of the traction vector
 						 */
 						inline static void CalculateTangentialProjectionTraction(
-								const distribn_t density, const distribn_t tau, const distribn_t fNonEquilibrium[],
+								const distribn_t density, const distribn_t tau, const distribn_t fPostCollision[],
+								const distribn_t f[],
 								const util::Vector3D<Dimensionless>& wallNormal,
 								util::Vector3D<LatticeStress>& tractionTangentialComponent)
 						{
 							util::Vector3D<LatticeStress> traction;
-							CalculateTractionOnAPoint(density, tau, fNonEquilibrium, wallNormal, traction);
+							CalculateTractionOnAPoint(density, tau, fPostCollision, f, wallNormal, traction);
 
 							LatticeStress magnitudeNormalProjectionTraction = traction.Dot(wallNormal);
 
@@ -1076,40 +1057,56 @@ inline static double hsum_double_avx512(__m512d v) {
 						}
 
 						/**
+						 * Calculates the normal component of the traction vector with respect to the wall surface.
+						 *
+						 * @param density density at a given site
+						 * @param tau relaxation time
+						 * @param fPostCollision post-collision distribution function
+						 * @param f distribution function
+						 * @param wallNormal wall normal at a given point
+						 * @param tractionNormalComponent normal projection of the traction vector
+						 */
+						inline static void CalculateNormalProjectionTraction(
+								const distribn_t density, const distribn_t tau, const distribn_t fPostCollision[],
+								const distribn_t f[],
+								const util::Vector3D<Dimensionless>& wallNormal,
+								util::Vector3D<LatticeStress>& tractionNormalComponent)
+						{
+							util::Vector3D<LatticeStress> traction;
+							CalculateTractionOnAPoint(density, tau, fPostCollision, f, wallNormal, traction);
+							tractionNormalComponent = wallNormal * traction.Dot(wallNormal);
+						}
+
+						/**
 						 * Calculate the full stress tensor at a given fluid site (including both pressure and deviatoric part)
 						 *
-						 * The stress tensor is assembled based on the formula:
+						 * The stress tensor is assembled based on the formula (Ferziger et al., 2020):
 						 *
-						 *    \sigma = p*I + 2*\mu*S = p*I - \Pi^{(neq)}
+						 *    \sigma = -p*I + 2*\mu*S = -p*I - \Pi^{(neq)}
 						 *
 						 * where p is hydrodynamic pressure, I is the identity tensor, S is the strain rate tensor, and \mu is the
 						 * viscosity. -2*\mu*S can be shown to be equals to the non equilibrium part of the moment flux tensor \Pi^{(neq)}.
 						 *
-						 * \Pi^{(neq)} is assumed to be defined as in Chen&Doolen 1998:
-						 *
-						 *    \Pi^{(neq)} = (1 - 1/(2*\tau)) * \sum_over_i e_i e_i f^{(neq)}_i
-						 *
-						 * where \tau is the relaxation time and e_i is the i-th direction vector
-						 *
 						 * @param density density at a given site
 						 * @param tau relaxation time
-						 * @param fNonEquilibrium non equilibrium part of the distribution function
+						 * @param fPostCollision post-collision distribution function
+						 * @param f distribution function
 						 * @param stressTensor full stress tensor at a given site
 						 */
 						inline static void CalculateStressTensor(const distribn_t density, const distribn_t tau,
-								const distribn_t fNonEquilibrium[],
+								const distribn_t fPostCollision[],
+								const distribn_t f[],
 								util::Matrix3D& stressTensor)
 						{
 							// Initialises the stress tensor to the deviatoric part, i.e. -\Pi^{(neq)}
-							stressTensor = CalculatePiTensor(fNonEquilibrium);
-							stressTensor *= 1 - 1 / (2 * tau);
+							stressTensor = CalculatePiTensor(tau, fPostCollision, f) * -1.0;
 
-							// Add the pressure component to the stress tensor. The reference pressure given
+							// Subtract the pressure component from the stress tensor. The reference pressure given
 							// by the REFERENCE_PRESSURE_mmHg constant is mapped to rho=1. Here we subtract 1
 							// and when the tensor is turned into physical units REFERENCE_PRESSURE_mmHg will
 							// be added.
 							LatticePressure pressure = (density - 1) * Cs2;
-							stressTensor.addDiagonal(pressure);
+							stressTensor.addDiagonal(-pressure);
 						}
 
 						/**
@@ -1123,10 +1120,11 @@ inline static double hsum_double_avx512(__m512d v) {
 						 * instead).
 						 */
 						inline static void CalculateWallShearStressMagnitude(const distribn_t &density,
+								const distribn_t tau,
+								const distribn_t fPostCollision[],
 								const distribn_t f[],
 								const util::Vector3D<double> nor,
-								distribn_t &stress,
-								const double &iStressParameter)
+								distribn_t &stress)
 						{
 							// sigma_ij is the force
 							// per unit area in
@@ -1142,17 +1140,13 @@ inline static double hsum_double_avx512(__m512d v) {
 							// unit area normal to the
 							// surface
 
-							// Multiplying the second moment of the non equilibrium function by temp gives the non equilibrium part
-							// of the moment flux tensor pi.
-							distribn_t temp = iStressParameter * (-sqrt(2.0));
-
-							// Computes the second moment of the equilibrium function f.
-							util::Matrix3D pi = CalculatePiTensor(f);
+							// Computes the non-equilibrium part of the momentum flux tensor.
+							util::Matrix3D pi = CalculatePiTensor(tau, fPostCollision, f);
 
 							for (unsigned i = 0; i < 3; i++)
 							{
 								for (unsigned j = 0; j < 3; j++)
-									stress_vector[i] += pi[i][j] * nor[j] * temp;
+									stress_vector[i] += pi[i][j] * nor[j];
 
 								square_stress_vector += stress_vector[i] * stress_vector[i];
 								normal_stress += stress_vector[i] * nor[i];
@@ -1161,67 +1155,23 @@ inline static double hsum_double_avx512(__m512d v) {
 							stress = sqrt(square_stress_vector - normal_stress * normal_stress);
 						}
 
-						/**
-						 * Despite its name, this method does not compute the whole pi tensor (i.e. momentum flux tensor). What it does is
-						 * computing the second moment of a distribution function. If this distribution happens to be f_eq, the resulting
-						 * tensor will be the equilibrium part of pi. However, if the distribution function is f_neq, the result WON'T be
-						 * the non equilibrium part of pi. In order to get it, you will have to multiply by (1 - timestep/2*tau)
-						 *
-						 * @param f distribution function
-						 * @return second moment of the distribution function f
-						 */
-						inline static util::Matrix3D CalculatePiTensor(const distribn_t* const f)
-						{
-							util::Matrix3D ret;
-
-							// Fill in 0,0 1,0 1,1 2,0 2,1 2,2
-							for (int ii = 0; ii < 3; ++ii)
-							{
-								for (int jj = 0; jj <= ii; ++jj)
-								{
-									ret[ii][jj] = 0.0;
-									for (unsigned int l = 0; l < DmQn::NUMVECTORS; ++l)
-									{
-										ret[ii][jj] += f[l] * DmQn::discreteVelocityVectors[ii][l]
-											* DmQn::discreteVelocityVectors[jj][l];
-									}
-								}
-							}
-
-							// Exploit the symmetry to fill in 0,1 0,2 1,2
-							for (int ii = 0; ii < 3; ++ii)
-							{
-								for (int jj = ii + 1; jj < 3; ++jj)
-								{
-									ret[ii][jj] = ret[jj][ii];
-								}
-							}
-
-							return ret;
-						}
-
+						// This method computes the sum of squared element of the strain rate tensor.
 						inline static distribn_t CalculateShearRate(const distribn_t &iTau,
-								const distribn_t iFNeq[],
+								const distribn_t fPostCollision[],
+								const distribn_t f[],
 								const distribn_t &iDensity)
 						{
+							util::Matrix3D pi = CalculatePiTensor(iTau, fPostCollision, f);
 							distribn_t shear_rate = 0.0;
-							distribn_t strain_rate_tensor_i_j;
-
 							for (unsigned row = 0; row < 3; row++)
 							{
 								for (unsigned column = 0; column < 3; column++)
 								{
-									strain_rate_tensor_i_j = CalculateStrainRateTensorComponent(row,
-											column,
-											iTau,
-											iFNeq,
-											iDensity);
-									shear_rate += strain_rate_tensor_i_j * strain_rate_tensor_i_j;
+									shear_rate += pi[row][column] * pi[row][column];
 								}
 							}
-
-							shear_rate = sqrt(shear_rate);
-
+							shear_rate = sqrt(shear_rate) / (-2.0 * Cs2 * iDensity);
+							shear_rate /= (iTau - 0.5);
 							return shear_rate;
 						}
 
@@ -1346,21 +1296,19 @@ inline static double hsum_double_avx512(__m512d v) {
 
 						inline static LatticeInfo& GetLatticeInfo()
 						{
-							if (singletonInfo == nullptr)
+							util::Vector3D<int> vectors[DmQn::NUMVECTORS];
+							Direction inverseVectorIndices[DmQn::NUMVECTORS];
+
+							for (Direction direction = 0; direction < DmQn::NUMVECTORS; ++direction)
 							{
-								util::Vector3D<int> vectors[DmQn::NUMVECTORS];
-								Direction inverseVectorIndices[DmQn::NUMVECTORS];
-
-								for (Direction direction = 0; direction < DmQn::NUMVECTORS; ++direction)
-								{
-									vectors[direction] = util::Vector3D<int>(DmQn::CX[direction],
-											DmQn::CY[direction],
-											DmQn::CZ[direction]);
-									inverseVectorIndices[direction] = DmQn::INVERSEDIRECTIONS[direction];
-								}
-
-								singletonInfo = new LatticeInfo(DmQn::NUMVECTORS, vectors, inverseVectorIndices);
+								vectors[direction] = util::Vector3D<int>(DmQn::CX[direction],
+										DmQn::CY[direction],
+										DmQn::CZ[direction]);
+								inverseVectorIndices[direction] = DmQn::INVERSEDIRECTIONS[direction];
 							}
+
+							static LatticeInfo* singletonInfo;
+							singletonInfo = new LatticeInfo(DmQn::NUMVECTORS, vectors, inverseVectorIndices);
 
 							return *singletonInfo;
 						}
@@ -1371,24 +1319,67 @@ inline static double hsum_double_avx512(__m512d v) {
 						}
 
 					private:
-						inline static distribn_t CalculateStrainRateTensorComponent(const unsigned &iRow,
-								const unsigned &iColumn,
-								const distribn_t &iTau,
-								const distribn_t iFNeq[],
-								const distribn_t &iDensity)
+						/**
+						 * This method computes the non-equilibrium part of the pi tensor (i.e. momentum flux tensor)
+						 * by using the non-equilibrium part of the distribution function.
+						 *
+						 * The pi tensor is related to the strain rate tensor S by
+						 *
+						 *    \Pi^{(neq)} = -2*\mu*S,
+						 *
+						 * where \mu is the dynamic viscosity.
+						 *
+						 * For the LBGK and MRT models, S is given by (Chai et al., 2011)
+						 *
+						 *    S = \sum_i e_i e_i \Omega_i / (2*\rho*Cs2),
+						 *
+						 * where e_i is the i-th direction vector, and \Omega is the collision operator in the LB
+						 * equation obtained by subtracting the distribution function from the post-collision
+						 * distribution function.
+						 *
+						 * The equation for the pi tensor is simplified by using the relation
+						 *
+						 *    \mu / (\rho*Cs2) = \tau - 0.5,
+						 *
+						 * where \tau is the relaxation time governing the viscosity. As a result,
+						 *
+						 *    \Pi^{(neq)} = (\sum_i e_i e_i \Omega_i) * [-(\tau - 0.5)].
+						 *
+						 * @param tau relaxation time
+						 * @param fPostCollision post-collision distribution function
+						 * @param f distribution function
+						 * @return non-equilibrium part of the pi tensor
+						 */
+						inline static util::Matrix3D CalculatePiTensor(const distribn_t tau,
+								const distribn_t* const fPostCollision, const distribn_t* const f)
 						{
-							distribn_t strain_rate_tensor_i_j = 0.0;
+							util::Matrix3D ret;
 
-							for (Direction vec_index = 0; vec_index < DmQn::NUMVECTORS; vec_index++)
+							// Fill in 0,0 1,0 1,1 2,0 2,1 2,2
+							for (int ii = 0; ii < 3; ++ii)
 							{
-								strain_rate_tensor_i_j += iFNeq[vec_index]
-									* (DmQn::discreteVelocityVectors[iRow][vec_index]
-											* DmQn::discreteVelocityVectors[iColumn][vec_index]);
+								for (int jj = 0; jj <= ii; ++jj)
+								{
+									ret[ii][jj] = 0.0;
+									for (unsigned int l = 0; l < DmQn::NUMVECTORS; ++l)
+									{
+										ret[ii][jj] += (fPostCollision[l] - f[l]) * DmQn::discreteVelocityVectors[ii][l]
+											* DmQn::discreteVelocityVectors[jj][l];
+									}
+									ret[ii][jj] *= -(tau - 0.5);
+								}
 							}
 
-							strain_rate_tensor_i_j *= -1.0 / (2.0 * iTau * iDensity * Cs2);
+							// Exploit the symmetry to fill in 0,1 0,2 1,2
+							for (int ii = 0; ii < 3; ++ii)
+							{
+								for (int jj = ii + 1; jj < 3; ++jj)
+								{
+									ret[ii][jj] = ret[jj][ii];
+								}
+							}
 
-							return strain_rate_tensor_i_j;
+							return ret;
 						}
 
 						/**
@@ -1430,8 +1421,6 @@ inline static double hsum_double_avx512(__m512d v) {
 
 								return zetaHighOrders;
 							}
-
-						static LatticeInfo* singletonInfo;
 				};
 		}
 	}

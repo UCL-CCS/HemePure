@@ -55,9 +55,16 @@ namespace hemelb
 
             if (iolet->IsCommsRequired()) //DEREK: POTENTIAL MULTISCALE ISSUE (this if-statement)
             {
-              // Here we assume that an iolet has a single rank holding the centre. If more than one rank is valid we pass the 
-              // first one from the centreList and the other(s) remain as slaves to this one...
-              iolet->SetComms(new BoundaryComms(state, procsList[ioletIndex], centreList[ioletIndex][0], bcComms));	
+              // Create a local communicator at the iolet
+              net::MpiGroup new_group = bcComms.Group().Include(procsList[ioletIndex]);
+              net::MpiCommunicator new_comm = bcComms.CreateGroup(new_group, ioletIndex);
+
+              // Find the rank that contains the centre site in the local communicator
+              std::vector<int>::iterator it = std::find(procsList[ioletIndex].begin(), \
+                  procsList[ioletIndex].end(), centreList[ioletIndex][0]);
+              int centreRank = std::distance(procsList[ioletIndex].begin(), it);
+
+              iolet->SetComms(new BoundaryComms(state, centreRank, new_comm));
             }
           }
         }
@@ -178,11 +185,12 @@ namespace hemelb
 
       void BoundaryValues::FinishReceive()
       {
+        // This function is called at LBM::PreSend()
         for (int i = 0; i < localIoletCount; i++)
         {
           if (GetLocalIolet(i)->IsCommsRequired())
           {
-            //GetLocalIolet(i)->GetComms()->Wait();
+            GetLocalIolet(i)->GetComms()->WaitAllComms();
           }
         }
       }

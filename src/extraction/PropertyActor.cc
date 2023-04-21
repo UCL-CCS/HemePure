@@ -69,6 +69,9 @@ namespace hemelb
               case OutputField::TangentialProjectionTraction:
                 propertyCache.tangentialProjectionTractionCache.SetRefreshFlag();
                 break;
+              case OutputField::NormalProjectionTraction:
+                propertyCache.normalProjectionTractionCache.SetRefreshFlag();
+                break;
               case OutputField::WallExtension:
                 propertyCache.wallExtensionCache.SetRefreshFlag();
                 break;

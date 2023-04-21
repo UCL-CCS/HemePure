@@ -26,6 +26,11 @@ namespace hemelb
 					NashZerothOrderPressureDelegate(CollisionType& delegatorCollider, kernels::InitParams& initParams) :
 						collider(delegatorCollider), iolet(*initParams.boundaryObject)
 				{
+					// Copied from YangPressureDelegate
+					for (int i = 0; i < iolet.GetLocalIoletCount(); ++i)
+					{
+						SortDirectionsCloseToIOletNormal(iolet.GetLocalIolet(i));
+					}
 				}
 
 					inline void StreamLink(const LbmParameters* lbmParams,
@@ -36,10 +41,14 @@ namespace hemelb
 					{
 						int boundaryId = site.GetIoletId();
 						iolets::InOutLet* localIOlet = iolet.GetIolets()[boundaryId];
+						Direction unstreamed = LatticeType::INVERSEDIRECTIONS[direction];
 
 						// Couple with an external system if there is
-						localIOlet->DoPreStreamCoupling(site.GetIndex(), iolet.GetTimeStep(), site.GetGlobalSiteCoords(),
-														hydroVars.density, hydroVars.velocity);
+						if (unstreamed == localIOlet->GetDirectionCloseToNormal(0))
+						{
+							localIOlet->DoPreStreamCoupling(site.GetIndex(), iolet.GetTimeStep(), site.GetGlobalSiteCoords(),
+															hydroVars.density, hydroVars.velocity);
+						}
 
 						// Set the density at the "ghost" site to be the density of the iolet.
 						distribn_t ghostDensity = iolet.GetBoundaryDensity(boundaryId);
@@ -62,8 +71,6 @@ namespace hemelb
 
 						collider.kernel.CalculateFeq(ghostHydrovars, 0);
 
-						Direction unstreamed = LatticeType::INVERSEDIRECTIONS[direction];
-
 						*latticeData->GetFNew(site.GetIndex() * LatticeType::NUMVECTORS + unstreamed)
 							= ghostHydrovars.GetFEq()[unstreamed];
 					}
@@ -74,12 +81,40 @@ namespace hemelb
 					{
 						int boundaryId = site.GetIoletId();
 						iolets::InOutLet* localIOlet = iolet.GetIolets()[boundaryId];
+						Direction unstreamed = LatticeType::INVERSEDIRECTIONS[direction];
 
 						// Finalise the coupling with the external system
-						localIOlet->DoPostStreamCoupling(site.GetIndex(), iolet.GetTimeStep(), site.GetGlobalSiteCoords());
+						if (unstreamed == localIOlet->GetDirectionCloseToNormal(0))
+						{
+							localIOlet->DoPostStreamCoupling(site.GetIndex(), iolet.GetTimeStep(), site.GetGlobalSiteCoords());
+						}
 					}
 
 				protected:
+					// Copied from YangPressureDelegate
+					void SortDirectionsCloseToIOletNormal(iolets::InOutLet* localIOlet)
+					{
+						const LatticePosition& ioletNormal = localIOlet->GetNormal();
+						std::array<Direction, LatticeType::NUMVECTORS> dirs;
+        				std::array<LatticeDistance, LatticeType::NUMVECTORS> dist;
+
+	        			for (Direction k = 0; k < LatticeType::NUMVECTORS; ++k)
+						{
+							const LatticePosition ck = LatticePosition(LatticeType::CXD[k],
+												                       LatticeType::CYD[k],
+															           LatticeType::CZD[k]);
+							const LatticePosition unitCk = ck.GetNormalised();
+							dist[k] = LatticePosition(unitCk - ioletNormal).GetMagnitudeSquared();
+        	  				dirs[k] = k;
+        				}
+
+						// Sort dirs by comparing any two elements of dist.
+       	 				std::sort(dirs.begin(), dirs.end(), [&dist](Direction i, Direction j) {return dist[i] < dist[j];});
+
+						// Store the results in the iolet object.
+						localIOlet->SetDirectionsCloseToNormal(dirs.begin(), dirs.end());
+      				}
+
 					CollisionType& collider;
 					iolets::BoundaryValues& iolet;
 			};

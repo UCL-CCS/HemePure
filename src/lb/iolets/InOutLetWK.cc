@@ -14,8 +14,8 @@ namespace hemelb
     namespace iolets
     {
       InOutLetWK::InOutLetWK() :
-          InOutLet(), density(1.0), densityNew(1.0), radius(1.0),
-          resistance(1.0), capacitance(1.0)
+          InOutLet(), radius(1.0), area(1.0), resistance(1.0), capacitance(1.0),
+          density(1.0), densityNew(1.0), flowRate(0.0), flowRateNew(0.0)
       {
       }
 
@@ -31,11 +31,17 @@ namespace hemelb
 
       void InOutLetWK::DoComms(const BoundaryCommunicator& boundaryComm, const LatticeTimeStep timeStep)
       {
-        if (comms->GetNumProcs() == 1) return;
-
+        /**
+         * Here the send and receive requests are placed. The message is received at or before the wait
+         * barrier set by BoundaryValues::FinishReceive().
+         */
         comms->Receive(&density);
         comms->Send(&densityNew);
-        comms->WaitAllComms();
+
+        // Here the reductions are blocking communications; they have to be made non-blocking
+        const BoundaryCommunicator& bcComm = comms->GetCommunicator();
+        flowRate = bcComm.Reduce(flowRateNew, MPI_SUM, bcComm.GetBCProcRank());
+        flowRateNew = 0.0;
       }
 
       LatticeDistance InOutLetWK::GetDistanceSquared(const LatticePosition& x) const
@@ -64,17 +70,16 @@ namespace hemelb
 				{
 					LatticePressure pressure = GetPressure(0); // the argument is dummy
 					distribn_t R0 = resistance, C0 = capacitance;
-					distribn_t scaleFactor = GetScaleFactor(sitePos);
-					distribn_t component = velocity.Dot(normal);
 
 					// Explicit integration scheme
-					//LatticePressure pressureNew = (1.0/C0)*scaleFactor*std::abs(component) + (1.0 - 1.0/(R0*C0))*pressure;
+					//LatticePressure pressureNew = (1.0/C0)*flowRate + (1.0 - 1.0/(R0*C0))*pressure;
 
 					// Semi-implicit integration scheme
-					LatticePressure pressureNew = R0/(1.0 + R0*C0) * (scaleFactor*std::abs(component) + C0*pressure);
+					LatticePressure pressureNew = R0/(1.0 + R0*C0) * (flowRate + C0*pressure);
 
 					densityNew = pressureNew / Cs2;
 				}
+        flowRateNew += velocity.Dot(-normal);
       }
 
       void InOutLetWK::DoPostStreamCoupling(const site_t& siteID,

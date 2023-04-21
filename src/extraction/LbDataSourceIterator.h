@@ -105,6 +105,12 @@ namespace hemelb
 				util::Vector3D<PhysicalStress> GetTangentialProjectionTraction() const;
 
 				/**
+				 * Returns the normal component of the traction vector of a wall site.
+				 * @return projected traction vector
+				 */
+				util::Vector3D<PhysicalStress> GetNormalProjectionTraction() const;
+
+				/**
 				 * Returns the IOlet ID of the site.
 				 * @return IOlet ID
 				 */

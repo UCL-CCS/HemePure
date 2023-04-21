@@ -15,6 +15,9 @@
 #include "util/fileutils.h"
 #include "lb/InitialCondition.h"
 
+#define QUOTE_RAW(x) #x
+#define QUOTE_CONTENTS(x) QUOTE_RAW(x)
+
 namespace hemelb
 {
 	namespace configuration
@@ -157,6 +160,15 @@ namespace hemelb
 				totalTimeSteps += warmUpSteps;
 			}
 
+			// Required element for some kernels
+			const std::string hemeKernel = QUOTE_CONTENTS(HEMELB_KERNEL);
+			if (hemeKernel == "TRT" || hemeKernel == "MRT")
+			{
+				// <relaxation_parameter value="unsigned" units="lattice" />
+				const io::xml::Element rpEl = simEl.GetChildOrThrow("relaxation_parameter");
+				GetDimensionalValue(rpEl, "lattice", relaxationParameter);
+			}
+
 			// Required element
 			// <voxel_size value="float" units="m" />
 			const io::xml::Element vsEl = simEl.GetChildOrThrow("voxel_size");
@@ -230,8 +242,6 @@ namespace hemelb
 			const std::string& ioletTypeName = ioletEl.GetName();
 			std::string hemeIoletBC;
 
-#define QUOTE_RAW(x) #x
-#define QUOTE_CONTENTS(x) QUOTE_RAW(x)
 			if (ioletTypeName == "inlet")
 				hemeIoletBC = QUOTE_CONTENTS(HEMELB_INLET_BOUNDARY);
 			else if (ioletTypeName == "outlet")
@@ -406,6 +416,8 @@ namespace hemelb
 			file->filename = propertyoutputEl.GetAttributeOrThrow("file");
 
 			propertyoutputEl.GetAttributeOrThrow("period", file->frequency);
+			propertyoutputEl.GetAttributeOrNull("start", file->start);
+			propertyoutputEl.GetAttributeOrNull("stop", file->stop);
 
 			io::xml::Element geometryEl = propertyoutputEl.GetChildOrThrow("geometry");
 			const std::string& type = geometryEl.GetAttributeOrThrow("type");
@@ -419,6 +431,10 @@ namespace hemelb
 			else if (type == "line")
 			{
 				file->geometry = DoIOForLineGeometry(geometryEl);
+			}
+			else if (type == "sphere")
+			{
+				file->geometry = DoIOForSphereGeometry(geometryEl);
 			}
 			else if (type == "inlet")
 			{
@@ -437,6 +453,10 @@ namespace hemelb
 			else if (type == "surface")
 			{
 				file->geometry = new extraction::GeometrySurfaceSelector();
+			}
+			else if (type == "surfaceWithinSphere")
+			{
+				file->geometry = DoIOForSurfaceWithinSphere(geometryEl);
 			}
 			else if (type == "surfacepoint")
 			{
@@ -497,6 +517,34 @@ namespace hemelb
 
 		}
 
+		extraction::SphereGeometrySelector* SimConfig::DoIOForSphereGeometry(
+				const io::xml::Element& geometryEl)
+		{
+			io::xml::Element pointEl = geometryEl.GetChildOrThrow("point");
+			PhysicalPosition point;
+			GetDimensionalValue(pointEl, "m", point);
+
+			io::xml::Element radiusEl = geometryEl.GetChildOrThrow("radius");
+			PhysicalDistance radius;
+			GetDimensionalValue(radiusEl, "m", radius);
+
+			return new extraction::SphereGeometrySelector(point, radius);
+		}
+
+		extraction::SurfaceWithinSphereSelector* SimConfig::DoIOForSurfaceWithinSphere(
+				const io::xml::Element& geometryEl)
+		{
+			io::xml::Element pointEl = geometryEl.GetChildOrThrow("point");
+			PhysicalPosition point;
+			GetDimensionalValue(pointEl, "m", point);
+
+			io::xml::Element radiusEl = geometryEl.GetChildOrThrow("radius");
+			PhysicalDistance radius;
+			GetDimensionalValue(radiusEl, "m", radius);
+
+			return new extraction::SurfaceWithinSphereSelector(point, radius);
+		}
+
 		extraction::SurfacePointSelector* SimConfig::DoIOForSurfacePoint(
 				const io::xml::Element& geometryEl)
 		{
@@ -555,6 +603,10 @@ namespace hemelb
 			else if (type == "tangentialprojectiontraction")
 			{
 				field.type = extraction::OutputField::TangentialProjectionTraction;
+			}
+			else if (type == "normalprojectiontraction")
+			{
+				field.type = extraction::OutputField::NormalProjectionTraction;
 			}
 			else if (type == "wallextension")
 			{
@@ -706,6 +758,10 @@ namespace hemelb
 
 		      const io::xml::Element radiusEl = conditionEl.GetChildOrThrow("radius");
 		      newIolet->SetRadius(GetDimensionalValueInLatticeUnits<LatticeDistance>(radiusEl, "m"));
+
+			  distribn_t tempArea;
+		      GetDimensionalValue(conditionEl.GetChildOrThrow("area"), "m^2", tempArea);
+		      newIolet->SetArea(unitConverter->ConvertAreaToLatticeUnits(tempArea));
 
 		      return newIolet;
 		}

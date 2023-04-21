@@ -26,21 +26,20 @@ namespace hemelb
     struct LbmParameters
     {
       public:
-        LbmParameters(PhysicalTime timeStepLength, PhysicalDistance voxelSize)
+        LbmParameters(PhysicalTime timeStepLength, PhysicalDistance voxelSize) :
+            timestep(timeStepLength), voxelSize(voxelSize)
         {
-          Update(timeStepLength, voxelSize);
+          tau = 0.5
+              + (timestep * BLOOD_VISCOSITY_Pa_s / BLOOD_DENSITY_Kg_per_m3)
+                  / (Cs2 * voxelSize * voxelSize);
+          omega = -1.0 / tau;
+          beta = -1.0 / (2.0 * tau);
         }
 
-        void Update(PhysicalTime timeStepLength, PhysicalDistance voxelSizeMetres)
+        void Update(const distribn_t& relaxationTime)
         {
-          timestep = timeStepLength;
-          voxelSize = voxelSizeMetres;
-          tau = 0.5
-              + (timeStepLength * BLOOD_VISCOSITY_Pa_s / BLOOD_DENSITY_Kg_per_m3)
-                  / (Cs2 * voxelSize * voxelSize);
-
+          tau = relaxationTime;
           omega = -1.0 / tau;
-          stressParameter = (1.0 - 1.0 / (2.0 * tau)) / sqrt(2.0);
           beta = -1.0 / (2.0 * tau);
         }
 
@@ -64,29 +63,32 @@ namespace hemelb
           return tau;
         }
 
-        distribn_t GetStressParameter() const
-        {
-          return stressParameter;
-        }
-
         distribn_t GetBeta() const
         {
           return beta;
         }
 
+        // A parameter used in the relaxation of some collision operators.
+        void SetRelaxationParameter(const distribn_t& param)
+        {
+          relaxationParameter = param;
+        }
+        distribn_t GetRelaxationParameter() const
+        {
+          return relaxationParameter;
+        }
+
         StressTypes StressType;
-        
-	distribn_t ElasticWallStiffness;
-	
-	distribn_t BoundaryVelocityRatio;
+        distribn_t ElasticWallStiffness;
+        distribn_t BoundaryVelocityRatio;
 
       private:
         PhysicalTime timestep;
         PhysicalDistance voxelSize;
         distribn_t omega;
         distribn_t tau;
-        distribn_t stressParameter;
         distribn_t beta; ///< Viscous dissipation in ELBM
+        distribn_t relaxationParameter;
     };
   }
 }

@@ -64,29 +64,26 @@ namespace hemelb
 
 		void ChangeDirectory(const char * target)
 		{
-			chdir(target);
-			//if (chdir(target) == -1); {
-			//	log::Logger::Log<log::Critical, log::OnePerCore>("Cannot chdir!\nExiting.");
-			//	std::exit(0);
-			//}
+			if (chdir(target) == -1); {
+				log::Logger::Log<log::Critical, log::OnePerCore>("Cannot chdir!\nExiting.");
+				std::exit(0);
+			}
 		}
 
 		void ChangeDirectory(const std::string & target)
 		{
-			chdir(target.c_str());
-			//if (chdir(target.c_str()) == -1); {
-			//	log::Logger::Log<log::Critical, log::OnePerCore>("Cannot chdir!\nExiting.");
-			//	std::exit(0);
-			//}
+			if (chdir(target.c_str()) == -1); {
+				log::Logger::Log<log::Critical, log::OnePerCore>("Cannot chdir!\nExiting.");
+				std::exit(0);
+			}
 		}
 
 		void GetCurrentDir(char * result, int bufflength)
 		{
-			getcwd(result, bufflength);
-			//if (getcwd(result, bufflength) == NULL); {
-			//	log::Logger::Log<log::Critical, log::OnePerCore>("Cannot get cwd!\nExiting.");
-			//	std::exit(0);
-			//}
+			if (getcwd(result, bufflength) == NULL); {
+				log::Logger::Log<log::Critical, log::OnePerCore>("Cannot get cwd!\nExiting.");
+				std::exit(0);
+			}
 		}
 
 		std::string GetCurrentDir()

@@ -22,39 +22,27 @@ namespace hemelb
       class BoundaryComms
       {
         public:
-          BoundaryComms(SimulationState* iSimState, std::vector<int> &iProcsList, int centreRank, const BoundaryCommunicator& boundaryComm);
+          BoundaryComms(SimulationState* iSimState, int centreRank, const BoundaryCommunicator& boundaryComm);
           ~BoundaryComms();
-
-          void Wait();
 
           // It is up to the caller to make sure only BCproc calls send
           void Send(distribn_t* density);
           void Receive(distribn_t* density);
+          void FinishSend();
+          void Wait();
+          void WaitAllComms();
 
           int GetNumProcs() const
           {
             return nProcs;
           }
-          const std::vector<int>& GetListOfProcs() const
+          const BoundaryCommunicator& GetCommunicator() const
           {
-            return procsList;
+            return bcComm;
           }
-          int GetCentreRank() const
-          {
-            return centreRank;
-          }
-
-          void ReceiveDoubles(double* double_array, int size);
-          void WaitAllComms();
-          void FinishSend();
 
         private:
-          // This is necessary to support BC proc having fluid sites
-          bool hasBoundary;
-
           int nProcs;
-          std::vector<int> procsList;
-          int centreRank; //The rank that contains the centre site of the iolet
 
           BoundaryCommunicator bcComm;
 

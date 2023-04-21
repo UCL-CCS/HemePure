@@ -111,10 +111,11 @@ namespace hemelb
 									else
 									{
 										LatticeType::CalculateWallShearStressMagnitude(hydroVars.density,
-												hydroVars.GetFNeq().f,
+												hydroVars.tau,
+												hydroVars.GetFPostCollision().f,
+												hydroVars.f,
 												site.GetWallNormal(),
-												stress,
-												lbmParams->GetStressParameter());
+												stress);
 									}
 
 									propertyCache.wallShearStressMagnitudeCache.Put(site.GetIndex(), stress);
@@ -123,9 +124,10 @@ namespace hemelb
 								if (propertyCache.vonMisesStressCache.RequiresRefresh())
 								{
 									distribn_t stress;
-									StreamerImpl::CollisionType::CKernel::LatticeType::CalculateVonMisesStress(hydroVars.GetFNeq().f,
-											stress,
-											lbmParams->GetStressParameter());
+									StreamerImpl::CollisionType::CKernel::LatticeType::CalculateVonMisesStress(hydroVars.tau,
+											hydroVars.GetFPostCollision().f,
+											hydroVars.f,
+											stress);
 
 									propertyCache.vonMisesStressCache.Put(site.GetIndex(), stress);
 								}
@@ -134,7 +136,8 @@ namespace hemelb
 								{
 									distribn_t shear_rate =
 										StreamerImpl::CollisionType::CKernel::LatticeType::CalculateShearRate(hydroVars.tau,
-												hydroVars.GetFNeq().f,
+												hydroVars.GetFPostCollision().f,
+												hydroVars.f,
 												hydroVars.density);
 
 									propertyCache.shearRateCache.Put(site.GetIndex(), shear_rate);
@@ -145,7 +148,8 @@ namespace hemelb
 									util::Matrix3D stressTensor;
 									StreamerImpl::CollisionType::CKernel::LatticeType::CalculateStressTensor(hydroVars.density,
 											hydroVars.tau,
-											hydroVars.GetFNeq().f,
+											hydroVars.GetFPostCollision().f,
+											hydroVars.f,
 											stressTensor);
 
 									propertyCache.stressTensorCache.Put(site.GetIndex(), stressTensor);
@@ -163,7 +167,8 @@ namespace hemelb
 									{
 										LatticeType::CalculateTractionOnAPoint(hydroVars.density,
 												hydroVars.tau,
-												hydroVars.GetFNeq().f,
+												hydroVars.GetFPostCollision().f,
+												hydroVars.f,
 												site.GetWallNormal(),
 												tractionOnAPoint);
 									}
@@ -183,12 +188,34 @@ namespace hemelb
 									{
 										LatticeType::CalculateTangentialProjectionTraction(hydroVars.density,
 												hydroVars.tau,
-												hydroVars.GetFNeq().f,
+												hydroVars.GetFPostCollision().f,
+												hydroVars.f,
 												site.GetWallNormal(),
 												tangentialProjectionTractionOnAPoint);
 									}
 
 									propertyCache.tangentialProjectionTractionCache.Put(site.GetIndex(), tangentialProjectionTractionOnAPoint);
+								}
+
+								if (propertyCache.normalProjectionTractionCache.RequiresRefresh())
+								{
+									util::Vector3D<LatticeStress> normalProjectionTractionOnAPoint(0);
+
+									/*
+									 * Wall normals are only available at the sites marked as being at the domain edge.
+									 * For the sites in the fluid bulk, the traction vector will be 0.
+									 */
+									if (site.IsWall())
+									{
+										LatticeType::CalculateNormalProjectionTraction(hydroVars.density,
+												hydroVars.tau,
+												hydroVars.GetFPostCollision().f,
+												hydroVars.f,
+												site.GetWallNormal(),
+												normalProjectionTractionOnAPoint);
+									}
+
+									propertyCache.normalProjectionTractionCache.Put(site.GetIndex(), normalProjectionTractionOnAPoint);
 								}
 
 								if (propertyCache.wallExtensionCache.RequiresRefresh())

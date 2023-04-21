@@ -16,11 +16,10 @@ namespace hemelb
     namespace iolets
     {
 
-      BoundaryComms::BoundaryComms(SimulationState* iSimState, std::vector<int> &iProcsList, int centreRank, const BoundaryCommunicator& boundaryComm) :
-          nProcs((int) iProcsList.size()), procsList(iProcsList), centreRank(centreRank), bcComm(boundaryComm)
+      BoundaryComms::BoundaryComms(SimulationState* iSimState, int centreRank, const BoundaryCommunicator& boundaryComm) :
+          nProcs(boundaryComm.Size()), bcComm(boundaryComm)
       {
-        /* iProcsList contains the procs containing said Boundary/iolet, but NOT proc 0! */
-        // Let centreRank be the BoundaryControlling/BC proc
+        // Let centreRank be the BoundaryControlling(BC) proc
         bcComm.SetBCProcRank(centreRank);
 
         // Only BC proc sends
@@ -46,28 +45,6 @@ namespace hemelb
         }
       }
 
-      void BoundaryComms::Wait()
-      {
-        HEMELB_MPI_CALL(
-            MPI_Wait, (&receiveRequest, &receiveStatus)
-        );
-      }
-
-      void BoundaryComms::WaitAllComms()
-      {
-        // Now wait for all to complete
-        if (bcComm.IsCurrentProcTheBCProc())
-        {
-          HEMELB_MPI_CALL(
-              MPI_Waitall, (nProcs, sendRequest, sendStatus)
-          );
-        }
-
-        HEMELB_MPI_CALL(
-            MPI_Wait, (&receiveRequest, &receiveStatus)
-        );
-      }
-
       void BoundaryComms::Send(distribn_t* density)
       {
         if (bcComm.IsCurrentProcTheBCProc())
@@ -79,7 +56,7 @@ namespace hemelb
                     density,
                     1,
                     net::MpiDataType(*density),
-                    procsList[proc],
+                    proc,
                     100,
                     bcComm,
                     &sendRequest[proc]
@@ -90,19 +67,16 @@ namespace hemelb
 
       void BoundaryComms::Receive(distribn_t* density)
       {
-        if (bcComm.Rank() != 0)
-        {
-          HEMELB_MPI_CALL(
-              MPI_Irecv, (
-                  density,
-                  1,
-                  net::MpiDataType(*density),
-                  bcComm.GetBCProcRank(),
-                  100,
-                  bcComm,
-                  &receiveRequest
-              ));
-        }
+        HEMELB_MPI_CALL(
+            MPI_Irecv, (
+                density,
+                1,
+                net::MpiDataType(*density),
+                bcComm.GetBCProcRank(),
+                100,
+                bcComm,
+                &receiveRequest
+            ));
       }
 
       void BoundaryComms::FinishSend()
@@ -115,6 +89,19 @@ namespace hemelb
               MPI_Waitall, (nProcs, sendRequest, sendStatus)
           );
         }
+      }
+
+      void BoundaryComms::Wait()
+      {
+        HEMELB_MPI_CALL(
+            MPI_Wait, (&receiveRequest, &receiveStatus)
+        );
+      }
+
+      void BoundaryComms::WaitAllComms()
+      {
+        FinishSend();
+        Wait();
       }
 
     }

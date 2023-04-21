@@ -105,6 +105,13 @@ namespace hemelb
 			return MpiCommunicator(newComm, true);
 		}
 
+		MpiCommunicator MpiCommunicator::CreateGroup(const MpiGroup& grp, const int& tag) const
+		{
+			MPI_Comm newComm;
+			HEMELB_MPI_CALL(MPI_Comm_create_group, (*commPtr, grp, tag, &newComm));
+			return MpiCommunicator(newComm, true);
+		}
+
 		void MpiCommunicator::Abort(int errCode) const
 		{
 			HEMELB_MPI_CALL(MPI_Abort, (*commPtr, errCode));

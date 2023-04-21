@@ -57,6 +57,14 @@ namespace hemelb
 				MpiCommunicator Create(const MpiGroup& grp) const;
 
 				/**
+				 * Creates a new communicator - see MPI_COMM_CREATE_GROUP
+				 * @param grp which is a subset of the group of this communicator.
+				 * @param tag used to distinguish concurrent executions of this function at a proc.
+				 * @return New communicator.
+				 */
+				MpiCommunicator CreateGroup(const MpiGroup& grp, const int& tag) const;
+
+				/**
 				 * Allow implicit casts to MPI_Comm
 				 * @return The underlying MPI communicator.
 				 */

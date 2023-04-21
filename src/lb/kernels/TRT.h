@@ -83,9 +83,7 @@ namespace hemelb
             // Magic number determines the other relaxation time
             // Lambda = (tau_plus - 1/2) (tau_minus - 1/2)
             // Choose such that HWBB walls are always in the right place.
-            // TODO: make this a configurable parameter.
-            const distribn_t Lambda = 3.0 / 16.0;
-
+            const distribn_t Lambda = lbmParams->GetRelaxationParameter();
             const distribn_t tau_plus = lbmParams->GetTau();
             const distribn_t omega_plus = lbmParams->GetOmega();
             const distribn_t tau_minus = 0.5 + Lambda / (tau_plus - 0.5);

@@ -4,7 +4,6 @@
 // file AUTHORS. This software is provided under the terms of the
 // license in the file LICENSE.
 
-#include <cassert>
 #include "lb/kernels/momentBasis/DHumieresD3Q19MRTBasis.h"
 
 namespace hemelb
@@ -46,40 +45,25 @@ namespace hemelb
                                                                                                        12, 24, 4, 4, 4,
                                                                                                        8, 8, 8 };
 
-        void DHumieresD3Q19MRTBasis::ProjectVelsIntoMomentSpace(const distribn_t * const velDistributions,
-                                                                distribn_t * const moments)
+        void DHumieresD3Q19MRTBasis::SetUpCollisionMatrix(std::array<distribn_t, NUM_KINETIC_MOMENTS>& collisionMatrix,
+                                                          distribn_t relaxationRate)
         {
-          for (unsigned momentIndex = 0; momentIndex < NUM_KINETIC_MOMENTS; momentIndex++)
-          {
-            moments[momentIndex] = 0.;
-            for (Direction velocityIndex = 0; velocityIndex < Lattice::NUMVECTORS; velocityIndex++)
-            {
-              moments[momentIndex] += REDUCED_MOMENT_BASIS[momentIndex][velocityIndex]
-                  * velDistributions[velocityIndex];
-            }
-          }
-        }
-
-        void DHumieresD3Q19MRTBasis::SetUpCollisionMatrix(std::vector<distribn_t>& collisionMatrix, distribn_t tau)
-        {
-          // Relaxation values taken from d'Humieres 2002, except for the kinematic viscosity where the usual tau formula is used.
-          collisionMatrix.clear();
-          collisionMatrix.push_back(1.19); // e (s1)
-          collisionMatrix.push_back(1.4); // epsilon (s2)
-          collisionMatrix.push_back(1.2); // q_x (s4)
-          collisionMatrix.push_back(1.2); // q_y (s4)
-          collisionMatrix.push_back(1.2); // q_z (s4)
-          collisionMatrix.push_back(1.0 / tau); // 3p_xx (s9)
-          collisionMatrix.push_back(1.4); // 3pi_xx s10
-          collisionMatrix.push_back(1.0 / tau); // 3p_ww (s9)
-          collisionMatrix.push_back(1.4); // 3pi_ww s10
-          collisionMatrix.push_back(1.0 / tau); // p_xy (s13 = s9)
-          collisionMatrix.push_back(1.0 / tau); // p_yz (s13 = s9)
-          collisionMatrix.push_back(1.0 / tau); // p_xz (s13 = s9)
-          collisionMatrix.push_back(1.98); // m_x (s16)
-          collisionMatrix.push_back(1.98); // m_y (s16)
-          collisionMatrix.push_back(1.98); // m_z (s16)
-          assert(collisionMatrix.size() == DHumieresD3Q19MRTBasis::NUM_KINETIC_MOMENTS);
+          // Relaxation values taken from d'Humieres 2002.
+          collisionMatrix.at(0) = 1.19; // e (s1)
+          collisionMatrix.at(1) = 1.4; // epsilon (s2)
+          collisionMatrix.at(2) = 1.2; // q_x (s4)
+          collisionMatrix.at(3) = 1.2; // q_y (s4)
+          collisionMatrix.at(4) = 1.2; // q_z (s4)
+          collisionMatrix.at(5) = relaxationRate; // 3p_xx (s9)
+          collisionMatrix.at(6) = 1.4; // 3pi_xx s10
+          collisionMatrix.at(7) = relaxationRate; // 3p_ww (s9)
+          collisionMatrix.at(8) = 1.4; // 3pi_ww s10
+          collisionMatrix.at(9) = relaxationRate; // p_xy (s13 = s9)
+          collisionMatrix.at(10) = relaxationRate; // p_yz (s13 = s9)
+          collisionMatrix.at(11) = relaxationRate; // p_xz (s13 = s9)
+          collisionMatrix.at(12) = 1.98; // m_x (s16)
+          collisionMatrix.at(13) = 1.98; // m_y (s16)
+          collisionMatrix.at(14) = 1.98; // m_z (s16)
         }
 
       }

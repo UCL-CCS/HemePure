@@ -8,6 +8,7 @@
 #define HEMELB_LB_KERNELS_MOMENTBASIS_DHUMIERESD3Q15MRTBASIS_H
 
 #include "lb/lattices/D3Q15.h"
+#include <array>
 
 namespace hemelb
 {
@@ -39,21 +40,12 @@ namespace hemelb
             static const double BASIS_TIMES_BASIS_TRANSPOSED[NUM_KINETIC_MOMENTS];
 
             /**
-             * Projects a velocity distributions vector into the (reduced) MRT moment space.
-             *
-             * @param velDistributions velocity distributions vector
-             * @param moments equivalent vector in the moment space
-             */
-            static void ProjectVelsIntoMomentSpace(const distribn_t * const velDistributions,
-                                                   distribn_t * const moments);
-
-            /**
              * Sets up the MRT collision matrix \hat{S}
              *
              * @param collisionMatrix MRT collision matrix, diagonal
-             * @param tau LB relaxation time used to relax some of the moments
+             * @param relaxationRate LB relaxation rate used to relax some of the moments
              */
-            static void SetUpCollisionMatrix(std::vector<distribn_t>& collisionMatrix, distribn_t tau);
+            static void SetUpCollisionMatrix(std::array<distribn_t, NUM_KINETIC_MOMENTS>& collisionMatrix, distribn_t relaxationRate);
         };
       }
     }
