@@ -198,6 +198,7 @@ ExternalProject_Add(ParMETIS
 # -------------------
 option(CTEMPLATE_PATCH_VACOPY "Define va_copy macro through patch" OFF)
 option(CTEMPLATE_PATCH_ALIGN "Define GTL align macros as gnu" OFF)
+option(CTEMPLATE_PATCH_PYTHON "Patch Generate FSM and FSM Config to use Python3" ON)
 
 message("Building CTEMPLATE")
 
@@ -223,12 +224,18 @@ else()
 	set(PATCH_COMMAND_ALIGN echo noalign)
 endif()
 
+if (CTEMPLATE_PATCH_PYTHON)
+  set(PATCH_COMMAND_PYTHON patch -p1 < ${HEMELB_DEPENDENCIES_PATH}/patches/ctemplate_python3.diff)
+else()
+  set(PATCH_COMMAND_PYTHON echo "no python3 patches" )
+endif()
+
 ExternalProject_Add(CTemplate
 	INSTALL_DIR			${HEMELB_DEPENDENCIES_INSTALL_PATH}
 	URL					${CTEMPLATE_TARBALL}
 	CONFIGURE_COMMAND	<SOURCE_DIR>/configure --prefix=<INSTALL_DIR> ${CTEMPLATE_CONFIGURE_OPTIONS}
 	BUILD_COMMAND		make -j${HEMELB_SUBPROJECT_MAKE_JOBS}
-	PATCH_COMMAND		${PATCH_COMMAND_ALIGN} && ${PATCH_COMMAND_VACOPY}
+	PATCH_COMMAND		${PATCH_COMMAND_ALIGN} && ${PATCH_COMMAND_VACOPY}  && ${PATCH_COMMAND_PYTHON}
 	BUILD_IN_SOURCE		1)
 
 # BOOST
