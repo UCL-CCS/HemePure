@@ -36,3 +36,34 @@ include_directories(${Boost_INCLUDE_DIRS})
 # ----
 find_package(ZLIB REQUIRED)
 include_directories(${ZLIB_INCLUDE_DIR})
+
+# TIRPC
+# ----
+find_package(TIRPC REQUIRED)
+include_directories(${TIRPC_INCLUDE_DIRS})
+
+set(CMAKE_REQUIRED_INCLUDES ${TIRPC_INCLUDE_DIRS})
+set(CMAKE_REQUIRED_LIBRARIES ${TIRPC_LIBRARY})
+CHECK_CXX_SOURCE_COMPILES("
+#include <stdint.h>
+#include <rpc/types.h>
+#include <rpc/xdr.h>
+int main(int count, char** v){
+	char buffer[15] = \"aaaaaaaaaaaaa\";
+	XDR xdr;
+	xdrmem_create(&xdr, buffer, 32, XDR_ENCODE);
+	uint16_t a;
+	uint32_t b;
+	uint64_t c;
+	xdr_uint16_t(&xdr, &a);
+	xdr_uint32_t(&xdr, &b);
+	xdr_uint64_t(&xdr, &c);
+	return b;
+}" HAVE_XDRUINTXX_T)
+
+# without the standard names for the xdr functions, create aliases for the existing ones
+if(NOT HAVE_XDRUINTXX_T)
+	add_definitions(-Dxdr_uint16_t=xdr_u_int16_t)
+	add_definitions(-Dxdr_uint32_t=xdr_u_int32_t)
+	add_definitions(-Dxdr_uint64_t=xdr_u_int64_t)
+endif()
