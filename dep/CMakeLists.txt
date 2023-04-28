@@ -291,7 +291,7 @@ endif()
 # TIRPC
 # ----
 #https://sourceforge.net/projects/libtirpc/files/libtirpc/1.2.6/libtirpc-1.2.6.tar.bz2
-find_package(TIRPC REQUIRED)
+find_package(TIRPC)
 
 if (TIRPC_FOUND)
 	message("TIRPC already installed, no need to download")
