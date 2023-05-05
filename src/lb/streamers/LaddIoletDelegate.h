@@ -57,15 +57,11 @@ namespace hemelb
             Direction unstreamed = LatticeType::INVERSEDIRECTIONS[ii];
 
             // Couple with an external system if there is
-            if (unstreamed == ii)
+            if (unstreamed == iolet->GetDirectionCloseToNormal(0))
             {
 						  iolet->DoPreStreamCoupling(site.GetIndex(), bValues->GetTimeStep(), sitePos,
 							  							           hydroVars.density, hydroVars.velocity);
             }
-
-            // Couple with an external system if there is
-						iolet->DoPreStreamCoupling(site.GetIndex(), bValues->GetTimeStep(), site.GetGlobalSiteCoords(),
-														           hydroVars.density, hydroVars.velocity);
 
             LatticePosition halfWay(sitePos);
             halfWay.x += 0.5 * LatticeType::CX[ii];
@@ -98,7 +94,7 @@ namespace hemelb
             Direction unstreamed = LatticeType::INVERSEDIRECTIONS[ii];
 
 						// Finalise the coupling with the external system
-            if (unstreamed == ii)
+            if (unstreamed == localIOlet->GetDirectionCloseToNormal(0))
             {
 						  localIOlet->DoPostStreamCoupling(site.GetIndex(), bValues->GetTimeStep(), site.GetGlobalSiteCoords());
             }

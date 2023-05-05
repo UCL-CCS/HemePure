@@ -35,11 +35,8 @@ namespace hemelb
 
 			void InOutLetReadWriteVelocity::DoComms(const BoundaryCommunicator& boundaryComm, const LatticeTimeStep timeStep)
       		{
-        		if (comms->GetNumProcs() == 1) return;
-
         		comms->Receive(&maxVelocity);
         		comms->Send(&maxVelocityNew);
-        		comms->WaitAllComms();
       		}
 
 			void InOutLetReadWriteVelocity::DoPreStreamCoupling(const site_t& siteID,
