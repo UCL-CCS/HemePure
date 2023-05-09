@@ -176,13 +176,6 @@ if(HAVE_RUSAGE)
 	add_definitions(-DHAVE_RUSAGE)
 endif()
 
-# without the standard names for the xdr functions, create aliases for the existing ones
-if(NOT HAVE_XDRUINTXX_T)
-	add_definitions(-Dxdr_uint16_t=xdr_u_int16_t)
-	add_definitions(-Dxdr_uint32_t=xdr_u_int32_t)
-	add_definitions(-Dxdr_uint64_t=xdr_u_int64_t)
-endif()
-
 include(mpi)
 include(dependencies)
 
@@ -257,7 +250,8 @@ target_link_libraries(
 	${TINYXML_LIBRARY}
 	${Boost_LIBRARIES}
 	${CTEMPLATE_LIBRARY}
-	${ZLIB_LIBRARIES})
+	${ZLIB_LIBRARIES}
+	${TIRPC_LIBRARY})
 install(TARGETS ${HEMELB_EXECUTABLE} RUNTIME DESTINATION bin)
 list(APPEND RESOURCES resources/report.txt.ctp resources/report.xml.ctp)
 
@@ -278,6 +272,7 @@ if(HEMELB_BUILD_TESTS_UNIT)
 		${Boost_LIBRARIES}
 		${CTEMPLATE_LIBRARY}
 		${ZLIB_LIBRARIES}
+		${TIRPC_LIBRARY}
 		${CMAKE_DL_LIBS})
 	install(TARGETS unittests_hemelb RUNTIME DESTINATION bin)
 	list(APPEND RESOURCES
