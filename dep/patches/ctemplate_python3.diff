@@ -1,0 +1,281 @@
+Files a/aclocal.m4 and b/aclocal.m4 are identical
+Files a/AUTHORS and b/AUTHORS are identical
+Files a/autogen.sh and b/autogen.sh are identical
+Files a/ChangeLog and b/ChangeLog are identical
+Files a/compile and b/compile are identical
+Files a/config.guess and b/config.guess are identical
+Files a/config.sub and b/config.sub are identical
+Files a/configure and b/configure are identical
+Files a/configure.ac and b/configure.ac are identical
+Files a/contrib/convert_to_95.pl and b/contrib/convert_to_95.pl are identical
+Files a/contrib/highlighting.vim and b/contrib/highlighting.vim are identical
+Files a/contrib/README.contrib and b/contrib/README.contrib are identical
+Files a/contrib/tpl-mode.el and b/contrib/tpl-mode.el are identical
+Files a/COPYING and b/COPYING are identical
+Files a/ctemplate.sln and b/ctemplate.sln are identical
+Files a/depcomp and b/depcomp are identical
+Files a/doc/auto_escape.html and b/doc/auto_escape.html are identical
+Files a/doc/designstyle.css and b/doc/designstyle.css are identical
+Files a/doc/example.html and b/doc/example.html are identical
+Files a/doc/guide.html and b/doc/guide.html are identical
+Files a/doc/howto.html and b/doc/howto.html are identical
+Files a/doc/index.html and b/doc/index.html are identical
+Files a/doc/reference.html and b/doc/reference.html are identical
+Files a/doc/tips.html and b/doc/tips.html are identical
+Files a/doc/xss_resources.html and b/doc/xss_resources.html are identical
+Files a/INSTALL and b/INSTALL are identical
+Files a/install-sh and b/install-sh are identical
+Files a/ltmain.sh and b/ltmain.sh are identical
+Files a/m4/ac_have_attribute.m4 and b/m4/ac_have_attribute.m4 are identical
+Files a/m4/ac_interlocked_exchange.m4 and b/m4/ac_interlocked_exchange.m4 are identical
+Files a/m4/ac_rwlock.m4 and b/m4/ac_rwlock.m4 are identical
+Files a/m4/acx_pthread.m4 and b/m4/acx_pthread.m4 are identical
+Files a/m4/compiler_characteristics.m4 and b/m4/compiler_characteristics.m4 are identical
+Files a/m4/google_namespace.m4 and b/m4/google_namespace.m4 are identical
+Files a/m4/libtool.m4 and b/m4/libtool.m4 are identical
+Files a/m4/lt~obsolete.m4 and b/m4/lt~obsolete.m4 are identical
+Files a/m4/ltoptions.m4 and b/m4/ltoptions.m4 are identical
+Files a/m4/ltsugar.m4 and b/m4/ltsugar.m4 are identical
+Files a/m4/ltversion.m4 and b/m4/ltversion.m4 are identical
+Files a/m4/namespaces.m4 and b/m4/namespaces.m4 are identical
+Files a/m4/stl_hash.m4 and b/m4/stl_hash.m4 are identical
+Files a/m4/stl_namespace.m4 and b/m4/stl_namespace.m4 are identical
+Files a/Makefile.am and b/Makefile.am are identical
+Files a/Makefile.in and b/Makefile.in are identical
+Files a/missing and b/missing are identical
+Files a/NEWS and b/NEWS are identical
+Files a/packages/deb/changelog and b/packages/deb/changelog are identical
+Files a/packages/deb/compat and b/packages/deb/compat are identical
+Files a/packages/deb/control and b/packages/deb/control are identical
+Files a/packages/deb/copyright and b/packages/deb/copyright are identical
+Files a/packages/deb/docs and b/packages/deb/docs are identical
+Files a/packages/deb/libctemplate0.dirs and b/packages/deb/libctemplate0.dirs are identical
+Files a/packages/deb/libctemplate0.install and b/packages/deb/libctemplate0.install are identical
+Files a/packages/deb/libctemplate-dev.dirs and b/packages/deb/libctemplate-dev.dirs are identical
+Files a/packages/deb/libctemplate-dev.install and b/packages/deb/libctemplate-dev.install are identical
+Files a/packages/deb/README and b/packages/deb/README are identical
+Files a/packages/deb/rules and b/packages/deb/rules are identical
+Files a/packages/deb.sh and b/packages/deb.sh are identical
+Files a/packages/rpm/rpm.spec and b/packages/rpm/rpm.spec are identical
+Files a/packages/rpm.sh and b/packages/rpm.sh are identical
+Files a/README and b/README are identical
+Files a/README_windows.txt and b/README_windows.txt are identical
+Files a/src/base/arena.cc and b/src/base/arena.cc are identical
+Files a/src/base/arena.h and b/src/base/arena.h are identical
+Files a/src/base/arena-inl.h and b/src/base/arena-inl.h are identical
+Files a/src/base/fileutil.h and b/src/base/fileutil.h are identical
+Files a/src/base/macros.h and b/src/base/macros.h are identical
+Files a/src/base/manual_constructor.h and b/src/base/manual_constructor.h are identical
+Files a/src/base/mutex.h and b/src/base/mutex.h are identical
+Files a/src/base/small_map.h and b/src/base/small_map.h are identical
+Files a/src/base/thread_annotations.h and b/src/base/thread_annotations.h are identical
+Files a/src/base/util.h and b/src/base/util.h are identical
+Files a/src/config.h.in and b/src/config.h.in are identical
+Files a/src/ctemplate/find_ptr.h.in and b/src/ctemplate/find_ptr.h.in are identical
+Files a/src/ctemplate/per_expand_data.h.in and b/src/ctemplate/per_expand_data.h.in are identical
+Files a/src/ctemplate/str_ref.h.in and b/src/ctemplate/str_ref.h.in are identical
+Files a/src/ctemplate/template_annotator.h.in and b/src/ctemplate/template_annotator.h.in are identical
+Files a/src/ctemplate/template_cache.h.in and b/src/ctemplate/template_cache.h.in are identical
+Files a/src/ctemplate/template_dictionary.h.in and b/src/ctemplate/template_dictionary.h.in are identical
+Files a/src/ctemplate/template_dictionary_interface.h.in and b/src/ctemplate/template_dictionary_interface.h.in are identical
+Files a/src/ctemplate/template_emitter.h.in and b/src/ctemplate/template_emitter.h.in are identical
+Files a/src/ctemplate/template_enums.h.in and b/src/ctemplate/template_enums.h.in are identical
+Files a/src/ctemplate/template.h.in and b/src/ctemplate/template.h.in are identical
+Files a/src/ctemplate/template_modifiers.h.in and b/src/ctemplate/template_modifiers.h.in are identical
+Files a/src/ctemplate/template_namelist.h.in and b/src/ctemplate/template_namelist.h.in are identical
+Files a/src/ctemplate/template_pathops.h.in and b/src/ctemplate/template_pathops.h.in are identical
+Files a/src/ctemplate/template_string.h.in and b/src/ctemplate/template_string.h.in are identical
+Files a/src/diff_tpl_auto_escape.cc and b/src/diff_tpl_auto_escape.cc are identical
+diff -urBNs a/src/htmlparser/fsm_config.py b/src/htmlparser/fsm_config.py
+--- a/src/htmlparser/fsm_config.py	2014-03-19 15:34:51.000000000 -0400
++++ b/src/htmlparser/fsm_config.py	2023-04-17 14:07:56.000000000 -0400
+@@ -64,15 +64,15 @@
+ 
+   # Below are all we have to define in addition to what DictMixin would need
+   def __len__(self):
+-    return len(self.keys())
++    return len(list(self.keys()))
+ 
+   def __contains__(self, key):
+-    return self.has_key(key)
++    return key in self
+ 
+   def __iter__(self):
+     # It's not as portable -- though it would be more space-efficient -- to do
+     #   for k in self.keys(): yield k
+-    return iter(self.keys())
++    return iter(list(self.keys()))
+ 
+ class State(object):
+   """Contains information about a specific state."""
+@@ -210,7 +210,7 @@
+ 
+     self.sm['state'] = self.AddState
+     self.sm['condition'] = self.AddCondition
+-    execfile(filename, self.sm)
++    exec(compile(open(filename, "rb").read(), filename, 'exec'), self.sm)
+     self.name = self.sm['name']
+     if not self.name.isalnum():
+       raise Exception("State machine name must consist of only alphanumeric"
+diff -urBNs a/src/htmlparser/generate_fsm.py b/src/htmlparser/generate_fsm.py
+--- a/src/htmlparser/generate_fsm.py	2014-03-19 15:34:51.000000000 -0400
++++ b/src/htmlparser/generate_fsm.py	2023-04-17 14:08:01.000000000 -0400
+@@ -264,7 +264,7 @@
+     state_table = {}
+ 
+     for state in self._config.states:
+-      state_table[state] = [default_state for col in xrange(255)]
++      state_table[state] = [default_state for col in range(255)]
+ 
+     # We process the transition in reverse order while updating the table.
+     for i_transition in range(len(self._config.transitions) - 1, -1, -1):
+@@ -281,7 +281,7 @@
+     # Create the inner lists which map input characters to destination states.
+     for state in self._config.states:
+       transition_row = []
+-      for c in xrange(0, 255):
++      for c in range(0, 255):
+         transition_row.append('    /* %06s */ %s' % (repr(chr(c)),
+                                                      state_table[state][c]))
+ 
+@@ -306,17 +306,17 @@
+   def Generate(self):
+     """Returns the generated the C include statements for the statemachine."""
+ 
+-    print '\n'.join((self._CreateHeader(),
++    print('\n'.join((self._CreateHeader(),
+                      self._CreateNumStates(),
+                      self._CreateStatesEnum(),
+                      self._CreateStatesExternal(),
+                      self._CreateStatesInternalNames(),
+-                     self._CreateTransitionTable()))
++                     self._CreateTransitionTable())))
+ 
+ 
+ def main():
+   if len(sys.argv) != 2:
+-    print "usage: generate_fsm.py config_file"
++    print("usage: generate_fsm.py config_file")
+     sys.exit(1)
+ 
+   config = FSMConfig()
+Files a/src/htmlparser/htmlparser.cc and b/src/htmlparser/htmlparser.cc are identical
+Files a/src/htmlparser/htmlparser_cpp.h and b/src/htmlparser/htmlparser_cpp.h are identical
+Files a/src/htmlparser/htmlparser_fsm.config and b/src/htmlparser/htmlparser_fsm.config are identical
+Files a/src/htmlparser/htmlparser.h and b/src/htmlparser/htmlparser.h are identical
+Files a/src/htmlparser/jsparser.cc and b/src/htmlparser/jsparser.cc are identical
+Files a/src/htmlparser/jsparser_fsm.config and b/src/htmlparser/jsparser_fsm.config are identical
+Files a/src/htmlparser/jsparser.h and b/src/htmlparser/jsparser.h are identical
+Files a/src/htmlparser/README and b/src/htmlparser/README are identical
+Files a/src/htmlparser/statemachine.cc and b/src/htmlparser/statemachine.cc are identical
+Files a/src/htmlparser/statemachine.h and b/src/htmlparser/statemachine.h are identical
+Files a/src/indented_writer.h and b/src/indented_writer.h are identical
+Files a/src/make_tpl_varnames_h.cc and b/src/make_tpl_varnames_h.cc are identical
+Files a/src/per_expand_data.cc and b/src/per_expand_data.cc are identical
+Files a/src/solaris/libstdc++.la and b/src/solaris/libstdc++.la are identical
+Files a/src/template_annotator.cc and b/src/template_annotator.cc are identical
+Files a/src/template_cache.cc and b/src/template_cache.cc are identical
+Files a/src/template.cc and b/src/template.cc are identical
+Files a/src/template-converter and b/src/template-converter are identical
+Files a/src/template_dictionary.cc and b/src/template_dictionary.cc are identical
+Files a/src/template_modifiers.cc and b/src/template_modifiers.cc are identical
+Files a/src/template_modifiers_internal.h and b/src/template_modifiers_internal.h are identical
+Files a/src/template_namelist.cc and b/src/template_namelist.cc are identical
+Files a/src/template_pathops.cc and b/src/template_pathops.cc are identical
+Files a/src/template_string.cc and b/src/template_string.cc are identical
+Files a/src/tests/compile_test.cc and b/src/tests/compile_test.cc are identical
+Files a/src/tests/config_for_unittests.h and b/src/tests/config_for_unittests.h are identical
+Files a/src/tests/diff_tpl_auto_escape_unittest.sh and b/src/tests/diff_tpl_auto_escape_unittest.sh are identical
+Files a/src/tests/generate_fsm_c_test.c and b/src/tests/generate_fsm_c_test.c are identical
+Files a/src/tests/generate_fsm_test.sh and b/src/tests/generate_fsm_test.sh are identical
+Files a/src/tests/htmlparser_cpp_test.cc and b/src/tests/htmlparser_cpp_test.cc are identical
+Files a/src/tests/htmlparser_testdata/cdata.html and b/src/tests/htmlparser_testdata/cdata.html are identical
+Files a/src/tests/htmlparser_testdata/comments.html and b/src/tests/htmlparser_testdata/comments.html are identical
+Files a/src/tests/htmlparser_testdata/context.html and b/src/tests/htmlparser_testdata/context.html are identical
+Files a/src/tests/htmlparser_testdata/google.html and b/src/tests/htmlparser_testdata/google.html are identical
+Files a/src/tests/htmlparser_testdata/javascript_attribute.html and b/src/tests/htmlparser_testdata/javascript_attribute.html are identical
+Files a/src/tests/htmlparser_testdata/javascript_block.html and b/src/tests/htmlparser_testdata/javascript_block.html are identical
+Files a/src/tests/htmlparser_testdata/javascript_regexp.html and b/src/tests/htmlparser_testdata/javascript_regexp.html are identical
+Files a/src/tests/htmlparser_testdata/position.html and b/src/tests/htmlparser_testdata/position.html are identical
+Files a/src/tests/htmlparser_testdata/reset.html and b/src/tests/htmlparser_testdata/reset.html are identical
+Files a/src/tests/htmlparser_testdata/sample_fsm.c and b/src/tests/htmlparser_testdata/sample_fsm.c are identical
+Files a/src/tests/htmlparser_testdata/sample_fsm.config and b/src/tests/htmlparser_testdata/sample_fsm.config are identical
+Files a/src/tests/htmlparser_testdata/simple.html and b/src/tests/htmlparser_testdata/simple.html are identical
+Files a/src/tests/htmlparser_testdata/tags.html and b/src/tests/htmlparser_testdata/tags.html are identical
+Files a/src/tests/make_tpl_varnames_h_unittest.sh and b/src/tests/make_tpl_varnames_h_unittest.sh are identical
+Files a/src/tests/statemachine_test.c and b/src/tests/statemachine_test.c are identical
+Files a/src/tests/statemachine_test_fsm.config and b/src/tests/statemachine_test_fsm.config are identical
+Files a/src/tests/template_cache_test.cc and b/src/tests/template_cache_test.cc are identical
+Files a/src/tests/template_dictionary_unittest.cc and b/src/tests/template_dictionary_unittest.cc are identical
+Files a/src/tests/template_modifiers_unittest.cc and b/src/tests/template_modifiers_unittest.cc are identical
+Files a/src/tests/template_regtest.cc and b/src/tests/template_regtest.cc are identical
+Files a/src/tests/template_setglobals_unittest.cc and b/src/tests/template_setglobals_unittest.cc are identical
+Files a/src/tests/template_test_util.cc and b/src/tests/template_test_util.cc are identical
+Files a/src/tests/template_test_util.h and b/src/tests/template_test_util.h are identical
+Files a/src/tests/template_test_util_test.cc and b/src/tests/template_test_util_test.cc are identical
+Files a/src/tests/template_unittest.cc and b/src/tests/template_unittest.cc are identical
+Files a/src/tests/template_unittest_test_footer_dict01.out and b/src/tests/template_unittest_test_footer_dict01.out are identical
+Files a/src/tests/template_unittest_test_footer_dict02.out and b/src/tests/template_unittest_test_footer_dict02.out are identical
+Files a/src/tests/template_unittest_test_footer.in and b/src/tests/template_unittest_test_footer.in are identical
+Files a/src/tests/template_unittest_test_html_dict01.anno_out and b/src/tests/template_unittest_test_html_dict01.anno_out are identical
+Files a/src/tests/template_unittest_test_html_dict01.out and b/src/tests/template_unittest_test_html_dict01.out are identical
+Files a/src/tests/template_unittest_test_html_dict02.out and b/src/tests/template_unittest_test_html_dict02.out are identical
+Files a/src/tests/template_unittest_test_html.in and b/src/tests/template_unittest_test_html.in are identical
+Files a/src/tests/template_unittest_test_invalid1.in and b/src/tests/template_unittest_test_invalid1.in are identical
+Files a/src/tests/template_unittest_test_invalid2.in and b/src/tests/template_unittest_test_invalid2.in are identical
+Files a/src/tests/template_unittest_test_markerdelim_dict01.out and b/src/tests/template_unittest_test_markerdelim_dict01.out are identical
+Files a/src/tests/template_unittest_test_markerdelim_dict02.out and b/src/tests/template_unittest_test_markerdelim_dict02.out are identical
+Files a/src/tests/template_unittest_test_markerdelim.in and b/src/tests/template_unittest_test_markerdelim.in are identical
+Files a/src/tests/template_unittest_test_modifiers_dict01.anno_out and b/src/tests/template_unittest_test_modifiers_dict01.anno_out are identical
+Files a/src/tests/template_unittest_test_modifiers_dict01.out and b/src/tests/template_unittest_test_modifiers_dict01.out are identical
+Files a/src/tests/template_unittest_test_modifiers.in and b/src/tests/template_unittest_test_modifiers.in are identical
+Files a/src/tests/template_unittest_test_nul_dict01.out and b/src/tests/template_unittest_test_nul_dict01.out are identical
+Files a/src/tests/template_unittest_test_nul.in and b/src/tests/template_unittest_test_nul.in are identical
+Files a/src/tests/template_unittest_test_selective_css_dict01.out and b/src/tests/template_unittest_test_selective_css_dict01.out are identical
+Files a/src/tests/template_unittest_test_selective_css_dict02.out and b/src/tests/template_unittest_test_selective_css_dict02.out are identical
+Files a/src/tests/template_unittest_test_selective_css.in and b/src/tests/template_unittest_test_selective_css.in are identical
+Files a/src/tests/template_unittest_test_selective_html_dict01.out and b/src/tests/template_unittest_test_selective_html_dict01.out are identical
+Files a/src/tests/template_unittest_test_selective_html_dict02.out and b/src/tests/template_unittest_test_selective_html_dict02.out are identical
+Files a/src/tests/template_unittest_test_selective_html.in and b/src/tests/template_unittest_test_selective_html.in are identical
+Files a/src/tests/template_unittest_test_selective_js_dict01.out and b/src/tests/template_unittest_test_selective_js_dict01.out are identical
+Files a/src/tests/template_unittest_test_selective_js_dict02.out and b/src/tests/template_unittest_test_selective_js_dict02.out are identical
+Files a/src/tests/template_unittest_test_selective_js.in and b/src/tests/template_unittest_test_selective_js.in are identical
+Files a/src/tests/template_unittest_test_simple_dict01.out and b/src/tests/template_unittest_test_simple_dict01.out are identical
+Files a/src/tests/template_unittest_test_simple_dict02.out and b/src/tests/template_unittest_test_simple_dict02.out are identical
+Files a/src/tests/template_unittest_test_simple_dict03.out and b/src/tests/template_unittest_test_simple_dict03.out are identical
+Files a/src/tests/template_unittest_test_simple.in and b/src/tests/template_unittest_test_simple.in are identical
+Files a/src/tests/template_unittest_test_valid1_dict01.out and b/src/tests/template_unittest_test_valid1_dict01.out are identical
+Files a/src/tests/template_unittest_test_valid1.in and b/src/tests/template_unittest_test_valid1.in are identical
+Files a/src/windows/config.h and b/src/windows/config.h are identical
+Files a/src/windows/ctemplate/find_ptr.h and b/src/windows/ctemplate/find_ptr.h are identical
+Files a/src/windows/ctemplate/per_expand_data.h and b/src/windows/ctemplate/per_expand_data.h are identical
+Files a/src/windows/ctemplate/str_ref.h and b/src/windows/ctemplate/str_ref.h are identical
+Files a/src/windows/ctemplate/template_annotator.h and b/src/windows/ctemplate/template_annotator.h are identical
+Files a/src/windows/ctemplate/template_cache.h and b/src/windows/ctemplate/template_cache.h are identical
+Files a/src/windows/ctemplate/template_dictionary.h and b/src/windows/ctemplate/template_dictionary.h are identical
+Files a/src/windows/ctemplate/template_dictionary_interface.h and b/src/windows/ctemplate/template_dictionary_interface.h are identical
+Files a/src/windows/ctemplate/template_emitter.h and b/src/windows/ctemplate/template_emitter.h are identical
+Files a/src/windows/ctemplate/template_enums.h and b/src/windows/ctemplate/template_enums.h are identical
+Files a/src/windows/ctemplate/template.h and b/src/windows/ctemplate/template.h are identical
+Files a/src/windows/ctemplate/template_modifiers.h and b/src/windows/ctemplate/template_modifiers.h are identical
+Files a/src/windows/ctemplate/template_namelist.h and b/src/windows/ctemplate/template_namelist.h are identical
+Files a/src/windows/ctemplate/template_pathops.h and b/src/windows/ctemplate/template_pathops.h are identical
+Files a/src/windows/ctemplate/template_string.h and b/src/windows/ctemplate/template_string.h are identical
+Files a/src/windows/port.cc and b/src/windows/port.cc are identical
+Files a/src/windows/port.h and b/src/windows/port.h are identical
+Files a/src/windows/preprocess.sh and b/src/windows/preprocess.sh are identical
+Files a/vsprojects/compile_test/compile_test.vcproj and b/vsprojects/compile_test/compile_test.vcproj are identical
+Files a/vsprojects/diff_tpl_auto_escape/diff_tpl_auto_escape.vcproj and b/vsprojects/diff_tpl_auto_escape/diff_tpl_auto_escape.vcproj are identical
+Files a/vsprojects/generate_fsm_c_test/generate_fsm_c_test.vcproj and b/vsprojects/generate_fsm_c_test/generate_fsm_c_test.vcproj are identical
+Files a/vsprojects/htmlparser_test/htmlparser_test.vcproj and b/vsprojects/htmlparser_test/htmlparser_test.vcproj are identical
+Files a/vsprojects/libctemplate/libctemplate.vcproj and b/vsprojects/libctemplate/libctemplate.vcproj are identical
+Files a/vsprojects/make_tpl_varname_h/make_tpl_varname_h.vcproj and b/vsprojects/make_tpl_varname_h/make_tpl_varname_h.vcproj are identical
+Files a/vsprojects/statemachine_test/statemachine_test.vcproj and b/vsprojects/statemachine_test/statemachine_test.vcproj are identical
+Files a/vsprojects/template_cache_test/template_cache_test.vcproj and b/vsprojects/template_cache_test/template_cache_test.vcproj are identical
+Files a/vsprojects/template_dictionary_unittest/template_dictionary_unittest.vcproj and b/vsprojects/template_dictionary_unittest/template_dictionary_unittest.vcproj are identical
+Files a/vsprojects/template_modifiers_unittest/template_modifiers_unittest.vcproj and b/vsprojects/template_modifiers_unittest/template_modifiers_unittest.vcproj are identical
+Files a/vsprojects/template_regtest/template_regtest.vcproj and b/vsprojects/template_regtest/template_regtest.vcproj are identical
+Files a/vsprojects/template_setglobals_unittest/template_setglobals_unittest.vcproj and b/vsprojects/template_setglobals_unittest/template_setglobals_unittest.vcproj are identical
+Files a/vsprojects/template_test_util_test/template_test_util_test.vcproj and b/vsprojects/template_test_util_test/template_test_util_test.vcproj are identical
+Files a/vsprojects/template_unittest/template_unittest.vcproj and b/vsprojects/template_unittest/template_unittest.vcproj are identical
+Files a/vsprojects/template_unittest_static/template_unittest_static.vcproj and b/vsprojects/template_unittest_static/template_unittest_static.vcproj are identical
