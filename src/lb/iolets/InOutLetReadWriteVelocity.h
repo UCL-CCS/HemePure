@@ -29,11 +29,11 @@ namespace hemelb
 
           void DoComms(const BoundaryCommunicator& boundaryComm, const LatticeTimeStep timeStep);
 
-          const LatticeTime GetCouplingFrequency()
+          const LatticeTimeStep& GetCouplingFrequency()
           {
             return couplingFrequency;
           }
-          void SetCouplingFrequency(const LatticeTime& frequency)
+          void SetCouplingFrequency(const LatticeTimeStep& frequency)
           {
             couplingFrequency = frequency;
           }
@@ -95,8 +95,8 @@ namespace hemelb
           std::string velocityWeightsFilePath;
           std::map<std::vector<int>, double> weights_table;
           const util::UnitConverter* units;
-          LatticeTimeStep couplingTimeStep;
-          LatticeTime couplingFrequency;
+          PhysicalTime startTime;
+          LatticeTimeStep couplingTimeStep, couplingFrequency;
           double velocityConversionFactor, pressureConversionFactor;
           LatticeSpeed maxVelocity, maxVelocityNew;
       };

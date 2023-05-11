@@ -23,7 +23,7 @@ namespace hemelb
 		namespace iolets
 		{
 			InOutLetReadWriteVelocity::InOutLetReadWriteVelocity() :
-				InOutLetVelocity(), units(NULL), couplingTimeStep(1)
+				InOutLetVelocity(), units(NULL), maxVelocity(1), maxVelocityNew(1), couplingTimeStep(2)
 			{
 			}
 
@@ -45,49 +45,67 @@ namespace hemelb
                     		                    				const LatticeDensity& density,
             		                            				const LatticeVelocity& velocity)
       		{
-        		if (siteID == centreSiteID && couplingTimeStep == timeStep)
+        		if (siteID == centreSiteID && timeStep == couplingTimeStep)
 				{
-					struct stat infile, outfile;
-					bool updated = false, written = false;
-					do
+					bool written = false;
+					while (!written)
 					{
-						if(stat(velocityFilePath.c_str(), &infile) == 0)
-						{
-							std::fstream infile(velocityFilePath.c_str(), std::ios_base::in);
-							log::Logger::Log<log::Debug, log::OnePerCore>("Reading iolet values from file:");
-
-							double timeRead, valueRead;
-							infile >> timeRead >> valueRead;
-							infile.close();
-							log::Logger::Log<log::Trace, log::OnePerCore>("Time: %f Value: %f", timeRead, valueRead);
-
-							if (timeRead == couplingTimeStep)
-							{
-								couplingTimeStep += couplingFrequency;
-								std::remove(velocityFilePath.c_str());
-								maxVelocityNew = units->ConvertVelocityToLatticeUnits(valueRead * velocityConversionFactor);
-								updated = true;
-								printf("siteID %ld, timeStep %ld, couplingTimeStep %ld, maxV %lf, valueRead %lf\n", siteID, timeStep, couplingTimeStep, maxVelocityNew, valueRead);
-							}
-						}
-
-						if(stat(pressureFilePath.c_str(), &outfile) != 0)
+						struct stat outfile;
+						if (stat(pressureFilePath.c_str(), &outfile) == 0)
 						{
 							std::fstream outfile(pressureFilePath.c_str(), std::ios_base::out);
-							log::Logger::Log<log::Debug, log::OnePerCore>("Writing iolet values to file:");
+							log::Logger::Log<log::Debug, log::OnePerCore>("Writing pressure value to file: %s", pressureFilePath.c_str());
 
-							LatticeTimeStep timeWrite = timeStep + couplingFrequency;
-							PhysicalPressure valueWrite;
-							valueWrite = units->ConvertPressureToPhysicalUnits(density * Cs2) * pressureConversionFactor;
-							log::Logger::Log<log::Trace, log::OnePerCore>("Time: %f Value: %f", timeWrite, valueWrite);
+							double timeWrite = (double)startTime + (double)(timeStep + couplingFrequency - 2) * units->GetTimeStepLength();
+							double valueWrite = units->ConvertPressureToPhysicalUnits(density * Cs2) * pressureConversionFactor;
+							log::Logger::Log<log::Debug, log::OnePerCore>("timeWrite: %e, valueWrite: %e", timeWrite, valueWrite);
 
-							outfile << timeWrite << " " << valueWrite;
+							outfile << std::scientific << timeWrite << " " << std::scientific << valueWrite;
 							outfile.close();
 							written = true;
-							printf("siteID %ld, timeStep %ld, couplingTimeStep %ld, press %lf, valueWrite %lf\n", siteID, timeStep, couplingTimeStep, density*Cs2, valueWrite);
+							printf("timeStep %lu, timeWrite %e, density %.15lf, valueWrite %e\n", timeStep, timeWrite, density, valueWrite);
 						}
-					}
-					while (!(updated & written));
+						else
+						{
+							printf("Looking for a pressure file at %s\n", pressureFilePath.c_str());
+						}
+					};
+
+					bool updated = false;
+					while (!updated)
+					{
+						struct stat infile;
+						if (stat(velocityFilePath.c_str(), &infile) == 0)
+						{
+							std::fstream infile(velocityFilePath.c_str(), std::ios_base::in);
+							log::Logger::Log<log::Debug, log::OnePerCore>("Reading velocity value from file: %s", velocityFilePath.c_str());
+
+							double timeRead, valueRead;
+							infile >> std::scientific >> timeRead >> std::scientific >> valueRead;
+							infile.close();
+							log::Logger::Log<log::Debug, log::OnePerCore>("timeRead: %e, valueRead: %e", timeRead, valueRead);
+
+							double couplingTime = (double)startTime + (double)(couplingTimeStep - 2) * units->GetTimeStepLength();
+							printf("timeRead %e, couplingTime %e, diff %e\n", timeRead, couplingTime, std::abs(timeRead - couplingTime));
+							if (std::abs(timeRead - couplingTime) < 0.5 * units->GetTimeStepLength())
+							{
+								//std::remove(velocityFilePath.c_str());
+								maxVelocityNew = units->ConvertVelocityToLatticeUnits(valueRead * velocityConversionFactor);
+								updated = true;
+								printf("timeStep %lu, valueRead %e, maxV %.15lf\n", timeStep, valueRead, maxVelocityNew);
+							}
+							else
+							{
+								printf("Looking for a velocity value at time %e\n", couplingTime);
+							}
+						}
+						else
+						{
+							printf("Looking for a velocity file at %s\n", velocityFilePath.c_str());
+						}
+					};
+
+					couplingTimeStep += couplingFrequency;
 				}
       		}
 
@@ -276,6 +294,27 @@ namespace hemelb
 								weights_table[xyz]);
 					}
 					myfile.close();
+				}
+
+				struct stat infile;
+				if (stat(velocityFilePath.c_str(), &infile) == 0)
+				{
+					std::fstream infile(velocityFilePath.c_str(), std::ios_base::in);
+					log::Logger::Log<log::Debug, log::Singleton>("Reading velocity value from file: %s", velocityFilePath.c_str());
+
+					double timeRead, valueRead;
+					infile >> std::scientific >> timeRead >> std::scientific >> valueRead;
+					infile.close();
+					log::Logger::Log<log::Debug, log::Singleton>("timeRead: %e, valueRead: %e", timeRead, valueRead);
+
+					startTime = timeRead;
+					maxVelocity = units->ConvertVelocityToLatticeUnits(valueRead * velocityConversionFactor);
+					maxVelocityNew = maxVelocity;
+				}
+				else
+				{
+					log::Logger::Log<log::Error, log::Singleton>("Missing velocity file at %s", velocityFilePath.c_str());
+					std::exit(16);
 				}
 			}
 

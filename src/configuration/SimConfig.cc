@@ -908,8 +908,10 @@ namespace hemelb
 			const io::xml::Element radiusEl = conditionEl.GetChildOrThrow("radius");
 			newIolet->SetRadius(GetDimensionalValueInLatticeUnits<LatticeDistance>(radiusEl, "m"));
 
+			LatticeTimeStep freq;
 			const io::xml::Element freqEl = conditionEl.GetChildOrThrow("frequency");
-			newIolet->SetCouplingFrequency(GetDimensionalValueInLatticeUnits<Dimensionless>(freqEl, "dimensionless"));
+			GetDimensionalValue(freqEl, "lattice", freq);
+			newIolet->SetCouplingFrequency(freq);
 
 			std::string velFilePath = conditionEl.GetChildOrThrow("velocityFilePath").GetAttributeOrThrow("value");
 			velFilePath = util::NormalizePathRelativeToPath(velFilePath, xmlFilePath);

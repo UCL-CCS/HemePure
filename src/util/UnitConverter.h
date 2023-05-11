@@ -135,6 +135,11 @@ namespace hemelb
           return latticeDistance;
         }
 
+        const PhysicalTime& GetTimeStepLength() const
+        {
+          return latticeTime;
+        }
+
         const PhysicalPosition& GetLatticeOrigin() const
         {
           return latticeOrigin;
