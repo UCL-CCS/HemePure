@@ -29,6 +29,11 @@ namespace hemelb
 
           void DoComms(const BoundaryCommunicator& boundaryComm, const LatticeTimeStep timeStep);
 
+          void SetArea(const distribn_t& a)
+          {
+            area = a;
+          }
+
           const LatticeTimeStep& GetCouplingFrequency()
           {
             return couplingFrequency;
@@ -74,6 +79,11 @@ namespace hemelb
             pressureConversionFactor = factor;
           }
 
+          PhysicalSpeed ConvertFlowRateToVelocity(const distribn_t flowRate)
+          {
+            return flowRate / weights_sum;
+          }
+
           LatticeVelocity GetVelocity(const LatticePosition& x, const LatticeTimeStep t) const;
 
           void Initialise(const util::UnitConverter* unitConverter);
@@ -95,9 +105,10 @@ namespace hemelb
           std::string velocityWeightsFilePath;
           std::map<std::vector<int>, double> weights_table;
           const util::UnitConverter* units;
+          distribn_t area;
           PhysicalTime startTime;
           LatticeTimeStep couplingTimeStep, couplingFrequency;
-          double velocityConversionFactor, pressureConversionFactor;
+          double weights_sum, velocityConversionFactor, pressureConversionFactor;
           LatticeSpeed maxVelocity, maxVelocityNew;
       };
 

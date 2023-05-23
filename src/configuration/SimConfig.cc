@@ -908,6 +908,10 @@ namespace hemelb
 			const io::xml::Element radiusEl = conditionEl.GetChildOrThrow("radius");
 			newIolet->SetRadius(GetDimensionalValueInLatticeUnits<LatticeDistance>(radiusEl, "m"));
 
+			distribn_t tempArea;
+			GetDimensionalValue(conditionEl.GetChildOrThrow("area"), "m^2", tempArea);
+			newIolet->SetArea(tempArea);
+
 			LatticeTimeStep freq;
 			const io::xml::Element freqEl = conditionEl.GetChildOrThrow("frequency");
 			GetDimensionalValue(freqEl, "lattice", freq);

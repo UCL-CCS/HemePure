@@ -23,7 +23,7 @@ namespace hemelb
 		namespace iolets
 		{
 			InOutLetReadWriteVelocity::InOutLetReadWriteVelocity() :
-				InOutLetVelocity(), units(NULL), maxVelocity(1), maxVelocityNew(1), couplingTimeStep(2)
+				InOutLetVelocity(), units(NULL), area(1), weights_sum(0), maxVelocity(1), maxVelocityNew(1), couplingTimeStep(2)
 			{
 			}
 
@@ -90,9 +90,9 @@ namespace hemelb
 							if (std::abs(timeRead - couplingTime) < 0.5 * units->GetTimeStepLength())
 							{
 								//std::remove(velocityFilePath.c_str());
-								maxVelocityNew = units->ConvertVelocityToLatticeUnits(valueRead * velocityConversionFactor);
+								maxVelocityNew = units->ConvertVelocityToLatticeUnits(ConvertFlowRateToVelocity(valueRead * velocityConversionFactor));
 								updated = true;
-								printf("timeStep %lu, valueRead %e, maxV %.15lf\n", timeStep, valueRead, maxVelocityNew);
+								printf("timeStep %lu, valueRead %e, maxV_phy %.15lf, maxV %.15lf\n", timeStep, valueRead, ConvertFlowRateToVelocity(valueRead * velocityConversionFactor), maxVelocityNew);
 							}
 							else
 							{
@@ -286,6 +286,7 @@ namespace hemelb
 						xyz.push_back(y);
 						xyz.push_back(z);
 						weights_table[xyz] = v;
+						weights_sum += v;
 
 						log::Logger::Log<log::Trace, log::OnePerCore>("%lld %lld %lld %f",
 								x,
@@ -294,6 +295,11 @@ namespace hemelb
 								weights_table[xyz]);
 					}
 					myfile.close();
+				}
+				else
+				{
+					weights_sum = 0.5 * area;
+					printf("weights_sum %.15lf\n", weights_sum);
 				}
 
 				struct stat infile;
@@ -308,8 +314,9 @@ namespace hemelb
 					log::Logger::Log<log::Debug, log::Singleton>("timeRead: %e, valueRead: %e", timeRead, valueRead);
 
 					startTime = timeRead;
-					maxVelocity = units->ConvertVelocityToLatticeUnits(valueRead * velocityConversionFactor);
+					maxVelocity = units->ConvertVelocityToLatticeUnits(ConvertFlowRateToVelocity(valueRead * velocityConversionFactor));
 					maxVelocityNew = maxVelocity;
+					printf("Initialisation: timeRead %e, valueRead %e, maxV_phy %.15lf, maxV %.15lf\n", timeRead, valueRead, ConvertFlowRateToVelocity(valueRead * velocityConversionFactor), maxVelocityNew);
 				}
 				else
 				{
