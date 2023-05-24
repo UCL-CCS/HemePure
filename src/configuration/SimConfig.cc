@@ -917,12 +917,12 @@ namespace hemelb
 			GetDimensionalValue(freqEl, "lattice", freq);
 			newIolet->SetCouplingFrequency(freq);
 
-			std::string velFilePath = conditionEl.GetChildOrThrow("velocityFilePath").GetAttributeOrThrow("value");
-			velFilePath = util::NormalizePathRelativeToPath(velFilePath, xmlFilePath);
-			newIolet->SetVelocityFilePath(velFilePath);
+			std::string flowFilePath = conditionEl.GetChildOrThrow("flowRateFilePath").GetAttributeOrThrow("value");
+			flowFilePath = util::NormalizePathRelativeToPath(flowFilePath, xmlFilePath);
+			newIolet->SetFlowRateFilePath(flowFilePath);
 
-			const io::xml::Element velConvFactorEl = conditionEl.GetChildOrThrow("velocityConversionFactor");
-			newIolet->SetVelocityConversionFactor(GetDimensionalValueInLatticeUnits<Dimensionless>(velConvFactorEl, "dimensionless"));
+			const io::xml::Element flowConvFactorEl = conditionEl.GetChildOrThrow("flowRateConversionFactor");
+			newIolet->SetFlowRateConversionFactor(GetDimensionalValueInLatticeUnits<Dimensionless>(flowConvFactorEl, "dimensionless"));
 
 			std::string pressFilePath = conditionEl.GetChildOrThrow("pressureFilePath").GetAttributeOrThrow("value");
 			pressFilePath = util::NormalizePathRelativeToPath(pressFilePath, xmlFilePath);

@@ -92,10 +92,10 @@ namespace hemelb
 					while (!updated)
 					{
 						struct stat infile;
-						if (stat(velocityFilePath.c_str(), &infile) == 0)
+						if (stat(flowRateFilePath.c_str(), &infile) == 0)
 						{
-							std::fstream infile(velocityFilePath.c_str(), std::ios_base::in);
-							log::Logger::Log<log::Debug, log::OnePerCore>("Reading velocity value from file: %s", velocityFilePath.c_str());
+							std::fstream infile(flowRateFilePath.c_str(), std::ios_base::in);
+							log::Logger::Log<log::Debug, log::OnePerCore>("Reading flow rate value from file: %s", flowRateFilePath.c_str());
 
 							double timeRead, valueRead;
 							infile >> std::scientific >> timeRead >> std::scientific >> valueRead;
@@ -106,19 +106,19 @@ namespace hemelb
 							printf("timeRead %e, couplingTime %e, diff %e\n", timeRead, couplingTime, std::abs(timeRead - couplingTime));
 							if (std::abs(timeRead - couplingTime) < 0.5 * units->GetTimeStepLength())
 							{
-								//std::remove(velocityFilePath.c_str());
-								maxVelocityNew = units->ConvertVelocityToLatticeUnits(ConvertFlowRateToVelocity(valueRead * velocityConversionFactor));
+								//std::remove(flowRateFilePath.c_str());
+								maxVelocityNew = units->ConvertVelocityToLatticeUnits(ConvertFlowRateToVelocity(valueRead * flowRateConversionFactor));
 								updated = true;
-								printf("timeStep %lu, valueRead %e, maxV_phy %.15lf, maxV %.15lf\n", timeStep, valueRead, ConvertFlowRateToVelocity(valueRead * velocityConversionFactor), maxVelocityNew);
+								printf("timeStep %lu, valueRead %e, maxV_phy %.15lf, maxV %.15lf\n", timeStep, valueRead, ConvertFlowRateToVelocity(valueRead * flowRateConversionFactor), maxVelocityNew);
 							}
 							else
 							{
-								printf("Looking for a velocity value at time %e\n", couplingTime);
+								printf("Looking for a flow rate value at time %e\n", couplingTime);
 							}
 						}
 						else
 						{
-							printf("Looking for a velocity file at %s\n", velocityFilePath.c_str());
+							printf("Looking for a flow rate file at %s\n", flowRateFilePath.c_str());
 						}
 					};
 
@@ -283,7 +283,7 @@ namespace hemelb
 
 				if (useWeightsFromFile) {
 					// If the new velocity approximation is enabled, then we want to create a lookup table here.
-					const std::string in_name = velocityFilePath + ".weights.txt";
+					const std::string in_name = velocityWeightsFilePath + ".weights.txt";
 					util::check_file(in_name.c_str());
 
 					// load and read file
@@ -322,10 +322,10 @@ namespace hemelb
 				}
 
 				struct stat infile;
-				if (stat(velocityFilePath.c_str(), &infile) == 0)
+				if (stat(flowRateFilePath.c_str(), &infile) == 0)
 				{
-					std::fstream infile(velocityFilePath.c_str(), std::ios_base::in);
-					log::Logger::Log<log::Debug, log::Singleton>("Reading velocity value from file: %s", velocityFilePath.c_str());
+					std::fstream infile(flowRateFilePath.c_str(), std::ios_base::in);
+					log::Logger::Log<log::Debug, log::Singleton>("Reading flow rate value from file: %s", flowRateFilePath.c_str());
 
 					double timeRead, valueRead;
 					infile >> std::scientific >> timeRead >> std::scientific >> valueRead;
@@ -333,13 +333,13 @@ namespace hemelb
 					log::Logger::Log<log::Debug, log::Singleton>("timeRead: %e, valueRead: %e", timeRead, valueRead);
 
 					startTime = timeRead;
-					maxVelocity = units->ConvertVelocityToLatticeUnits(ConvertFlowRateToVelocity(valueRead * velocityConversionFactor));
+					maxVelocity = units->ConvertVelocityToLatticeUnits(ConvertFlowRateToVelocity(valueRead * flowRateConversionFactor));
 					maxVelocityNew = maxVelocity;
-					printf("Initialisation: timeRead %e, valueRead %e, maxV_phy %.15lf, maxV %.15lf\n", timeRead, valueRead, ConvertFlowRateToVelocity(valueRead * velocityConversionFactor), maxVelocityNew);
+					printf("Initialisation: timeRead %e, valueRead %e, maxV_phy %.15lf, maxV %.15lf\n", timeRead, valueRead, ConvertFlowRateToVelocity(valueRead * flowRateConversionFactor), maxVelocityNew);
 				}
 				else
 				{
-					log::Logger::Log<log::Error, log::Singleton>("Missing velocity file at %s", velocityFilePath.c_str());
+					log::Logger::Log<log::Error, log::Singleton>("Missing flow rate file at %s", flowRateFilePath.c_str());
 					std::exit(16);
 				}
 			}

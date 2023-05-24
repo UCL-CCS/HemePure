@@ -43,13 +43,13 @@ namespace hemelb
             couplingFrequency = frequency;
           }
 
-          const std::string& GetVelocityFilePath()
+          const std::string& GetFlowRateFilePath()
           {
-            return velocityFilePath;
+            return flowRateFilePath;
           }
-          void SetVelocityFilePath(const std::string& path)
+          void SetFlowRateFilePath(const std::string& path)
           {
-            velocityFilePath = path;
+            flowRateFilePath = path;
           }
 
           const std::string& GetPressureFilePath()
@@ -61,13 +61,13 @@ namespace hemelb
             pressureFilePath = path;
           }
 
-          const double GetVelocityConversionFactor()
+          const double GetFlowRateConversionFactor()
           {
-            return velocityConversionFactor;
+            return flowRateConversionFactor;
           }
-          void SetVelocityConversionFactor(const double& factor)
+          void SetFlowRateConversionFactor(const double& factor)
           {
-            velocityConversionFactor = factor;
+            flowRateConversionFactor = factor;
           }
 
           const double GetPressureConversionFactor()
@@ -101,7 +101,7 @@ namespace hemelb
                                     const LatticeVector& sitePos);
 
         private:
-          std::string velocityFilePath, pressureFilePath;
+          std::string flowRateFilePath, pressureFilePath;
           std::string velocityWeightsFilePath;
           std::map<std::vector<int>, double> weights_table;
           const util::UnitConverter* units;
@@ -109,7 +109,7 @@ namespace hemelb
           site_t siteCount;
           PhysicalTime startTime;
           LatticeTimeStep couplingTimeStep, couplingFrequency;
-          double weights_sum, velocityConversionFactor, pressureConversionFactor;
+          double weights_sum, flowRateConversionFactor, pressureConversionFactor;
           LatticeSpeed maxVelocity, maxVelocityNew;
       };
 
