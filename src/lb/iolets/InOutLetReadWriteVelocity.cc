@@ -35,8 +35,25 @@ namespace hemelb
 
 			void InOutLetReadWriteVelocity::DoComms(const BoundaryCommunicator& boundaryComm, const LatticeTimeStep timeStep)
       		{
+				/**
+				* Here the send and receive requests are placed. The message is received at or before the wait
+				* barrier set by BoundaryValues::FinishReceive().
+				*/
         		comms->Receive(&maxVelocity);
         		comms->Send(&maxVelocityNew);
+
+				// Here the reductions are blocking communications; they have to be made non-blocking
+				const BoundaryCommunicator& bcComm = comms->GetCommunicator();
+				densityAvg = bcComm.Reduce(densitySum, MPI_SUM, bcComm.GetBCProcRank());
+				siteCount = bcComm.Reduce(siteCount, MPI_SUM, bcComm.GetBCProcRank());
+				if (siteCount != 0)
+				{
+					densityAvg = densityAvg / siteCount;
+					printf("densityAvg %.15lf, siteCount %ld\n", densityAvg, siteCount);
+				}
+
+				densitySum = 0.0;
+				siteCount = 0;
       		}
 
 			void InOutLetReadWriteVelocity::DoPreStreamCoupling(const site_t& siteID,
@@ -57,13 +74,13 @@ namespace hemelb
 							log::Logger::Log<log::Debug, log::OnePerCore>("Writing pressure value to file: %s", pressureFilePath.c_str());
 
 							double timeWrite = (double)startTime + (double)(timeStep + couplingFrequency - 2) * units->GetTimeStepLength();
-							double valueWrite = units->ConvertPressureToPhysicalUnits(density * Cs2) * pressureConversionFactor;
+							double valueWrite = units->ConvertPressureToPhysicalUnits(densityAvg * Cs2) * pressureConversionFactor;
 							log::Logger::Log<log::Debug, log::OnePerCore>("timeWrite: %e, valueWrite: %e", timeWrite, valueWrite);
 
 							outfile << std::scientific << timeWrite << " " << std::scientific << valueWrite;
 							outfile.close();
 							written = true;
-							printf("timeStep %lu, timeWrite %e, density %.15lf, valueWrite %e\n", timeStep, timeWrite, density, valueWrite);
+							printf("timeStep %lu, timeWrite %e, densityAvg %.15lf, valueWrite %e\n", timeStep, timeWrite, densityAvg, valueWrite);
 						}
 						else
 						{
@@ -107,6 +124,8 @@ namespace hemelb
 
 					couplingTimeStep += couplingFrequency;
 				}
+				densitySum += density;
+				siteCount ++;
       		}
 
 			void InOutLetReadWriteVelocity::DoPostStreamCoupling(const site_t& siteID,

@@ -105,7 +105,8 @@ namespace hemelb
           std::string velocityWeightsFilePath;
           std::map<std::vector<int>, double> weights_table;
           const util::UnitConverter* units;
-          distribn_t area;
+          distribn_t area, densitySum, densityAvg;
+          site_t siteCount;
           PhysicalTime startTime;
           LatticeTimeStep couplingTimeStep, couplingFrequency;
           double weights_sum, velocityConversionFactor, pressureConversionFactor;
