@@ -88,6 +88,8 @@ namespace hemelb
 						}
 					};
 
+					double couplingTime = (double)startTime + (double)(couplingTimeStep - 2) * units->GetTimeStepLength();
+					printf("Looking for a flow rate value at time %e\n", couplingTime);
 					bool updated = false;
 					while (!updated)
 					{
@@ -102,18 +104,13 @@ namespace hemelb
 							infile.close();
 							log::Logger::Log<log::Debug, log::OnePerCore>("timeRead: %e, valueRead: %e", timeRead, valueRead);
 
-							double couplingTime = (double)startTime + (double)(couplingTimeStep - 2) * units->GetTimeStepLength();
-							printf("timeRead %e, couplingTime %e, diff %e\n", timeRead, couplingTime, std::abs(timeRead - couplingTime));
+							//printf("timeRead %e, couplingTime %e, diff %e\n", timeRead, couplingTime, std::abs(timeRead - couplingTime));
 							if (std::abs(timeRead - couplingTime) < 0.5 * units->GetTimeStepLength())
 							{
 								//std::remove(flowRateFilePath.c_str());
 								maxVelocityNew = units->ConvertVelocityToLatticeUnits(ConvertFlowRateToVelocity(valueRead * flowRateConversionFactor));
 								updated = true;
-								printf("timeStep %lu, valueRead %e, maxV_phy %.15lf, maxV %.15lf\n", timeStep, valueRead, ConvertFlowRateToVelocity(valueRead * flowRateConversionFactor), maxVelocityNew);
-							}
-							else
-							{
-								printf("Looking for a flow rate value at time %e\n", couplingTime);
+								printf("timeStep %lu, timeRead %e, valueRead %e, maxV_phy %.15lf, maxV %.15lf\n", timeStep, timeRead, valueRead, ConvertFlowRateToVelocity(valueRead * flowRateConversionFactor), maxVelocityNew);
 							}
 						}
 						else
@@ -340,7 +337,7 @@ namespace hemelb
 				else
 				{
 					log::Logger::Log<log::Error, log::Singleton>("Missing flow rate file at %s", flowRateFilePath.c_str());
-					std::exit(16);
+					std::exit(17);
 				}
 			}
 
