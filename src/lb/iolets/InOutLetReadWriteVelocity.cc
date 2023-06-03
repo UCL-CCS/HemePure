@@ -145,8 +145,15 @@ namespace hemelb
 					// where r is the distance from the centreline
 					LatticePosition displ = x - position;
 					LatticeDistance z = displ.Dot(normal);
-					Dimensionless rSqOverASq = (displ.GetMagnitudeSquared() - z * z) / (radius * radius);
-					assert(rSqOverASq <= 1.0);
+					LatticeDistance rSq = displ.GetMagnitudeSquared() - z * z;
+					Dimensionless rSqOverASq = rSq / (radius * radius);
+					if (rSqOverASq > 1.0)
+					{
+						log::Logger::Log<log::Error, log::OnePerCore>(
+							"An IOLET site with r = %lf lies outside the IOLET radius %lf.",
+							std::sqrt(rSq), radius);
+						std::exit(16);
+					}
 
 					// brackets to ensure that the scalar multiplies are done before vector * scalar
 					return normal * (maxVelocity * (1. - rSqOverASq));
