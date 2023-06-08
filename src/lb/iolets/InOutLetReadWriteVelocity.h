@@ -84,6 +84,11 @@ namespace hemelb
             return flowRate / weights_sum;
           }
 
+          void SetWarmup(const LatticeTimeStep& warmup)
+          {
+            warmUpLength = warmup;
+          }
+
           LatticeVelocity GetVelocity(const LatticePosition& x, const LatticeTimeStep t) const;
 
           void Initialise(const util::UnitConverter* unitConverter);
@@ -108,7 +113,7 @@ namespace hemelb
           distribn_t area, densitySum, densityAvg;
           site_t siteCount;
           PhysicalTime startTime;
-          LatticeTimeStep couplingTimeStep, couplingFrequency;
+          LatticeTimeStep warmUpLength, couplingTimeStep, couplingFrequency;
           double weights_sum, flowRateConversionFactor, pressureConversionFactor;
           LatticeSpeed maxVelocity, maxVelocityNew;
       };

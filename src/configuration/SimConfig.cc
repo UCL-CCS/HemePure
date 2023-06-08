@@ -931,6 +931,11 @@ namespace hemelb
 			const io::xml::Element pressConvFactorEl = conditionEl.GetChildOrThrow("pressureConversionFactor");
 			newIolet->SetPressureConversionFactor(GetDimensionalValueInLatticeUnits<Dimensionless>(pressConvFactorEl, "dimensionless"));
 
+			if (warmUpSteps != 0)
+			{
+				newIolet->SetWarmup(warmUpSteps);
+			}
+
 			return newIolet;
 		}
 		

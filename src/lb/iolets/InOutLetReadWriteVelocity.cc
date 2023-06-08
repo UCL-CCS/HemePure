@@ -23,7 +23,8 @@ namespace hemelb
 		namespace iolets
 		{
 			InOutLetReadWriteVelocity::InOutLetReadWriteVelocity() :
-				InOutLetVelocity(), units(NULL), area(1), weights_sum(0), maxVelocity(1), maxVelocityNew(1), couplingTimeStep(2)
+				InOutLetVelocity(), units(NULL), area(1), weights_sum(0), warmUpLength(0),
+				maxVelocity(1), maxVelocityNew(1), couplingTimeStep(2)
 			{
 			}
 
@@ -62,7 +63,7 @@ namespace hemelb
                     		                    				const LatticeDensity& density,
             		                            				const LatticeVelocity& velocity)
       		{
-        		if (siteID == centreSiteID && timeStep == couplingTimeStep)
+				if (siteID == centreSiteID && timeStep == warmUpLength + couplingTimeStep)
 				{
 					bool written = false;
 					while (!written)
@@ -73,7 +74,7 @@ namespace hemelb
 							std::fstream outfile(pressureFilePath.c_str(), std::ios_base::out);
 							log::Logger::Log<log::Debug, log::OnePerCore>("Writing pressure value to file: %s", pressureFilePath.c_str());
 
-							double timeWrite = (double)startTime + (double)(timeStep + couplingFrequency - 2) * units->GetTimeStepLength();
+							double timeWrite = (double)startTime + (double)(couplingTimeStep + couplingFrequency - 2) * units->GetTimeStepLength();
 							double valueWrite = units->ConvertPressureToPhysicalUnits(densityAvg * Cs2) * pressureConversionFactor;
 							log::Logger::Log<log::Debug, log::OnePerCore>("timeWrite: %e, valueWrite: %e", timeWrite, valueWrite);
 
@@ -138,6 +139,14 @@ namespace hemelb
 			LatticeVelocity InOutLetReadWriteVelocity::GetVelocity(const LatticePosition& x,
 					const LatticeTimeStep t) const
 			{
+				// Get the max velocity
+				LatticeSpeed max = maxVelocity;
+
+				// If we're in the warm-up phase, scale down the imposed velocity
+				if (t <= warmUpLength)
+				{
+					max *= t / LatticeSpeed(warmUpLength + 1);
+				}
 
 				if (!useWeightsFromFile)
 				{
@@ -156,7 +165,7 @@ namespace hemelb
 					}
 
 					// brackets to ensure that the scalar multiplies are done before vector * scalar
-					return normal * (maxVelocity * (1. - rSqOverASq));
+					return normal * (max * (1. - rSqOverASq));
 				} else {
 					/* These absolute normal values can still be negative here,
 					 * but are corrected below to become positive. */
@@ -220,7 +229,7 @@ namespace hemelb
 					{
 						if (weights_table.count(xyz) > 0)
 						{
-							v_tot = normal * weights_table.at(xyz) * maxVelocity;
+							v_tot = normal * weights_table.at(xyz) * max;
 							return v_tot;
 						}
 
