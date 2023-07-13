@@ -33,22 +33,11 @@ namespace hemelb
             wkWeightsFilePath = path;
           }
           
-          const distribn_t& GetArea() const
-          {
-            return area;
-          }
-
-          void SetArea(const distribn_t& a)
-          {
-            area = a;
-          }
-
           bool useWeightsFromFile;
 
           void Initialise(const util::UnitConverter* unitConverter);
         
         private:
-          distribn_t area;
           std::map<std::vector<int>, double> weights_table;
           std::string wkWeightsFilePath;
           const util::UnitConverter* units;

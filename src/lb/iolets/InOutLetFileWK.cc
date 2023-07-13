@@ -19,7 +19,7 @@ namespace hemelb
     namespace iolets
     {
       InOutLetFileWK::InOutLetFileWK() :
-          InOutLetWK(), area(1.0), units(NULL)
+          InOutLetWK(), units(NULL)
       {
       }
 
