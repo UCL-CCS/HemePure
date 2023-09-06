@@ -5,10 +5,10 @@ CHECK_CXX_SOURCE_COMPILES("#include <sys/time.h>\n#include <sys/resource.h>\nint
 
 # cstdint is the c++11 version of C99 stdint.h.
 # better to go with cstdint, but stdint.h is available more widely.
-find_path(HAVE_STDINT_H stdint.h)
-find_path(HAVE_CSTDINT cstdint)
+CHECK_CXX_SOURCE_COMPILES("#include <stdint.h>\nint main(int c,char** v){ return 0; }" HAVE_STDINT_H)
+CHECK_CXX_SOURCE_COMPILES("#include <cstdint>\nint main(int c,char** v){ return 0; }" HAVE_CSTDINT)
 if(HAVE_CSTDINT)
-	add_definitions(-DHEMELB_HAVE_CSTDINT=TRUE)
+	add_definitions(-DHEMELB_HAVE_CSTDINT)
 elseif(NOT HAVE_STDINT_H)
 	message(ERROR "Neither cstdint nor stdint.h found")
 endif()
