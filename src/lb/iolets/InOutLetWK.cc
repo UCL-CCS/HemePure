@@ -15,7 +15,8 @@ namespace hemelb
     {
       InOutLetWK::InOutLetWK() :
           InOutLet(), radius(1.0), area(1.0), resistance(1.0), capacitance(1.0),
-          density(1.0), densityNew(1.0), flowRate(0.0), flowRateNew(0.0)
+          density(1.0), densityNew(1.0), flowRate(0.0), flowRateNew(0.0),
+          siteCount(0)
       {
       }
 
@@ -41,7 +42,13 @@ namespace hemelb
         // Here the reductions are blocking communications; they have to be made non-blocking
         const BoundaryCommunicator& bcComm = comms->GetCommunicator();
         flowRate = bcComm.Reduce(flowRateNew, MPI_SUM, bcComm.GetBCProcRank());
+        siteCount = bcComm.Reduce(siteCount, MPI_SUM, bcComm.GetBCProcRank());
+        if (siteCount != 0)
+        {
+          flowRate = flowRate * area / siteCount;
+        }
         flowRateNew = 0.0;
+        siteCount = 0;
       }
 
       LatticeDistance InOutLetWK::GetDistanceSquared(const LatticePosition& x) const
@@ -80,6 +87,7 @@ namespace hemelb
 					densityNew = pressureNew / Cs2;
 				}
         flowRateNew += velocity.Dot(-normal);
+        siteCount ++;
       }
 
       void InOutLetWK::DoPostStreamCoupling(const site_t& siteID,
