@@ -65,30 +65,6 @@ namespace hemelb
       		{
 				if (siteID == centreSiteID && timeStep == warmUpLength + couplingTimeStep)
 				{
-					bool written = false;
-					while (!written)
-					{
-						struct stat outfile;
-						if (stat(pressureFilePath.c_str(), &outfile) == 0)
-						{
-							std::fstream outfile(pressureFilePath.c_str(), std::ios_base::out);
-							log::Logger::Log<log::Debug, log::OnePerCore>("Writing pressure value to file: %s", pressureFilePath.c_str());
-
-							double timeWrite = (double)startTime + (double)(couplingTimeStep + couplingFrequency - 2) * units->GetTimeStepLength();
-							double valueWrite = units->ConvertPressureToPhysicalUnits(densityAvg * Cs2) * pressureConversionFactor;
-							log::Logger::Log<log::Debug, log::OnePerCore>("timeWrite: %e, valueWrite: %e", timeWrite, valueWrite);
-
-							outfile << std::scientific << timeWrite << " " << std::scientific << valueWrite;
-							outfile.close();
-							written = true;
-							printf("timeStep %lu, timeWrite %e, densityAvg %.15lf, valueWrite %e\n", timeStep, timeWrite, densityAvg, valueWrite);
-						}
-						else
-						{
-							printf("Looking for a pressure file at %s\n", pressureFilePath.c_str());
-						}
-					};
-
 					double couplingTime = (double)startTime + (double)(couplingTimeStep - 2) * units->GetTimeStepLength();
 					printf("Looking for a flow rate value at time %e\n", couplingTime);
 					bool updated = false;
@@ -117,6 +93,30 @@ namespace hemelb
 						else
 						{
 							printf("Looking for a flow rate file at %s\n", flowRateFilePath.c_str());
+						}
+					};
+
+					bool written = false;
+					while (!written)
+					{
+						struct stat outfile;
+						if (stat(pressureFilePath.c_str(), &outfile) == 0)
+						{
+							std::fstream outfile(pressureFilePath.c_str(), std::ios_base::out);
+							log::Logger::Log<log::Debug, log::OnePerCore>("Writing pressure value to file: %s", pressureFilePath.c_str());
+
+							double timeWrite = (double)startTime + (double)(couplingTimeStep + couplingFrequency - 2) * units->GetTimeStepLength();
+							double valueWrite = units->ConvertPressureToPhysicalUnits(densityAvg * Cs2) * pressureConversionFactor;
+							log::Logger::Log<log::Debug, log::OnePerCore>("timeWrite: %e, valueWrite: %e", timeWrite, valueWrite);
+
+							outfile << std::scientific << timeWrite << " " << std::scientific << valueWrite;
+							outfile.close();
+							written = true;
+							printf("timeStep %lu, timeWrite %e, densityAvg %.15lf, valueWrite %e\n", timeStep, timeWrite, densityAvg, valueWrite);
+						}
+						else
+						{
+							printf("Looking for a pressure file at %s\n", pressureFilePath.c_str());
 						}
 					};
 
