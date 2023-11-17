@@ -12,6 +12,7 @@
 #include "lb/kernels/LBGK.h"
 #include "lb/kernels/LBGKGuoForcing.h"
 #include "lb/kernels/LBGKNN.h"
+#include "lb/kernels/LBGKSpongeLayer.h"
 #include "lb/kernels/MRT.h"
 #include "lb/kernels/TRT.h"
 

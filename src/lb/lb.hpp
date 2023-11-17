@@ -86,6 +86,10 @@ namespace hemelb
 				initParams.latDat = mLatDat;
 				initParams.lbmParams = &mParams;
 				initParams.neighbouringDataManager = neighbouringDataManager;
+				for (unsigned outlet = 0; outlet < mOutletValues->GetLocalIoletCount(); ++outlet)
+				{
+					initParams.outletPositions.push_back(mOutletValues->GetLocalIolet(outlet)->GetPosition());
+				}
 
 				unsigned collId;
 				InitInitParamsSiteRanges(initParams, collId);
