@@ -92,7 +92,7 @@ namespace hemelb
 
 			            for (site_t i = 0; i < vTau.size(); i++)
             			{
-              				distribn_t tauRatio = 1.0;
+							distribn_t vRatioTot = 1.0;
               				const LatticeVector& siteLocation = initParams.latDat->GiveMeGlobalSiteCoords(i);
               				for (int j = 0; j < initParams.outletPositions.size(); j++)
               				{
@@ -100,23 +100,22 @@ namespace hemelb
                 				if (distSq <= widthSq)
                 				{
 									// Quadratic function
-                  					//tauRatio *= vRatio - ((vRatio - 1.0) / widthSq) * distSq;
+									vRatioTot *= vRatio - ((vRatio - 1.0) / widthSq) * distSq;
 
 									// Sinusoidal function
-									tauRatio *= (0.5 * (vRatio - 1.0)) * (1.0 + cos((PI / widthSq) * distSq)) + 1.0;
+									//vRatioTot *= (0.5 * (vRatio - 1.0)) * (1.0 + cos((PI / widthSq) * distSq)) + 1.0;
                 				}
               				}
-              				vTau[i] = tauRatio * initParams.lbmParams->GetTau();
+							// Note that viscosity is proportional to (tau - 0.5)
+							vTau[i] = vRatioTot * (initParams.lbmParams->GetTau() - 0.5) + 0.5;
             			}
           			}
 
           			// Vector containing the viscous relaxation time for each site in the domain.
           			std::vector<distribn_t> vTau;
-
-          			// vRatio of the maximum viscosity in the sponge layer to the normal viscosity
+					// Ratio of the maximum viscosity in the sponge layer to the normal viscosity
           			const Dimensionless vRatio;
-
-          			// Width of a sponge layer
+					// Width of a sponge layer (in number of sites)
           			const LatticeDistance width;
 			};
 
