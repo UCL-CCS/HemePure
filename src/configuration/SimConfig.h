@@ -173,6 +173,14 @@ namespace hemelb
         {
           return boundaryVelocityRatio;
         }
+        Dimensionless GetViscosityRatio() const
+        {
+          return viscosityRatio;
+        }
+        LatticeDistance GetSpongeLayerWidth() const
+        {
+          return spongeLayerWidth;
+        }
 
         /**
          * True if the XML file has a section specifying colloids.
@@ -341,6 +349,8 @@ namespace hemelb
         distribn_t relaxationParameter;
         distribn_t elasticWallStiffness;
         distribn_t boundaryVelocityRatio;
+        Dimensionless viscosityRatio;
+        LatticeDistance spongeLayerWidth;
     };
   }
 }

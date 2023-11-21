@@ -24,8 +24,7 @@ namespace hemelb
 				class LBGKSpongeLayer : public BaseKernel<LBGKSpongeLayer<LatticeType>, LatticeType>
 			{
 				public:
-					LBGKSpongeLayer(InitParams& initParams) :
-						vRatio(1000), width(80)
+					LBGKSpongeLayer(InitParams& initParams)
 					{
 						InitState(initParams);
 					}
@@ -88,7 +87,11 @@ namespace hemelb
           			void InitState(const kernels::InitParams& initParams)
           			{
             			vTau.resize(initParams.latDat->GetLocalFluidSiteCount());
-            			const LatticeDistance widthSq = width * width;
+						// Ratio of the maximum viscosity in the sponge layer to the normal viscosity
+						const Dimensionless vRatio = initParams.lbmParams->ViscosityRatio;
+						// Width of a sponge layer (in number of sites)
+						const LatticeDistance width = initParams.lbmParams->SpongeLayerWidth;
+						const LatticeDistance widthSq = width * width;
 
 			            for (site_t i = 0; i < vTau.size(); i++)
             			{
@@ -113,10 +116,6 @@ namespace hemelb
 
           			// Vector containing the viscous relaxation time for each site in the domain.
           			std::vector<distribn_t> vTau;
-					// Ratio of the maximum viscosity in the sponge layer to the normal viscosity
-          			const Dimensionless vRatio;
-					// Width of a sponge layer (in number of sites)
-          			const LatticeDistance width;
 			};
 
 		}

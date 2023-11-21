@@ -689,6 +689,23 @@ namespace hemelb
 			  throw Exception() << "XML <initialconditions> element contains no known initial condition type";
 			}
 		      }
+
+			// Required element for LBGKSpongeLayer
+			// <viscosity_ratio value="float" units="dimensionless" />
+			const std::string hemeKernel = QUOTE_CONTENTS(HEMELB_KERNEL);
+			if (hemeKernel == "LBGKSL")
+			{
+				const io::xml::Element vrEl = initialconditionsEl.GetChildOrThrow("viscosity_ratio");
+				GetDimensionalValue(vrEl, "dimensionless", viscosityRatio);
+			}
+
+			// Required element for LBGKSpongeLayer
+			// <sponge_layer_width value="float" units="m" />
+			if (hemeKernel == "LBGKSL")
+			{
+				const io::xml::Element slwEl = initialconditionsEl.GetChildOrThrow("sponge_layer_width");
+				GetDimensionalValueInLatticeUnits<LatticeDistance>(slwEl, "m", spongeLayerWidth);
+			}
 		    }
 
 		lb::iolets::InOutLetCosine* SimConfig::DoIOForCosinePressureInOutlet(

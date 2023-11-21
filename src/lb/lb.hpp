@@ -367,6 +367,8 @@ namespace hemelb
 				mParams.SetRelaxationParameter(mSimConfig->GetRelaxationParameter());
 				mParams.ElasticWallStiffness = mSimConfig->GetElasticWallStiffness();
 				mParams.BoundaryVelocityRatio = mSimConfig->GetBoundaryVelocityRatio();
+				mParams.ViscosityRatio = mSimConfig->GetViscosityRatio();
+				mParams.SpongeLayerWidth = mSimConfig->GetSpongeLayerWidth();
 			}
 	}
 }

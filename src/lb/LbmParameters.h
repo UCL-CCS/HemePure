@@ -81,6 +81,8 @@ namespace hemelb
         StressTypes StressType;
         distribn_t ElasticWallStiffness;
         distribn_t BoundaryVelocityRatio;
+        Dimensionless ViscosityRatio; // used in LBGKSpongeLayer kernel
+        LatticeDistance SpongeLayerWidth; // used in LBGKSpongeLayer kernel
 
       private:
         PhysicalTime timestep;
