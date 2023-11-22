@@ -43,7 +43,7 @@ set(HEMELB_OPTIMISATION "-O3"
 set(HEMELB_LATTICE "D3Q19"
 	CACHE STRING "lattice type: 'D3Q15','D3Q19','D3Q27','D3Q15i'")
 set(HEMELB_KERNEL "LBGK"
-	CACHE STRING "kernel: 'LBGK','EntropicAnsumali','EntropicChik','MRT','TRT','NNCY','NNCYMOUSE','NNC','NNTPL'")
+	CACHE STRING "kernel: 'LBGK','EntropicAnsumali','EntropicChik','MRT','TRT','NNCY','NNCYMOUSE','NNC','NNTPL', 'LBGKSL'")
 set(HEMELB_WALL_BOUNDARY "BFL"
 	CACHE STRING "boundary conditions to be used at the walls: 'BFL','GZS','SIMPLEBOUNCEBACK','JUNKYANG'")
 set(HEMELB_INLET_BOUNDARY "NASHZEROTHORDERPRESSUREIOLET"
