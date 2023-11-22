@@ -158,8 +158,14 @@ namespace hemelb
 
 								for (Direction ii = 0; ii < LatticeType::NUMVECTORS; ii++)
 								{
-									bulkLinkDelegate.StreamLink(lbmParams, latDat, site, hydroVars, ii);
-									ioletLinkDelegate.StreamLink(lbmParams, latDat, site, hydroVars, ii);
+									if (site.HasIolet(ii))
+									{
+										ioletLinkDelegate.StreamLink(lbmParams, latDat, site, hydroVars, ii);
+									}
+									else
+									{
+										bulkLinkDelegate.StreamLink(lbmParams, latDat, site, hydroVars, ii);
+									}
 								}
 
 								//TODO: Necessary to specify sub-class?
@@ -182,7 +188,10 @@ namespace hemelb
 								geometry::Site<geometry::LatticeData> site = latticeData->GetSite(siteIndex);
 								for (unsigned int direction = 0; direction < LatticeType::NUMVECTORS; direction++)
 								{
-									ioletLinkDelegate.PostStepLink(latticeData, site, direction);
+									if (site.HasIolet(direction))
+									{
+										ioletLinkDelegate.PostStepLink(latticeData, site, direction);
+									}
 								}
 							}
 						}
@@ -243,7 +252,11 @@ namespace hemelb
 
 								for (Direction ii = 0; ii < LatticeType::NUMVECTORS; ii++)
 								{
-									if (site.HasWall(ii))
+									if (site.HasIolet(ii))
+									{
+										ioletLinkDelegate.StreamLink(lbmParams, latDat, site, hydroVars, ii);
+									}
+									else if (site.HasWall(ii))
 									{
 										wallLinkDelegate.StreamLink(lbmParams, latDat, site, hydroVars, ii);
 									}
@@ -251,7 +264,6 @@ namespace hemelb
 									{
 										bulkLinkDelegate.StreamLink(lbmParams, latDat, site, hydroVars, ii);
 									}
-									ioletLinkDelegate.StreamLink(lbmParams, latDat, site, hydroVars, ii);
 								}
 
 								//TODO: Necessary to specify sub-class?
@@ -278,7 +290,10 @@ namespace hemelb
 									{
 										wallLinkDelegate.PostStepLink(latticeData, site, direction);
 									}
-									ioletLinkDelegate.PostStepLink(latticeData, site, direction);
+									else if (site.HasIolet(direction))
+									{
+										ioletLinkDelegate.PostStepLink(latticeData, site, direction);
+									}
 								}
 							}
 						}

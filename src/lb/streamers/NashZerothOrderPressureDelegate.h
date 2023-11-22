@@ -39,8 +39,6 @@ namespace hemelb
 							kernels::HydroVars<typename CollisionType::CKernel>& hydroVars,
 							const Direction& direction)
 					{
-						if (!site.HasIolet(direction)) return;
-
 						int boundaryId = site.GetIoletId();
 						iolets::InOutLet* localIOlet = iolet.GetIolets()[boundaryId];
 						Direction unstreamed = LatticeType::INVERSEDIRECTIONS[direction];
@@ -81,8 +79,6 @@ namespace hemelb
 							const geometry::Site<geometry::LatticeData>& site,
 							const Direction& direction)
 					{
-						if (!site.HasIolet(direction)) return;
-
 						int boundaryId = site.GetIoletId();
 						iolets::InOutLet* localIOlet = iolet.GetIolets()[boundaryId];
 						Direction unstreamed = LatticeType::INVERSEDIRECTIONS[direction];
