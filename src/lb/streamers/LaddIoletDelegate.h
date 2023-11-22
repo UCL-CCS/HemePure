@@ -50,8 +50,6 @@ namespace hemelb
             // where u is the velocity of the boundary half way along the
             // link and a1_i = w_1 / cs2
 
-            if (!site.HasIolet(ii)) return;
-
             int boundaryId = site.GetIoletId();
             iolets::InOutLetVelocity* iolet =
                 dynamic_cast<iolets::InOutLetVelocity*>(bValues->GetIolets()[boundaryId]);
@@ -91,8 +89,6 @@ namespace hemelb
 							const geometry::Site<geometry::LatticeData>& site,
 							const Direction& ii)
 					{
-            if (!site.HasIolet(ii)) return;
-
 						int boundaryId = site.GetIoletId();
 						iolets::InOutLet* localIOlet = bValues->GetIolets()[boundaryId];
             Direction unstreamed = LatticeType::INVERSEDIRECTIONS[ii];
