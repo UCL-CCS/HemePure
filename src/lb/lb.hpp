@@ -83,6 +83,7 @@ namespace hemelb
 				// MidFluidCollision = new ConvergenceCheckingWrapper(new WhateverMidFluidCollision());
 
 				kernels::InitParams initParams = kernels::InitParams();
+				initParams.state = mState;
 				initParams.latDat = mLatDat;
 				initParams.lbmParams = &mParams;
 				initParams.neighbouringDataManager = neighbouringDataManager;

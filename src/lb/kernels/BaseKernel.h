@@ -174,6 +174,9 @@ namespace hemelb
 					// Vector of outlet positions.
 					std::vector<LatticePosition> outletPositions;
 
+					// Pointer to the simulation state. It provides the current time step.
+					SimulationState* state;
+
 					// The lattice data object. Currently only used for accessing the boundary id
 					// of each site next to an inlet or an outlet.
 					const geometry::LatticeData* latDat;
