@@ -370,6 +370,7 @@ namespace hemelb
 				mParams.BoundaryVelocityRatio = mSimConfig->GetBoundaryVelocityRatio();
 				mParams.ViscosityRatio = mSimConfig->GetViscosityRatio();
 				mParams.SpongeLayerWidth = mSimConfig->GetSpongeLayerWidth();
+				mParams.SpongeLayerLifetime = mSimConfig->GetSpongeLayerLifetime();
 			}
 	}
 }

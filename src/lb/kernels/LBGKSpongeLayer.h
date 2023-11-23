@@ -26,7 +26,7 @@ namespace hemelb
 				public:
 					LBGKSpongeLayer(InitParams& initParams) :
 						tau0(initParams.lbmParams->GetTau()), vRatio(initParams.lbmParams->ViscosityRatio),
-						state(initParams.state)
+						lifetime(initParams.lbmParams->SpongeLayerLifetime), state(initParams.state)
 					{
 						InitState(initParams);
 					}
@@ -119,14 +119,14 @@ namespace hemelb
 					inline void CalculateTau(HydroVars<LBGKSpongeLayer<LatticeType> >& hydroVars, site_t index)
 					{
 						LatticeTimeStep timeStep = state->GetTimeStep();
-						if (timeStep <= (LatticeTimeStep)vRatio)
+						if (timeStep <= lifetime / 2)
 						{
 							hydroVars.tau = vTau[index];
 						}
-						else if (timeStep < 2 * (LatticeTimeStep)vRatio)
+						else if (timeStep < lifetime)
 						{
 							// Linear decay from vTau to tau0
-							hydroVars.tau = (tau0 - vTau[index]) / vRatio * timeStep + (2.0 * vTau[index] - tau0);
+							hydroVars.tau = (tau0 - vTau[index]) * 2.0 / lifetime * timeStep + (2.0 * vTau[index] - tau0);
 						}
 						else
 						{
@@ -138,6 +138,8 @@ namespace hemelb
 					const distribn_t tau0;
 					// Ratio of the maximum viscosity in the sponge layer to the normal viscosity
 					const Dimensionless vRatio;
+					// Lifetime of the sponge layer
+					const LatticeTimeStep lifetime;
 					// Pointer to the simulation state which provides the current time step.
 					SimulationState* state;
           			// Vector containing the viscous relaxation time for each site in the domain.

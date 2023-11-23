@@ -691,20 +691,22 @@ namespace hemelb
 		      }
 
 			// Required element for LBGKSpongeLayer
-			// <viscosity_ratio value="float" units="dimensionless" />
 			const std::string hemeKernel = QUOTE_CONTENTS(HEMELB_KERNEL);
 			if (hemeKernel == "LBGKSL")
 			{
-				const io::xml::Element vrEl = initialconditionsEl.GetChildOrThrow("viscosity_ratio");
-				GetDimensionalValue(vrEl, "dimensionless", viscosityRatio);
-			}
+				auto spongeEl = initialconditionsEl.GetChildOrThrow("sponge_layer");
 
-			// Required element for LBGKSpongeLayer
-			// <sponge_layer_width value="float" units="m" />
-			if (hemeKernel == "LBGKSL")
-			{
-				const io::xml::Element slwEl = initialconditionsEl.GetChildOrThrow("sponge_layer_width");
-				GetDimensionalValueInLatticeUnits<LatticeDistance>(slwEl, "m", spongeLayerWidth);
+				// <viscosity_ratio value="float" units="dimensionless" />
+				const io::xml::Element vrEl = spongeEl.GetChildOrThrow("viscosity_ratio");
+				GetDimensionalValue(vrEl, "dimensionless", viscosityRatio);
+
+				// <width value="float" units="m" />
+				const io::xml::Element wEl = spongeEl.GetChildOrThrow("width");
+				GetDimensionalValueInLatticeUnits<LatticeDistance>(wEl, "m", spongeLayerWidth);
+
+				// <lifetime value="unsigned" units="lattice" />
+				const io::xml::Element lEl = spongeEl.GetChildOrThrow("lifetime");
+				GetDimensionalValue(lEl, "lattice", spongeLayerLifetime);
 			}
 		    }
 
