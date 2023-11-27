@@ -98,10 +98,11 @@ namespace hemelb
               				for (int j = 0; j < initParams.outletPositions.size(); j++)
               				{
                 				const LatticeDistance distSq = (siteLocation - initParams.outletPositions[j]).GetMagnitudeSquared();
+								const LatticeDistance dist = std::sqrt(distSq);
                 				if (distSq <= widthSq)
                 				{
 									// Quadratic function
-									vRatioTot *= vRatio - ((vRatio - 1.0) / widthSq) * distSq;
+									vRatioTot *= 1.0 + (vRatio - 1.0) * (dist / width - 1.0) * (dist / width - 1.0);
 
 									// Sinusoidal function
 									//vRatioTot *= (0.5 * (vRatio - 1.0)) * (1.0 + cos((PI / widthSq) * distSq)) + 1.0;
