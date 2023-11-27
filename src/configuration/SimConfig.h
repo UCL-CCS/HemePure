@@ -181,6 +181,10 @@ namespace hemelb
         {
           return spongeLayerWidth;
         }
+        LatticeTimeStep GetSpongeLayerLifetime() const
+        {
+          return spongeLayerLifetime;
+        }
 
         /**
          * True if the XML file has a section specifying colloids.
@@ -351,6 +355,7 @@ namespace hemelb
         distribn_t boundaryVelocityRatio;
         Dimensionless viscosityRatio;
         LatticeDistance spongeLayerWidth;
+        LatticeTimeStep spongeLayerLifetime;
     };
   }
 }

@@ -83,12 +83,13 @@ namespace hemelb
 				// MidFluidCollision = new ConvergenceCheckingWrapper(new WhateverMidFluidCollision());
 
 				kernels::InitParams initParams = kernels::InitParams();
+				initParams.state = mState;
 				initParams.latDat = mLatDat;
 				initParams.lbmParams = &mParams;
 				initParams.neighbouringDataManager = neighbouringDataManager;
-				for (unsigned outlet = 0; outlet < mOutletValues->GetLocalIoletCount(); ++outlet)
+				for (unsigned outlet = 0; outlet < mOutletValues->GetTotalIoletCount(); ++outlet)
 				{
-					initParams.outletPositions.push_back(mOutletValues->GetLocalIolet(outlet)->GetPosition());
+					initParams.outletPositions.push_back(mOutletValues->GetIolets()[outlet]->GetPosition());
 				}
 
 				unsigned collId;
@@ -369,6 +370,7 @@ namespace hemelb
 				mParams.BoundaryVelocityRatio = mSimConfig->GetBoundaryVelocityRatio();
 				mParams.ViscosityRatio = mSimConfig->GetViscosityRatio();
 				mParams.SpongeLayerWidth = mSimConfig->GetSpongeLayerWidth();
+				mParams.SpongeLayerLifetime = mSimConfig->GetSpongeLayerLifetime();
 			}
 	}
 }

@@ -24,7 +24,9 @@ namespace hemelb
 				class LBGKSpongeLayer : public BaseKernel<LBGKSpongeLayer<LatticeType>, LatticeType>
 			{
 				public:
-					LBGKSpongeLayer(InitParams& initParams)
+					LBGKSpongeLayer(InitParams& initParams) :
+						tau0(initParams.lbmParams->GetTau()), vRatio(initParams.lbmParams->ViscosityRatio),
+						lifetime(initParams.lbmParams->SpongeLayerLifetime), state(initParams.state)
 					{
 						InitState(initParams);
 					}
@@ -46,8 +48,7 @@ namespace hemelb
 							hydroVars.f_neq.f[ii] = hydroVars.f[ii] - hydroVars.f_eq.f[ii];
 						}
 
-						// Temporarily store vTau in hydroVars
-						hydroVars.tau = vTau[index];
+						CalculateTau(hydroVars, index);
 					}
 
 					inline void DoCalculateFeq(HydroVars<LBGKSpongeLayer>& hydroVars, site_t index)
@@ -63,8 +64,7 @@ namespace hemelb
 							hydroVars.f_neq.f[ii] = hydroVars.f[ii] - hydroVars.f_eq.f[ii];
 						}
 
-						// Temporarily store vTau in hydroVars
-						hydroVars.tau = vTau[index];
+						CalculateTau(hydroVars, index);
 					}
 
 					inline void DoCollide(const LbmParameters* const lbmParams, HydroVars<LBGKSpongeLayer>& hydroVars)
@@ -87,8 +87,6 @@ namespace hemelb
           			void InitState(const kernels::InitParams& initParams)
           			{
             			vTau.resize(initParams.latDat->GetLocalFluidSiteCount());
-						// Ratio of the maximum viscosity in the sponge layer to the normal viscosity
-						const Dimensionless vRatio = initParams.lbmParams->ViscosityRatio;
 						// Width of a sponge layer (in number of sites)
 						const LatticeDistance width = initParams.lbmParams->SpongeLayerWidth;
 						const LatticeDistance widthSq = width * width;
@@ -100,20 +98,51 @@ namespace hemelb
               				for (int j = 0; j < initParams.outletPositions.size(); j++)
               				{
                 				const LatticeDistance distSq = (siteLocation - initParams.outletPositions[j]).GetMagnitudeSquared();
+								const LatticeDistance dist = std::sqrt(distSq);
                 				if (distSq <= widthSq)
                 				{
 									// Quadratic function
-									vRatioTot *= vRatio - ((vRatio - 1.0) / widthSq) * distSq;
+									vRatioTot *= 1.0 + (vRatio - 1.0) * (dist / width - 1.0) * (dist / width - 1.0);
 
 									// Sinusoidal function
 									//vRatioTot *= (0.5 * (vRatio - 1.0)) * (1.0 + cos((PI / widthSq) * distSq)) + 1.0;
                 				}
               				}
 							// Note that viscosity is proportional to (tau - 0.5)
-							vTau[i] = vRatioTot * (initParams.lbmParams->GetTau() - 0.5) + 0.5;
+							vTau[i] = vRatioTot * (tau0 - 0.5) + 0.5;
             			}
           			}
 
+					/**
+					* Calculate the relaxation time of the collision and temporaily store it in hydroVars.
+					* The sponge layer is maintained for a certain time and then dissolved.
+					*/
+					inline void CalculateTau(HydroVars<LBGKSpongeLayer<LatticeType> >& hydroVars, site_t index)
+					{
+						LatticeTimeStep timeStep = state->GetTimeStep();
+						if (timeStep <= lifetime / 2)
+						{
+							hydroVars.tau = vTau[index];
+						}
+						else if (timeStep < lifetime)
+						{
+							// Linear decay from vTau to tau0
+							hydroVars.tau = (tau0 - vTau[index]) * 2.0 / lifetime * timeStep + (2.0 * vTau[index] - tau0);
+						}
+						else
+						{
+							hydroVars.tau = tau0;
+						}
+					}
+
+					// Normal relaxation time
+					const distribn_t tau0;
+					// Ratio of the maximum viscosity in the sponge layer to the normal viscosity
+					const Dimensionless vRatio;
+					// Lifetime of the sponge layer
+					const LatticeTimeStep lifetime;
+					// Pointer to the simulation state which provides the current time step.
+					SimulationState* state;
           			// Vector containing the viscous relaxation time for each site in the domain.
           			std::vector<distribn_t> vTau;
 			};

@@ -83,6 +83,7 @@ namespace hemelb
         distribn_t BoundaryVelocityRatio;
         Dimensionless ViscosityRatio; // used in LBGKSpongeLayer kernel
         LatticeDistance SpongeLayerWidth; // used in LBGKSpongeLayer kernel
+        LatticeTimeStep SpongeLayerLifetime; // used in LBGKSpongeLayer kernel
 
       private:
         PhysicalTime timestep;
