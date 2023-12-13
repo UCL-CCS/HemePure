@@ -66,8 +66,8 @@ namespace hemelb
         datafile.close();
         // the default iterator for maps traverses in key order, so no sort is needed.
 
-        std::vector<double> times(0);
-        std::vector<double> values(0);
+        std::vector<PhysicalTime> times(0);
+        std::vector<PhysicalPressure> values(0);
 
         // Must convert into vectors since LinearInterpolate works on a pair of vectors
         // Determine min and max pressure on the way
@@ -84,7 +84,7 @@ namespace hemelb
             PhysicalTime time_diff_ratio = time_diff / (entry->first - times.back());
             PhysicalPressure pres_diff = entry->second - values.back();
 
-            PhysicalSpeed final_pressure = values.back() + time_diff_ratio * pres_diff;
+            PhysicalPressure final_pressure = values.back() + time_diff_ratio * pres_diff;
 
             times.push_back(totalTimeSteps*timeStepLength);
             pMin = util::NumericalFunctions::min(pMin, final_pressure);
@@ -102,8 +102,8 @@ namespace hemelb
         densityMax = units->ConvertPressureToLatticeUnits(pMax) / Cs2;
 
         // Check if last point's value matches the first
-        if (values.back() != values.front())
-          throw Exception() << "Last point's value does not match the first point's value in " <<pressureFilePath;
+        //if (values.back() != values.front())
+        //  throw Exception() << "Last point's value does not match the first point's value in " <<pressureFilePath;
 
         /* If the time values in the input file end BEFORE the planned end of the simulation, then loop the profile afterwards (using %TimeStepsInInletPressureProfile). */
         int TimeStepsInInletPressureProfile = times.back() / timeStepLength;
@@ -114,10 +114,11 @@ namespace hemelb
         // Now convert these vectors into arrays using linear interpolation
         for (unsigned int timeStep = 0; timeStep <= totalTimeSteps; timeStep++)
         {
-          double point = times.front() + (static_cast<double> (timeStep)
-              / static_cast<double> (totalTimeSteps)) * (times.back() - times.front());
+          double point = times.front()
+              + (static_cast<double> (timeStep % TimeStepsInInletPressureProfile) / static_cast<double> (totalTimeSteps))
+              * (times.back() - times.front());
 
-          double pressure = util::NumericalFunctions::LinearInterpolate(times, values, point);
+          PhysicalPressure pressure = util::NumericalFunctions::LinearInterpolate(times, values, point);
 
           densityTable[timeStep] = units->ConvertPressureToLatticeUnits(pressure) / Cs2;
         }

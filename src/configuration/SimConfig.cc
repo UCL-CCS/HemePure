@@ -386,6 +386,10 @@ namespace hemelb
 			{
 				newIolet = DoIOForFileVelocityInOutlet(ioletEl);
 			}
+			else if (conditionSubtype == "readWrite")
+			{
+				newIolet = DoIOForReadWriteVelocityInOutlet(ioletEl);
+			}
 			else
 			{
 				throw Exception() << "Invalid boundary condition subtype '" << conditionSubtype << "' in "
@@ -689,6 +693,25 @@ namespace hemelb
 			  throw Exception() << "XML <initialconditions> element contains no known initial condition type";
 			}
 		      }
+
+			// Required element for LBGKSpongeLayer
+			const std::string hemeKernel = QUOTE_CONTENTS(HEMELB_KERNEL);
+			if (hemeKernel == "LBGKSL")
+			{
+				auto spongeEl = initialconditionsEl.GetChildOrThrow("sponge_layer");
+
+				// <viscosity_ratio value="float" units="dimensionless" />
+				const io::xml::Element vrEl = spongeEl.GetChildOrThrow("viscosity_ratio");
+				GetDimensionalValue(vrEl, "dimensionless", viscosityRatio);
+
+				// <width value="float" units="m" />
+				const io::xml::Element wEl = spongeEl.GetChildOrThrow("width");
+				GetDimensionalValueInLatticeUnits<LatticeDistance>(wEl, "m", spongeLayerWidth);
+
+				// <lifetime value="unsigned" units="lattice" />
+				const io::xml::Element lEl = spongeEl.GetChildOrThrow("lifetime");
+				GetDimensionalValue(lEl, "lattice", spongeLayerLifetime);
+			}
 		    }
 
 		lb::iolets::InOutLetCosine* SimConfig::DoIOForCosinePressureInOutlet(
@@ -885,9 +908,52 @@ namespace hemelb
 
 			velocityFilePath = util::NormalizePathRelativeToPath(velocityFilePath, xmlFilePath);
 			newIolet->SetFilePath(velocityFilePath);
+			std::cout << "path is here:" << velocityFilePath << std::endl;
 
 			const io::xml::Element radiusEl = conditionEl.GetChildOrThrow("radius");
 			newIolet->SetRadius(GetDimensionalValueInLatticeUnits<LatticeDistance>(radiusEl, "m"));
+
+			return newIolet;
+		}
+
+		lb::iolets::InOutLetReadWriteVelocity* SimConfig::DoIOForReadWriteVelocityInOutlet(
+				const io::xml::Element& ioletEl)
+		{
+			lb::iolets::InOutLetReadWriteVelocity* newIolet = new lb::iolets::InOutLetReadWriteVelocity();
+			DoIOForBaseInOutlet(ioletEl, newIolet);
+
+			const io::xml::Element conditionEl = ioletEl.GetChildOrThrow("condition");
+
+			const io::xml::Element radiusEl = conditionEl.GetChildOrThrow("radius");
+			newIolet->SetRadius(GetDimensionalValueInLatticeUnits<LatticeDistance>(radiusEl, "m"));
+
+			distribn_t tempArea;
+			GetDimensionalValue(conditionEl.GetChildOrThrow("area"), "m^2", tempArea);
+			newIolet->SetArea(tempArea);
+
+			LatticeTimeStep freq;
+			const io::xml::Element freqEl = conditionEl.GetChildOrThrow("frequency");
+			GetDimensionalValue(freqEl, "lattice", freq);
+			newIolet->SetCouplingFrequency(freq);
+
+			std::string flowFilePath = conditionEl.GetChildOrThrow("flowRateFilePath").GetAttributeOrThrow("value");
+			flowFilePath = util::NormalizePathRelativeToPath(flowFilePath, xmlFilePath);
+			newIolet->SetFlowRateFilePath(flowFilePath);
+
+			const io::xml::Element flowConvFactorEl = conditionEl.GetChildOrThrow("flowRateConversionFactor");
+			newIolet->SetFlowRateConversionFactor(GetDimensionalValueInLatticeUnits<Dimensionless>(flowConvFactorEl, "dimensionless"));
+
+			std::string pressFilePath = conditionEl.GetChildOrThrow("pressureFilePath").GetAttributeOrThrow("value");
+			pressFilePath = util::NormalizePathRelativeToPath(pressFilePath, xmlFilePath);
+			newIolet->SetPressureFilePath(pressFilePath);
+
+			const io::xml::Element pressConvFactorEl = conditionEl.GetChildOrThrow("pressureConversionFactor");
+			newIolet->SetPressureConversionFactor(GetDimensionalValueInLatticeUnits<Dimensionless>(pressConvFactorEl, "dimensionless"));
+
+			if (warmUpSteps != 0)
+			{
+				newIolet->SetWarmup(warmUpSteps);
+			}
 
 			return newIolet;
 		}

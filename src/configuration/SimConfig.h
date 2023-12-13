@@ -173,6 +173,18 @@ namespace hemelb
         {
           return boundaryVelocityRatio;
         }
+        Dimensionless GetViscosityRatio() const
+        {
+          return viscosityRatio;
+        }
+        LatticeDistance GetSpongeLayerWidth() const
+        {
+          return spongeLayerWidth;
+        }
+        LatticeTimeStep GetSpongeLayerLifetime() const
+        {
+          return spongeLayerLifetime;
+        }
 
         /**
          * True if the XML file has a section specifying colloids.
@@ -271,6 +283,9 @@ namespace hemelb
         lb::iolets::InOutLetFileVelocity* DoIOForFileVelocityInOutlet(
             const io::xml::Element& ioletEl);
 
+        lb::iolets::InOutLetReadWriteVelocity* DoIOForReadWriteVelocityInOutlet(
+            const io::xml::Element& ioletEl);
+
         void DoIOForProperties(const io::xml::Element& xmlNode);
         void DoIOForProperty(io::xml::Element xmlNode, bool isLoading);
         extraction::OutputField DoIOForPropertyField(const io::xml::Element& xmlNode);
@@ -341,6 +356,9 @@ namespace hemelb
         distribn_t relaxationParameter;
         distribn_t elasticWallStiffness;
         distribn_t boundaryVelocityRatio;
+        Dimensionless viscosityRatio;
+        LatticeDistance spongeLayerWidth;
+        LatticeTimeStep spongeLayerLifetime;
     };
   }
 }
