@@ -14,6 +14,7 @@
 #include "lb/iolets/InOutLetWomersleyVelocity.h"
 #include "lb/iolets/InOutLetWomersleyElasticVelocity.h"
 #include "lb/iolets/InOutLetFileVelocity.h"
+#include "lb/iolets/InOutLetReadWriteVelocity.h"
 #include "lb/iolets/InOutLetWK.h"
 #include "lb/iolets/InOutLetFileWK.h"
 
