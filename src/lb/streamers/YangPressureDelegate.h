@@ -157,15 +157,59 @@ namespace hemelb
 										dirP = localIOlet->GetDirectionCloseToNormal(j);
 									}
 									while (dirP != 0);
+								}
 
-									// If the search fails again, a finer grid should be used.
-									if (dirP == 0)
+								// Try again by taking three steps from the outer-wall node.
+								if (dirP == 0)
+								{
+									j = 0;
+									dirP = localIOlet->GetDirectionCloseToNormal(0);
+									do
 									{
-										hemelb::log::Logger::Log<hemelb::log::Error, hemelb::log::OnePerCore>(
-											"A higher resolution is required at the site location [%ld, %ld, %ld]",
-											localSiteLocation.x, localSiteLocation.y, localSiteLocation.z);
-										std::exit(15);
+										const LatticeVector cp = LatticeVector(LatticeType::CX[dirP],
+																			   LatticeType::CY[dirP],
+																			   LatticeType::CZ[dirP]);
+
+										// The only difference is the factor 3 in the next line.
+										const LatticeVector firstFluidSiteLocation = outerWallSiteLocation + cp * 3;
+										proc_t firstFluidSiteHomeProc =
+											initParams.latDat->GetProcIdFromGlobalCoords(firstFluidSiteLocation);
+
+										const LatticeVector secondFluidSiteLocation = firstFluidSiteLocation + cp;
+										proc_t secondFluidSiteHomeProc =
+											initParams.latDat->GetProcIdFromGlobalCoords(secondFluidSiteLocation);
+
+										if (firstFluidSiteHomeProc != SITE_OR_BLOCK_SOLID &&
+											secondFluidSiteHomeProc != SITE_OR_BLOCK_SOLID)
+										{
+											if (firstFluidSiteHomeProc != initParams.latDat->GetLocalRank())
+											{
+												// Request data from another rank.
+												initParams.neighbouringDataManager->RegisterNeededSite(
+													initParams.latDat->GetGlobalNoncontiguousSiteIdFromGlobalCoords(firstFluidSiteLocation));
+											}
+											if (secondFluidSiteHomeProc != initParams.latDat->GetLocalRank())
+											{
+												// Request data from another rank.
+												initParams.neighbouringDataManager->RegisterNeededSite(
+													initParams.latDat->GetGlobalNoncontiguousSiteIdFromGlobalCoords(secondFluidSiteLocation));
+											}
+											break;
+										}
+
+										j++;
+										dirP = localIOlet->GetDirectionCloseToNormal(j);
 									}
+									while (dirP != 0);
+								}
+
+								// If the search fails again, a finer grid should be used.
+								if (dirP == 0)
+								{
+									hemelb::log::Logger::Log<hemelb::log::Error, hemelb::log::OnePerCore>(
+										"A higher resolution is required at the site location [%ld, %ld, %ld]",
+										localSiteLocation.x, localSiteLocation.y, localSiteLocation.z);
+									std::exit(15);
 								}
 							}
 						}
@@ -193,11 +237,11 @@ namespace hemelb
 
 					// Obtain cp, wallDistance, and the old distributions at the first and second fluid nodes.
 					// Here wall is referred to as the iolet plane.
-					bool special; // whether the outer-wall node has no neighbouring fluid site
+					char width; // number of sites between the outer-wall node and the first fluid site in direction cp
 					LatticeVector cp; // the lattice vector given by the mapping P
 					LatticeDistance wallDistance; // distance between the wall and the first fluid site
 					const distribn_t *firstFluidFOld, *secondFluidFOld;
-					GetFluidSitesData(site, direction, latticeData, special, cp, wallDistance, firstFluidFOld, secondFluidFOld);
+					GetFluidSitesData(site, direction, latticeData, width, cp, wallDistance, firstFluidFOld, secondFluidFOld);
 
 					// Calculate the densities, momenta, and equilibrium distributions and store them in HydroVars.
 					kernels::HydroVars<typename CollisionType::CKernel> hVfirstFluid(firstFluidFOld);
@@ -246,7 +290,20 @@ namespace hemelb
 						// Calculate the required quantities at the outer-wall node.
 						const LatticePosition sqBracket = momentumCorrection(cp, -ioletNormal, hydroVars.tau, fNeqWall);
 						distribn_t fNeqOuterWall;
-						if (special)
+						if (width == 3)
+						{
+							// Extrapolate the density and momentum (analogous to equation 18).
+							hVouterWall.density = 4.0 * hVfirstFluid.density - 3.0 * hVsecondFluid.density;
+							hVouterWall.momentum = (hVfirstFluid.momentum * (8.0 * wallDistance - 8.0)
+													+ hVsecondFluid.momentum * (9.0 - 6.0 * wallDistance)
+													- sqBracket * 6.0
+												   ) / (1.0 + 2.0 * wallDistance);
+
+							// Extrapolate the non-equilibrium distribution of the unstreamed direction (analogous to equation 20).
+							fNeqOuterWall = 4.0 * hVfirstFluid.GetFNeq().f[unstreamed]
+											- 3.0 * hVsecondFluid.GetFNeq().f[unstreamed];
+						}
+						else if (width == 2)
 						{
 							// Extrapolate the density and momentum (equation B.4).
 							hVouterWall.density = 3.0 * hVfirstFluid.density - 2.0 * hVsecondFluid.density;
@@ -339,7 +396,7 @@ namespace hemelb
 				void GetFluidSitesData(const geometry::Site<geometry::LatticeData> &site,
 									   const Direction &i,
 									   geometry::LatticeData *const latDat,
-									   bool &special,
+									   char &width,
 									   LatticeVector &cp,
 									   LatticeDistance &firstFluidWallDistance,
 									   const distribn_t* &firstFluidFOld,
@@ -353,7 +410,7 @@ namespace hemelb
 														   LatticeType::CZ[i]);
 					const LatticeVector outerWallSiteLocation = site.GetGlobalSiteCoords() + ci;
 
-					special = false;
+					width = 1;
 					Direction j = 0, dirP = localIOlet->GetDirectionCloseToNormal(0);
 					do
 					{
@@ -408,15 +465,73 @@ namespace hemelb
 
 					if (dirP == 0)
 					{
-						special = true;
+						width = 2;
 						j = 0;
 						dirP = localIOlet->GetDirectionCloseToNormal(0);
 						do
 						{
 							cp = LatticeVector(LatticeType::CX[dirP], LatticeType::CY[dirP], LatticeType::CZ[dirP]);
 
-							// The only difference is the factor 2 in the next line.
+							// Take one step further.
 							const LatticeVector firstFluidSiteLocation = outerWallSiteLocation + cp * 2;
+							proc_t firstFluidSiteHomeProc = latDat->GetProcIdFromGlobalCoords(firstFluidSiteLocation);
+
+							const LatticeVector secondFluidSiteLocation = firstFluidSiteLocation + cp;
+							proc_t secondFluidSiteHomeProc = latDat->GetProcIdFromGlobalCoords(secondFluidSiteLocation);
+
+							if (firstFluidSiteHomeProc != SITE_OR_BLOCK_SOLID &&
+								secondFluidSiteHomeProc != SITE_OR_BLOCK_SOLID)
+							{
+								const Direction oppP = LatticeType::INVERSEDIRECTIONS[dirP];
+								if (firstFluidSiteHomeProc == latDat->GetLocalRank())
+								{
+									geometry::Site<geometry::LatticeData> firstFluidSite =
+										latDat->GetSite(latDat->GetContiguousSiteId(firstFluidSiteLocation));
+									firstFluidFOld = firstFluidSite.GetFOld<LatticeType>();
+									firstFluidWallDistance = firstFluidSite.GetWallDistance<LatticeType>(oppP);
+								}
+								else
+								{
+									const geometry::neighbouring::ConstNeighbouringSite
+										firstFluidSite = neighbouringLatticeData.GetSite(
+											latDat->GetGlobalNoncontiguousSiteIdFromGlobalCoords(firstFluidSiteLocation));
+									firstFluidFOld = firstFluidSite.GetFOld<LatticeType>();
+									firstFluidWallDistance = firstFluidSite.GetWallDistance<LatticeType>(oppP);
+								}
+
+								if (secondFluidSiteHomeProc == latDat->GetLocalRank())
+								{
+									geometry::Site<geometry::LatticeData> secondFluidSite =
+										latDat->GetSite(latDat->GetContiguousSiteId(secondFluidSiteLocation));
+									secondFluidFOld = secondFluidSite.GetFOld<LatticeType>();
+								}
+								else
+								{
+									const geometry::neighbouring::ConstNeighbouringSite
+										secondFluidSite = neighbouringLatticeData.GetSite(
+											latDat->GetGlobalNoncontiguousSiteIdFromGlobalCoords(secondFluidSiteLocation));
+									secondFluidFOld = secondFluidSite.GetFOld<LatticeType>();
+								}
+								break;
+							}
+
+							j++;
+							dirP = localIOlet->GetDirectionCloseToNormal(j);
+						}
+						while (dirP != 0);
+					}
+
+					if (dirP == 0)
+					{
+						width = 3;
+						j = 0;
+						dirP = localIOlet->GetDirectionCloseToNormal(0);
+						do
+						{
+							cp = LatticeVector(LatticeType::CX[dirP], LatticeType::CY[dirP], LatticeType::CZ[dirP]);
+
+							// Take one step further.
+							const LatticeVector firstFluidSiteLocation = outerWallSiteLocation + cp * 3;
 							proc_t firstFluidSiteHomeProc = latDat->GetProcIdFromGlobalCoords(firstFluidSiteLocation);
 
 							const LatticeVector secondFluidSiteLocation = firstFluidSiteLocation + cp;
