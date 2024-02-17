@@ -50,7 +50,6 @@ namespace hemelb
 				if (siteCount != 0)
 				{
 					densityAvg = densityAvg / siteCount;
-					printf("densityAvg %.15lf, siteCount %ld\n", densityAvg, siteCount);
 				}
 
 				densitySum = 0.0;
@@ -331,7 +330,6 @@ namespace hemelb
 				else
 				{
 					weights_sum = 0.5 * area;
-					printf("weights_sum %.15lf\n", weights_sum);
 				}
 
 				struct stat infile;
