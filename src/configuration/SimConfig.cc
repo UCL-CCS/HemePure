@@ -908,7 +908,6 @@ namespace hemelb
 
 			velocityFilePath = util::NormalizePathRelativeToPath(velocityFilePath, xmlFilePath);
 			newIolet->SetFilePath(velocityFilePath);
-			std::cout << "path is here:" << velocityFilePath << std::endl;
 
 			const io::xml::Element radiusEl = conditionEl.GetChildOrThrow("radius");
 			newIolet->SetRadius(GetDimensionalValueInLatticeUnits<LatticeDistance>(radiusEl, "m"));
