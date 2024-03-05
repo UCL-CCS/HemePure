@@ -923,6 +923,10 @@ namespace hemelb
 
 			const io::xml::Element conditionEl = ioletEl.GetChildOrThrow("condition");
 
+			std::string weightsFilePath = conditionEl.GetChildOrNull("weightsFilePath").GetAttributeOrThrow("value");
+			weightsFilePath = util::NormalizePathRelativeToPath(weightsFilePath, xmlFilePath);
+			newIolet->SetWeightsFilePath(weightsFilePath);
+
 			const io::xml::Element radiusEl = conditionEl.GetChildOrThrow("radius");
 			newIolet->SetRadius(GetDimensionalValueInLatticeUnits<LatticeDistance>(radiusEl, "m"));
 

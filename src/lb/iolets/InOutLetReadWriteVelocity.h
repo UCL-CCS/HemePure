@@ -29,6 +29,11 @@ namespace hemelb
 
           void DoComms(const BoundaryCommunicator& boundaryComm, const LatticeTimeStep timeStep);
 
+          void SetWeightsFilePath(const std::string& path)
+          {
+            weightsFilePath = path;
+          }
+
           void SetArea(const distribn_t& a)
           {
             area = a;
@@ -107,7 +112,7 @@ namespace hemelb
 
         private:
           std::string flowRateFilePath, pressureFilePath;
-          std::string velocityWeightsFilePath;
+          std::string weightsFilePath;
           std::map<std::vector<int>, double> weights_table;
           const util::UnitConverter* units;
           distribn_t area, densitySum, densityAvg;

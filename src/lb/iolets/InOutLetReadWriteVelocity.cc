@@ -295,7 +295,7 @@ namespace hemelb
 
 				if (useWeightsFromFile) {
 					// If the new velocity approximation is enabled, then we want to create a lookup table here.
-					const std::string in_name = velocityWeightsFilePath + ".weights.txt";
+					const std::string in_name = weightsFilePath;
 					util::check_file(in_name.c_str());
 
 					// load and read file
@@ -325,6 +325,7 @@ namespace hemelb
 								z,
 								weights_table[xyz]);
 					}
+					weights_sum = units->ConvertAreaToPhysicalUnits(weights_sum);
 					myfile.close();
 				}
 				else
