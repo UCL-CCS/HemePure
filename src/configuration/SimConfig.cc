@@ -923,13 +923,11 @@ namespace hemelb
 
 			const io::xml::Element conditionEl = ioletEl.GetChildOrThrow("condition");
 
-			const std::string hemeVelWeightsFile = QUOTE_CONTENTS(HEMELB_USE_VELOCITY_WEIGHTS_FILE);
-			if (hemeVelWeightsFile == "ON")
-			{
-				std::string weightsFilePath = conditionEl.GetChildOrThrow("weightsFilePath").GetAttributeOrThrow("value");
-				weightsFilePath = util::NormalizePathRelativeToPath(weightsFilePath, xmlFilePath);
-				newIolet->SetWeightsFilePath(weightsFilePath);
-			}
+#ifdef HEMELB_USE_VELOCITY_WEIGHTS_FILE
+			std::string weightsFilePath = conditionEl.GetChildOrThrow("weightsFilePath").GetAttributeOrThrow("value");
+			weightsFilePath = util::NormalizePathRelativeToPath(weightsFilePath, xmlFilePath);
+			newIolet->SetWeightsFilePath(weightsFilePath);
+#endif
 
 			const io::xml::Element radiusEl = conditionEl.GetChildOrThrow("radius");
 			newIolet->SetRadius(GetDimensionalValueInLatticeUnits<LatticeDistance>(radiusEl, "m"));
