@@ -89,6 +89,11 @@ namespace hemelb
             return flowRate / weights_sum;
           }
 
+          void SetSmoothingFactor(const double& factor)
+          {
+            smoothingFactor = factor;
+          }
+
           void SetWarmup(const LatticeTimeStep& warmup)
           {
             warmUpLength = warmup;
@@ -119,7 +124,7 @@ namespace hemelb
           site_t siteCount;
           PhysicalTime startTime;
           LatticeTimeStep warmUpLength, couplingTimeStep, couplingFrequency;
-          double weights_sum, flowRateConversionFactor, pressureConversionFactor;
+          double weights_sum, flowRateConversionFactor, pressureConversionFactor, smoothingFactor;
           LatticeSpeed maxVelocity, maxVelocityNew;
       };
 

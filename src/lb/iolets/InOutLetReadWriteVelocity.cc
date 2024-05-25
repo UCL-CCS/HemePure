@@ -24,7 +24,7 @@ namespace hemelb
 		{
 			InOutLetReadWriteVelocity::InOutLetReadWriteVelocity() :
 				InOutLetVelocity(), units(NULL), area(1), weights_sum(0), warmUpLength(0),
-				maxVelocity(1), maxVelocityNew(1), couplingTimeStep(2)
+				maxVelocity(1), maxVelocityNew(1), couplingTimeStep(2), smoothingFactor(1)
 			{
 			}
 
@@ -88,6 +88,8 @@ namespace hemelb
 								updated = true;
 								printf("timeStep %lu, timeRead %e, valueRead %e, maxV_phy %.15lf, maxV %.15lf\n", timeStep, timeRead, valueRead, ConvertFlowRateToVelocity(valueRead * flowRateConversionFactor), maxVelocityNew);
 							}
+							// Enhance stability by applying a low-pass filter, which basically implements an exponential moving average.
+							maxVelocityNew = smoothingFactor * maxVelocityNew + (1.0 - smoothingFactor) * maxVelocity;
 						}
 						else
 						{

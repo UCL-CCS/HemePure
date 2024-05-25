@@ -955,6 +955,9 @@ namespace hemelb
 			const io::xml::Element pressConvFactorEl = conditionEl.GetChildOrThrow("pressureConversionFactor");
 			newIolet->SetPressureConversionFactor(GetDimensionalValueInLatticeUnits<Dimensionless>(pressConvFactorEl, "dimensionless"));
 
+			const io::xml::Element smoothingFactorEl = conditionEl.GetChildOrThrow("smoothingFactor");
+			newIolet->SetSmoothingFactor(GetDimensionalValueInLatticeUnits<Dimensionless>(smoothingFactorEl, "dimensionless"));
+
 			if (warmUpSteps != 0)
 			{
 				newIolet->SetWarmup(warmUpSteps);
