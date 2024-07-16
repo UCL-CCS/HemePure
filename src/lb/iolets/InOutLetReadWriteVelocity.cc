@@ -84,12 +84,13 @@ namespace hemelb
 							if (std::abs(timeRead - couplingTime) < 0.5 * units->GetTimeStepLength())
 							{
 								//std::remove(flowRateFilePath.c_str());
-								maxVelocityNew = units->ConvertVelocityToLatticeUnits(ConvertFlowRateToVelocity(valueRead * flowRateConversionFactor));
+								LatticeSpeed maxVelocityRead;
+								maxVelocityRead = units->ConvertVelocityToLatticeUnits(ConvertFlowRateToVelocity(valueRead * flowRateConversionFactor));
+								maxVelocityNew = smoothingFactor * maxVelocityRead + (1.0 - smoothingFactor) * maxVelocity;
+								printf("timeStep %lu, timeRead %e, valueRead %e, maxV_phy %.15lf, maxV_lu %.15lf, maxV_new %.15lf\n",
+									timeStep, timeRead, valueRead, ConvertFlowRateToVelocity(valueRead * flowRateConversionFactor), maxVelocityRead, maxVelocityNew);
 								updated = true;
-								printf("timeStep %lu, timeRead %e, valueRead %e, maxV_phy %.15lf, maxV %.15lf\n", timeStep, timeRead, valueRead, ConvertFlowRateToVelocity(valueRead * flowRateConversionFactor), maxVelocityNew);
 							}
-							// Enhance stability by applying a low-pass filter, which basically implements an exponential moving average.
-							maxVelocityNew = smoothingFactor * maxVelocityNew + (1.0 - smoothingFactor) * maxVelocity;
 						}
 						else
 						{
