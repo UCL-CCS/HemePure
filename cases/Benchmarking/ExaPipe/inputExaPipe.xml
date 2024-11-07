@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<hemelbsettings version="3">
+  <simulation>
+    <step_length units="s" value="0.03662109375"/>
+    <steps units="lattice" value="5000"/>
+    <stresstype value="1"/>
+    <voxel_size units="m" value="0.0009375"/>
+    <origin units="m" value="(0.0,0.0,0.0)"/>
+  </simulation>
+ <geometry>
+    <datafile path="pipeREF4.gmy"/>
+  </geometry>
+  <initialconditions>
+    <pressure>
+      <uniform units="mmHg" value="0.0"/>
+    </pressure>
+  </initialconditions>
+  <monitoring>
+    <incompressibility/>
+  </monitoring>
+
+  <inlets>
+    <inlet>
+      <!-- index value=0-->
+      <condition subtype="cosine" type="pressure">
+        <amplitude units="mmHg" value="0.0"/>
+        <mean units="mmHg" value="0.0"/>
+        <phase units="rad" value="0.0"/>
+        <period units="s" value="1"/>
+      </condition>
+      <normal units="dimensionless" value="(5.1472e-13,-5.56136e-12,-1)"/>
+      <position units="lattice" value="(1119.5,1119.5,10710.5)"/>
+    </inlet>
+  </inlets>
+  <outlets>
+    <outlet>
+      <!-- index value=0 -->
+      <condition subtype="cosine" type="pressure">
+        <amplitude units="mmHg" value="0.0"/>
+        <mean units="mmHg" value="0.0"/>
+        <phase units="rad" value="0.0"/>
+        <period units="s" value="1"/>
+      </condition>
+      <normal units="dimensionless" value="(-5.26802e-13,-6.99833e-13,1)"/>
+      <position units="lattice" value="(1119.5,1119.5,40.5)"/>
+    </outlet>
+  </outlets>
+<!--
+  <properties>
+   <propertyoutput file="inlet.dat" period="100">
+     <geometry type="inlet" />
+     <field type="velocity" />
+     <field type="pressure" />
+   </propertyoutput>
+   <propertyoutput file="outlet.dat" period="100">
+     <geometry type="outlet" />
+     <field type="velocity" />
+     <field type="pressure" />
+   </propertyoutput>
+   <propertyoutput file="whole.dat" period="100">
+     <geometry type="whole" />
+     <field type="velocity" />
+     <field type="pressure" />
+   </propertyoutput>
+  </properties>-->
+</hemelbsettings>

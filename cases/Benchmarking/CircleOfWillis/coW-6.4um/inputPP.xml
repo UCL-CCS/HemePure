@@ -1,0 +1,115 @@
+<?xml version="1.0"?>
+<hemelbsettings version="3">
+  <simulation>
+    <step_length units="s" value="1.0e-7"/>
+    <steps units="lattice" value="5000"/>
+    <stresstype value="1"/>
+    <voxel_size units="m" value="6.398009091e-6"/>
+    <origin units="m" value="(0.0,0.0,0.0)"/>
+  </simulation>
+  <geometry>
+    <datafile path="coW-6.4um.gmy"/>
+  </geometry>
+  <initialconditions>
+    <pressure>
+      <uniform units="mmHg" value="0.0"/>
+    </pressure>
+  </initialconditions>
+  <monitoring>
+    <incompressibility/>
+  </monitoring>
+  <inlets>
+    <inlet>
+      <condition subtype="cosine" type="pressure">
+        <amplitude units="mmHg" value="0.0"/>
+        <mean units="mmHg" value="0.0001"/>
+        <phase units="rad" value="0.0"/>
+        <period units="s" value="1"/>
+      </condition>
+      <normal units="dimensionless" value="(-0.0288424,0.0786582,0.996484)"/>
+      <position units="lattice" value="(3009.29,4260.01,97.7728)"/>
+    </inlet>
+    <inlet>
+      <condition subtype="cosine" type="pressure">
+        <amplitude units="mmHg" value="0.0"/>
+        <mean units="mmHg" value="0.0001"/>
+        <phase units="rad" value="0.0"/>
+        <period units="s" value="1"/>
+      </condition>
+      <normal units="dimensionless" value="(-0.0276113,0.077543,0.996607)"/>
+      <position units="lattice" value="(4274.83,2647.71,261.579)"/>
+    </inlet>
+    <inlet>
+      <condition subtype="cosine" type="pressure">
+        <amplitude units="mmHg" value="0.0"/>
+        <mean units="mmHg" value="0.0001"/>
+        <phase units="rad" value="0.0"/>
+        <period units="s" value="1"/>
+      </condition>
+      <normal units="dimensionless" value="(-0.0274606,0.077788,0.996592)"/>
+      <position units="lattice" value="(6623.21,4095.38,214.258)"/>
+    </inlet>
+  </inlets>
+  <outlets>
+    <outlet>
+      <condition subtype="cosine" type="pressure">
+        <amplitude units="mmHg" value="0.0"/>
+        <mean units="mmHg" value="0.0"/>
+        <phase units="rad" value="0.0"/>
+        <period units="s" value="1"/>
+      </condition>
+      <normal units="dimensionless" value="(0.234026,-0.821725,0.519615)"/>
+      <position units="lattice" value="(214.495,6291.13,1333.95)"/>
+    </outlet>
+    <outlet>
+      <condition subtype="cosine" type="pressure">
+        <amplitude units="mmHg" value="0.0"/>
+        <mean units="mmHg" value="0.0"/>
+        <phase units="rad" value="0.0"/>
+        <period units="s" value="1"/>
+      </condition>
+      <normal units="dimensionless" value="(0.632192,0.307369,-0.711236)"/>
+      <position units="lattice" value="(1259.11,1349.24,2435.56)"/>
+    </outlet>
+    <outlet>
+      <condition subtype="cosine" type="pressure">
+        <amplitude units="mmHg" value="0.0"/>
+        <mean units="mmHg" value="0.0"/>
+        <phase units="rad" value="0.0"/>
+        <period units="s" value="1"/>
+      </condition>
+      <normal units="dimensionless" value="(-0.0189407,-0.99585,-0.0890175)"/>
+      <position units="lattice" value="(4391.52,8679.6,5575.78)"/>
+    </outlet>
+    <outlet>
+      <condition subtype="cosine" type="pressure">
+        <amplitude units="mmHg" value="0.0"/>
+        <mean units="mmHg" value="0.0"/>
+        <phase units="rad" value="0.0"/>
+        <period units="s" value="1"/>
+      </condition>
+      <normal units="dimensionless" value="(-0.0178746,-0.996022,-0.0872927)"/>
+      <position units="lattice" value="(4753.24,8641.75,5925.48)"/>
+    </outlet>
+    <outlet>
+      <condition subtype="cosine" type="pressure">
+        <amplitude units="mmHg" value="0.0"/>
+        <mean units="mmHg" value="0.0"/>
+        <phase units="rad" value="0.0"/>
+        <period units="s" value="1"/>
+      </condition>
+      <normal units="dimensionless" value="(-0.301512,0.786155,-0.539491)"/>
+      <position units="lattice" value="(7882.7,105.115,2034.76)"/>
+    </outlet>
+    <outlet>
+      <condition subtype="cosine" type="pressure">
+        <amplitude units="mmHg" value="0.0"/>
+        <mean units="mmHg" value="0.0"/>
+        <phase units="rad" value="0.0"/>
+        <period units="s" value="1"/>
+      </condition>
+      <normal units="dimensionless" value="(-0.966471,-0.0644775,-0.248549)"/>
+      <position units="lattice" value="(10951.1,6218.83,2084.74)"/>
+    </outlet>
+  </outlets>
+</hemelbsettings>
