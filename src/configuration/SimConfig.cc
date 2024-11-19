@@ -696,7 +696,7 @@ namespace hemelb
 
 			// Required element for LBGKSpongeLayer
 			const std::string hemeKernel = QUOTE_CONTENTS(HEMELB_KERNEL);
-			if (hemeKernel == "LBGKSL")
+			if (hemeKernel == "LBGKSL" || hemeKernel == "LBGKLESSL")
 			{
 				auto spongeEl = initialconditionsEl.GetChildOrThrow("sponge_layer");
 
