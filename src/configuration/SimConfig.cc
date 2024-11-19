@@ -162,7 +162,7 @@ namespace hemelb
 
 			// Required element for some kernels
 			const std::string hemeKernel = QUOTE_CONTENTS(HEMELB_KERNEL);
-			if (hemeKernel == "TRT" || hemeKernel == "MRT")
+			if (hemeKernel == "TRT" || hemeKernel == "MRT" || hemeKernel == "TRTSL")
 			{
 				// <relaxation_parameter value="unsigned" units="lattice" />
 				const io::xml::Element rpEl = simEl.GetChildOrThrow("relaxation_parameter");
@@ -696,7 +696,7 @@ namespace hemelb
 
 			// Required element for LBGKSpongeLayer
 			const std::string hemeKernel = QUOTE_CONTENTS(HEMELB_KERNEL);
-			if (hemeKernel == "LBGKSL" || hemeKernel == "LBGKLESSL")
+			if (hemeKernel == "LBGKSL" || hemeKernel == "LBGKLESSL" || hemeKernel == "TRTSL")
 			{
 				auto spongeEl = initialconditionsEl.GetChildOrThrow("sponge_layer");
 

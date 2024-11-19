@@ -16,5 +16,6 @@
 #include "lb/kernels/LBGKLESSpongeLayer.h"
 #include "lb/kernels/MRT.h"
 #include "lb/kernels/TRT.h"
+#include "lb/kernels/TRTSpongeLayer.h"
 
 #endif /* HEMELB_LB_KERNELS_KERNELS_H */

@@ -108,6 +108,13 @@ namespace hemelb
         typedef kernels::TRT<Lattice> Type;
     };
 
+    template<class Lattice>
+    class TRTSL
+    {
+      public:
+        typedef kernels::TRTSpongeLayer<Lattice> Type;
+    };
+
     /**
      * Non-Newtonian kernel with Carreau-Yasuda rheology model.
      */
