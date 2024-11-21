@@ -923,6 +923,12 @@ namespace hemelb
 
 			const io::xml::Element conditionEl = ioletEl.GetChildOrThrow("condition");
 
+#ifdef HEMELB_USE_VELOCITY_WEIGHTS_FILE
+			std::string weightsFilePath = conditionEl.GetChildOrThrow("weightsFilePath").GetAttributeOrThrow("value");
+			weightsFilePath = util::NormalizePathRelativeToPath(weightsFilePath, xmlFilePath);
+			newIolet->SetWeightsFilePath(weightsFilePath);
+#endif
+
 			const io::xml::Element radiusEl = conditionEl.GetChildOrThrow("radius");
 			newIolet->SetRadius(GetDimensionalValueInLatticeUnits<LatticeDistance>(radiusEl, "m"));
 
@@ -948,6 +954,9 @@ namespace hemelb
 
 			const io::xml::Element pressConvFactorEl = conditionEl.GetChildOrThrow("pressureConversionFactor");
 			newIolet->SetPressureConversionFactor(GetDimensionalValueInLatticeUnits<Dimensionless>(pressConvFactorEl, "dimensionless"));
+
+			const io::xml::Element smoothingFactorEl = conditionEl.GetChildOrThrow("smoothingFactor");
+			newIolet->SetSmoothingFactor(GetDimensionalValueInLatticeUnits<Dimensionless>(smoothingFactorEl, "dimensionless"));
 
 			if (warmUpSteps != 0)
 			{

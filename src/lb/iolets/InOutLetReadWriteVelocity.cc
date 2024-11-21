@@ -24,7 +24,7 @@ namespace hemelb
 		{
 			InOutLetReadWriteVelocity::InOutLetReadWriteVelocity() :
 				InOutLetVelocity(), units(NULL), area(1), weights_sum(0), warmUpLength(0),
-				maxVelocity(1), maxVelocityNew(1), couplingTimeStep(2)
+				maxVelocity(1), maxVelocityNew(1), couplingTimeStep(2), smoothingFactor(1)
 			{
 			}
 
@@ -84,9 +84,12 @@ namespace hemelb
 							if (std::abs(timeRead - couplingTime) < 0.5 * units->GetTimeStepLength())
 							{
 								//std::remove(flowRateFilePath.c_str());
-								maxVelocityNew = units->ConvertVelocityToLatticeUnits(ConvertFlowRateToVelocity(valueRead * flowRateConversionFactor));
+								LatticeSpeed maxVelocityRead;
+								maxVelocityRead = units->ConvertVelocityToLatticeUnits(ConvertFlowRateToVelocity(valueRead * flowRateConversionFactor));
+								maxVelocityNew = smoothingFactor * maxVelocityRead + (1.0 - smoothingFactor) * maxVelocity;
+								printf("timeStep %lu, timeRead %e, valueRead %e, maxV_phy %.15lf, maxV_lu %.15lf, maxV_new %.15lf\n",
+									timeStep, timeRead, valueRead, ConvertFlowRateToVelocity(valueRead * flowRateConversionFactor), maxVelocityRead, maxVelocityNew);
 								updated = true;
-								printf("timeStep %lu, timeRead %e, valueRead %e, maxV_phy %.15lf, maxV %.15lf\n", timeStep, timeRead, valueRead, ConvertFlowRateToVelocity(valueRead * flowRateConversionFactor), maxVelocityNew);
 							}
 						}
 						else
@@ -295,7 +298,7 @@ namespace hemelb
 
 				if (useWeightsFromFile) {
 					// If the new velocity approximation is enabled, then we want to create a lookup table here.
-					const std::string in_name = velocityWeightsFilePath + ".weights.txt";
+					const std::string in_name = weightsFilePath;
 					util::check_file(in_name.c_str());
 
 					// load and read file
@@ -325,6 +328,7 @@ namespace hemelb
 								z,
 								weights_table[xyz]);
 					}
+					weights_sum = units->ConvertAreaToPhysicalUnits(weights_sum);
 					myfile.close();
 				}
 				else
