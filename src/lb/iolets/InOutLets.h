@@ -16,6 +16,7 @@
 #include "lb/iolets/InOutLetFileVelocity.h"
 #include "lb/iolets/InOutLetReadWriteVelocity.h"
 #include "lb/iolets/InOutLetWK.h"
+#include "lb/iolets/InOutLetWK3.h"
 #include "lb/iolets/InOutLetFileWK.h"
 
 #endif /* HEMELB_LB_IOLETS_INOUTLETS_H */

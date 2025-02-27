@@ -17,6 +17,7 @@ add_library(hemelb_lb
 	iolets/InOutLetFileVelocity.cc
 	iolets/InOutLetReadWriteVelocity.cc
 	iolets/InOutLetWK.cc
+	iolets/InOutLetWK3.cc
 	iolets/InOutLetFileWK.cc
 	IncompressibilityChecker.cc
 	kernels/momentBasis/DHumieresD3Q15MRTBasis.cc

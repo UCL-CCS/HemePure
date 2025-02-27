@@ -317,6 +317,10 @@ namespace hemelb
 			{
 				newIolet = DoIOForWKPressureInOutlet(ioletEl);
 			}
+			else if (conditionSubtype == "WK3")
+			{
+				newIolet = DoIOForWK3PressureInOutlet(ioletEl);
+			}
 			else if (conditionSubtype == "fileWK")
 			{
 				newIolet = DoIOForFileWKPressureInOutlet(ioletEl);
@@ -348,6 +352,10 @@ namespace hemelb
 			else if (conditionSubtype == "WK")
 			{
 				newIolet = DoIOForWKPressureInOutlet(ioletEl);
+			}
+			else if (conditionSubtype == "WK3")
+			{
+				newIolet = DoIOForWK3PressureInOutlet(ioletEl);
 			}
 			else if (conditionSubtype == "fileWK")
 			{
@@ -774,6 +782,36 @@ namespace hemelb
 		      distribn_t tempC;
 		      GetDimensionalValue(conditionEl.GetChildOrThrow("C"), "m^4*s^2/kg", tempC);
 		      newIolet->SetCapacitance(unitConverter->ConvertCapacitanceToLatticeUnits(tempC));
+
+		      const io::xml::Element radiusEl = conditionEl.GetChildOrThrow("radius");
+		      newIolet->SetRadius(GetDimensionalValueInLatticeUnits<LatticeDistance>(radiusEl, "m"));
+
+			  distribn_t tempArea;
+		      GetDimensionalValue(conditionEl.GetChildOrThrow("area"), "m^2", tempArea);
+		      newIolet->SetArea(unitConverter->ConvertAreaToLatticeUnits(tempArea));
+
+		      return newIolet;
+		}
+
+		lb::iolets::InOutLetWK3* SimConfig::DoIOForWK3PressureInOutlet(
+			const io::xml::Element& ioletEl)
+		{
+		      lb::iolets::InOutLetWK3* newIolet = new lb::iolets::InOutLetWK3();
+		      DoIOForBaseInOutlet(ioletEl, newIolet);
+
+		      const io::xml::Element conditionEl = ioletEl.GetChildOrThrow("condition");
+
+			  distribn_t tempRc;
+		      GetDimensionalValue(conditionEl.GetChildOrThrow("Rc"), "kg/m^4*s", tempRc);
+		      newIolet->SetCharacteristicResistance(unitConverter->ConvertResistanceToLatticeUnits(tempRc));
+
+		      distribn_t tempRp;
+		      GetDimensionalValue(conditionEl.GetChildOrThrow("Rp"), "kg/m^4*s", tempRp);
+		      newIolet->SetPeripheralResistance(unitConverter->ConvertResistanceToLatticeUnits(tempRp));
+
+		      distribn_t tempCp;
+		      GetDimensionalValue(conditionEl.GetChildOrThrow("Cp"), "m^4*s^2/kg", tempCp);
+		      newIolet->SetCapacitance(unitConverter->ConvertCapacitanceToLatticeUnits(tempCp));
 
 		      const io::xml::Element radiusEl = conditionEl.GetChildOrThrow("radius");
 		      newIolet->SetRadius(GetDimensionalValueInLatticeUnits<LatticeDistance>(radiusEl, "m"));
