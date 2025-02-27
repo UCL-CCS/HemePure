@@ -16,7 +16,7 @@ add_library(hemelb_lb
 	iolets/InOutLetWomersleyElasticVelocity.cc
 	iolets/InOutLetFileVelocity.cc
 	iolets/InOutLetReadWriteVelocity.cc
-	iolets/InOutLetWK.cc
+	iolets/InOutLetWK2.cc
 	iolets/InOutLetWK3.cc
 	iolets/InOutLetFileWK.cc
 	IncompressibilityChecker.cc

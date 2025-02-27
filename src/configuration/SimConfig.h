@@ -254,7 +254,7 @@ namespace hemelb
         lb::iolets::InOutLet* DoIOForYangPressureInOutlet(const io::xml::Element& ioletEl);
         lb::iolets::InOutLetCosine* DoIOForCosinePressureInOutlet(const io::xml::Element& ioletEl);
         lb::iolets::InOutLetFile* DoIOForFilePressureInOutlet(const io::xml::Element& ioletEl);
-        lb::iolets::InOutLetWK* DoIOForWKPressureInOutlet(const io::xml::Element& ioletEl);
+        lb::iolets::InOutLetWK2* DoIOForWK2PressureInOutlet(const io::xml::Element& ioletEl);
         lb::iolets::InOutLetWK3* DoIOForWK3PressureInOutlet(const io::xml::Element& ioletEl);
         lb::iolets::InOutLetFileWK* DoIOForFileWKPressureInOutlet(const io::xml::Element& ioletEl);
 

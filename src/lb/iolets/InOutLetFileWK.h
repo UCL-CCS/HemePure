@@ -6,7 +6,7 @@
 
 #ifndef HEMELB_LB_IOLETS_INOUTLETFILEWK_H
 #define HEMELB_LB_IOLETS_INOUTLETFILEWK_H
-#include "lb/iolets/InOutLetWK.h"
+#include "lb/iolets/InOutLetWK2.h"
 
 namespace hemelb
 {
@@ -14,7 +14,7 @@ namespace hemelb
   {
     namespace iolets
     {
-      class InOutLetFileWK : public InOutLetWK
+      class InOutLetFileWK : public InOutLetWK2
       {
         public:
           InOutLetFileWK();

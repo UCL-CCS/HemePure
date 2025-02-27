@@ -3,7 +3,7 @@
 // the HemeLB team and/or their institutions, as detailed in the
 // file AUTHORS. This software is provided under the terms of the
 // license in the file LICENSE.
-#include "lb/iolets/InOutLetWK.h"
+#include "lb/iolets/InOutLetWK2.h"
 #include "lb/iolets/BoundaryComms.h"
 #include "configuration/SimConfig.h"
 
@@ -13,24 +13,24 @@ namespace hemelb
   {
     namespace iolets
     {
-      InOutLetWK::InOutLetWK() :
+      InOutLetWK2::InOutLetWK2() :
           InOutLet(), radius(1.0), area(1.0), resistance(1.0), capacitance(1.0),
           density(1.0), densityNew(1.0), flowRate(0.0), flowRateNew(0.0),
           siteCount(0)
       {
       }
 
-      InOutLet* InOutLetWK::Clone() const
+      InOutLet* InOutLetWK2::Clone() const
       {
-        InOutLet* copy = new InOutLetWK(*this);
+        InOutLet* copy = new InOutLetWK2(*this);
         return copy;
       }
 
-      InOutLetWK::~InOutLetWK()
+      InOutLetWK2::~InOutLetWK2()
       {
       }
 
-      void InOutLetWK::DoComms(const BoundaryCommunicator& boundaryComm, const LatticeTimeStep timeStep)
+      void InOutLetWK2::DoComms(const BoundaryCommunicator& boundaryComm, const LatticeTimeStep timeStep)
       {
         /**
          * Here the send and receive requests are placed. The message is received at or before the wait
@@ -51,14 +51,14 @@ namespace hemelb
         siteCount = 0;
       }
 
-      LatticeDistance InOutLetWK::GetDistanceSquared(const LatticePosition& x) const
+      LatticeDistance InOutLetWK2::GetDistanceSquared(const LatticePosition& x) const
       {
         LatticePosition displ = x - position;
         LatticeDistance z = displ.Dot(normal);
         return displ.GetMagnitudeSquared() - z * z;
       }
 
-      distribn_t InOutLetWK::GetScaleFactor(const LatticePosition& x) const
+      distribn_t InOutLetWK2::GetScaleFactor(const LatticePosition& x) const
       {
         // Q = vLocal (0.5pi a**2)(a**2/(a**2 - r**2)
         // where r is the distance from the centreline
@@ -67,7 +67,7 @@ namespace hemelb
         return 0.5 * PI * radius * radius * rFactor;
       }
 
-      void InOutLetWK::DoPreStreamCoupling(const site_t& siteID,
+      void InOutLetWK2::DoPreStreamCoupling(const site_t& siteID,
                                            const LatticeTimeStep& timeStep,
                                            const LatticeVector& sitePos,
                                            const LatticeDensity& density,
@@ -90,7 +90,7 @@ namespace hemelb
         siteCount ++;
       }
 
-      void InOutLetWK::DoPostStreamCoupling(const site_t& siteID,
+      void InOutLetWK2::DoPostStreamCoupling(const site_t& siteID,
                                             const LatticeTimeStep& timeStep,
                                             const LatticeVector& sitePos)
       {

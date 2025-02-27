@@ -313,9 +313,9 @@ namespace hemelb
 			{
 				newIolet = DoIOForFilePressureInOutlet(ioletEl);
 			}
-			else if (conditionSubtype == "WK")
+			else if (conditionSubtype == "WK2")
 			{
-				newIolet = DoIOForWKPressureInOutlet(ioletEl);
+				newIolet = DoIOForWK2PressureInOutlet(ioletEl);
 			}
 			else if (conditionSubtype == "WK3")
 			{
@@ -349,9 +349,9 @@ namespace hemelb
 			{
 				newIolet = DoIOForFilePressureInOutlet(ioletEl);
 			}
-			else if (conditionSubtype == "WK")
+			else if (conditionSubtype == "WK2")
 			{
-				newIolet = DoIOForWKPressureInOutlet(ioletEl);
+				newIolet = DoIOForWK2PressureInOutlet(ioletEl);
 			}
 			else if (conditionSubtype == "WK3")
 			{
@@ -767,10 +767,10 @@ namespace hemelb
 			return newIolet;
 		}
 
-		lb::iolets::InOutLetWK* SimConfig::DoIOForWKPressureInOutlet(
+		lb::iolets::InOutLetWK2* SimConfig::DoIOForWK2PressureInOutlet(
 			const io::xml::Element& ioletEl)
 		{
-		      lb::iolets::InOutLetWK* newIolet = new lb::iolets::InOutLetWK();
+		      lb::iolets::InOutLetWK2* newIolet = new lb::iolets::InOutLetWK2();
 		      DoIOForBaseInOutlet(ioletEl, newIolet);
 
 		      const io::xml::Element conditionEl = ioletEl.GetChildOrThrow("condition");
