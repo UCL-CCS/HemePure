@@ -4,8 +4,8 @@
 // file AUTHORS. This software is provided under the terms of the
 // license in the file LICENSE.
 
-#ifndef HEMELB_LB_IOLETS_INOUTLETWK_H
-#define HEMELB_LB_IOLETS_INOUTLETWK_H
+#ifndef HEMELB_LB_IOLETS_INOUTLETWK2_H
+#define HEMELB_LB_IOLETS_INOUTLETWK2_H
 #include "lb/iolets/InOutLet.h"
 
 namespace hemelb
@@ -14,11 +14,11 @@ namespace hemelb
   {
     namespace iolets
     {
-      class InOutLetWK : public InOutLet
+      class InOutLetWK2 : public InOutLet
       {
         public:
-          InOutLetWK();
-          virtual ~InOutLetWK();
+          InOutLetWK2();
+          virtual ~InOutLetWK2();
           virtual InOutLet* Clone() const;
 
           bool IsCommsRequired() const
@@ -132,4 +132,4 @@ namespace hemelb
     }
   }
 }
-#endif // HEMELB_LB_IOLETS_INOUTLETWK_H
+#endif // HEMELB_LB_IOLETS_INOUTLETWK2_H

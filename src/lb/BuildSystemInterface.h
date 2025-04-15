@@ -49,6 +49,17 @@ namespace hemelb
     };
 
     /**
+
+     * LBGK with LES and viscous sponge layer
+     */
+    template<class Lattice>
+    class LBGKLESSL
+    {
+      public:
+        typedef kernels::LBGKLESSpongeLayer<Lattice> Type;
+    };
+
+    /**
      * The entropic implementation by Ansumali et al.
      */
     template<class Lattice>
@@ -95,6 +106,13 @@ namespace hemelb
     {
       public:
         typedef kernels::TRT<Lattice> Type;
+    };
+
+    template<class Lattice>
+    class TRTSL
+    {
+      public:
+        typedef kernels::TRTSpongeLayer<Lattice> Type;
     };
 
     /**

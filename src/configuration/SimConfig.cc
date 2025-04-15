@@ -162,7 +162,7 @@ namespace hemelb
 
 			// Required element for some kernels
 			const std::string hemeKernel = QUOTE_CONTENTS(HEMELB_KERNEL);
-			if (hemeKernel == "TRT" || hemeKernel == "MRT")
+			if (hemeKernel == "TRT" || hemeKernel == "MRT" || hemeKernel == "TRTSL")
 			{
 				// <relaxation_parameter value="unsigned" units="lattice" />
 				const io::xml::Element rpEl = simEl.GetChildOrThrow("relaxation_parameter");
@@ -313,9 +313,13 @@ namespace hemelb
 			{
 				newIolet = DoIOForFilePressureInOutlet(ioletEl);
 			}
-			else if (conditionSubtype == "WK")
+			else if (conditionSubtype == "WK2")
 			{
-				newIolet = DoIOForWKPressureInOutlet(ioletEl);
+				newIolet = DoIOForWK2PressureInOutlet(ioletEl);
+			}
+			else if (conditionSubtype == "WK3")
+			{
+				newIolet = DoIOForWK3PressureInOutlet(ioletEl);
 			}
 			else if (conditionSubtype == "fileWK")
 			{
@@ -345,9 +349,13 @@ namespace hemelb
 			{
 				newIolet = DoIOForFilePressureInOutlet(ioletEl);
 			}
-			else if (conditionSubtype == "WK")
+			else if (conditionSubtype == "WK2")
 			{
-				newIolet = DoIOForWKPressureInOutlet(ioletEl);
+				newIolet = DoIOForWK2PressureInOutlet(ioletEl);
+			}
+			else if (conditionSubtype == "WK3")
+			{
+				newIolet = DoIOForWK3PressureInOutlet(ioletEl);
 			}
 			else if (conditionSubtype == "fileWK")
 			{
@@ -696,7 +704,7 @@ namespace hemelb
 
 			// Required element for LBGKSpongeLayer
 			const std::string hemeKernel = QUOTE_CONTENTS(HEMELB_KERNEL);
-			if (hemeKernel == "LBGKSL")
+			if (hemeKernel == "LBGKSL" || hemeKernel == "LBGKLESSL" || hemeKernel == "TRTSL")
 			{
 				auto spongeEl = initialconditionsEl.GetChildOrThrow("sponge_layer");
 
@@ -759,10 +767,10 @@ namespace hemelb
 			return newIolet;
 		}
 
-		lb::iolets::InOutLetWK* SimConfig::DoIOForWKPressureInOutlet(
+		lb::iolets::InOutLetWK2* SimConfig::DoIOForWK2PressureInOutlet(
 			const io::xml::Element& ioletEl)
 		{
-		      lb::iolets::InOutLetWK* newIolet = new lb::iolets::InOutLetWK();
+		      lb::iolets::InOutLetWK2* newIolet = new lb::iolets::InOutLetWK2();
 		      DoIOForBaseInOutlet(ioletEl, newIolet);
 
 		      const io::xml::Element conditionEl = ioletEl.GetChildOrThrow("condition");
@@ -774,6 +782,36 @@ namespace hemelb
 		      distribn_t tempC;
 		      GetDimensionalValue(conditionEl.GetChildOrThrow("C"), "m^4*s^2/kg", tempC);
 		      newIolet->SetCapacitance(unitConverter->ConvertCapacitanceToLatticeUnits(tempC));
+
+		      const io::xml::Element radiusEl = conditionEl.GetChildOrThrow("radius");
+		      newIolet->SetRadius(GetDimensionalValueInLatticeUnits<LatticeDistance>(radiusEl, "m"));
+
+			  distribn_t tempArea;
+		      GetDimensionalValue(conditionEl.GetChildOrThrow("area"), "m^2", tempArea);
+		      newIolet->SetArea(unitConverter->ConvertAreaToLatticeUnits(tempArea));
+
+		      return newIolet;
+		}
+
+		lb::iolets::InOutLetWK3* SimConfig::DoIOForWK3PressureInOutlet(
+			const io::xml::Element& ioletEl)
+		{
+		      lb::iolets::InOutLetWK3* newIolet = new lb::iolets::InOutLetWK3();
+		      DoIOForBaseInOutlet(ioletEl, newIolet);
+
+		      const io::xml::Element conditionEl = ioletEl.GetChildOrThrow("condition");
+
+			  distribn_t tempRc;
+		      GetDimensionalValue(conditionEl.GetChildOrThrow("Rc"), "kg/m^4*s", tempRc);
+		      newIolet->SetCharacteristicResistance(unitConverter->ConvertResistanceToLatticeUnits(tempRc));
+
+		      distribn_t tempRp;
+		      GetDimensionalValue(conditionEl.GetChildOrThrow("Rp"), "kg/m^4*s", tempRp);
+		      newIolet->SetPeripheralResistance(unitConverter->ConvertResistanceToLatticeUnits(tempRp));
+
+		      distribn_t tempCp;
+		      GetDimensionalValue(conditionEl.GetChildOrThrow("Cp"), "m^4*s^2/kg", tempCp);
+		      newIolet->SetCapacitance(unitConverter->ConvertCapacitanceToLatticeUnits(tempCp));
 
 		      const io::xml::Element radiusEl = conditionEl.GetChildOrThrow("radius");
 		      newIolet->SetRadius(GetDimensionalValueInLatticeUnits<LatticeDistance>(radiusEl, "m"));

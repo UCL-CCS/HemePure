@@ -54,8 +54,10 @@ namespace hemelb
 					template<class LatticeImpl> friend class LBGK;
 					template<class rheologyModel, class LatticeImpl> friend class LBGKNN;
 					template<class LatticeImpl> friend class LBGKSpongeLayer;
+					template<class LatticeImpl> friend class LBGKLESSpongeLayer;
 					template<class LatticeImpl> friend class MRT;
 					template<class LatticeImpl> friend class TRT;
+					template<class LatticeImpl> friend class TRTSpongeLayer;
 
 					protected:
 					HydroVarsBase(const distribn_t* const f) :

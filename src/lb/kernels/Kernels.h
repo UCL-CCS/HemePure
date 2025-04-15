@@ -13,7 +13,9 @@
 #include "lb/kernels/LBGKGuoForcing.h"
 #include "lb/kernels/LBGKNN.h"
 #include "lb/kernels/LBGKSpongeLayer.h"
+#include "lb/kernels/LBGKLESSpongeLayer.h"
 #include "lb/kernels/MRT.h"
 #include "lb/kernels/TRT.h"
+#include "lb/kernels/TRTSpongeLayer.h"
 
 #endif /* HEMELB_LB_KERNELS_KERNELS_H */
