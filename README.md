@@ -16,7 +16,9 @@ This version of the code was developed from the full HemeLB code in late 2018 an
 * McCullough, J. W. S., Richardson, R. A., Patronis, A., Halver, R., Marshall, R., Ruefenacht, M., Wylie, B. J. N., Odaker, T., Wiedemann, M., Lloyd, B., Neufeld, E., Sutmann, G., Skjellum, A., Kranzlmüller, D., & Coveney, P. V. (2020). Towards blood flow in the virtual human: efficient self-coupling of HemeLB. Journal of the Royal Society Interface Focus 11, 20190119.
 
 ## Compilation #
-Build dependencies before attempting to build HemePure. Once dependencies are built, they do not need to be recompiled for (re)compilation of the source code. The following steps can be followed to build the code mannually, the FullBuild.sh file collects these into a single location. This file may need to be modified to reflect the settings, defaults and software available on a given machine. 
+Build dependencies before attempting to build HemePure. Once dependencies are built, they do not need to be recompiled for (re)compilation of the source code. The following steps can be followed to build the dependency and source code mannually, the FullBuild.sh file collects these into a single location. This file may need to be modified to reflect the settings, defaults and software available on a given machine. This file can be modified to provide alternative functionality and boundary conditions.
+
+For benchmarking, it is recommended to use the SRCbuild_Benchmark function in FullBuild.sh to compile the source code. This enables pressure boundary conditions at inlets and outlets of the domain, and enables more reliable simulation performance and stability for evaluating performance on a given computer.
 
 ### DEPENDENCIES #
 1) Create `dep/build/`.
@@ -30,17 +32,25 @@ Build dependencies before attempting to build HemePure. Once dependencies are bu
 3) Configure using CMake.
 4) Run `make` in `src/build/`.
 
-## CASES #
-- Two simple examples are included:
-  - pressure-driven flow in a pipe.
-  - pressure-driven flow in a wye joint (provided at two resolutions).
-- Run with: `mpirun -np xx <HemePure binary> -in input.xml`.
-- Case should run with the default build options.
-- Ensure that you are running with enough MPI ranks to satisfy HEMELB_READING_GROUP_SIZE.
+## EXAMPLE CASES #
+The [cases](cases) folder provides some example input files for running jobs with HemePure. Some are simple simulations, some help illustrate the usage of particular features of the code.
+Execution should occur with: `mpirun -np xx <HemePure binary> -in input.xml -out results`, ensure that you are running with enough MPI ranks to satisfy HEMELB_READING_GROUP_SIZE + 1 (by default, at least 3 ranks). (`mpirun` may need to be replaced with an alternative call based on machine settings).
 
+Two simple examples are included:
+* [Pipe](case/pipe): pressure-driven flow in a pipe.
+* [Bifurcation](cases/bifurcation): pressure-driven flow in a Y-bifurcation (provided at two resolutions).
+
+Further examples provide extra input domains or illustrate extra functionality:
+* Data extraction
+* Checkpointing
+* Elastic walls
+* LES and sponge layer outlets
+* Windkessel outlets
+  
 ## DEVELOPMENT #
 A few parts of the code are under heavy development.
 
+<!--
 Although the current version of ALL has been fully incorporated, ALL itself is undergoing development. As a result, it is likely that the implementation in `src/geometry/decomposition/BasicDecomposition.cc` (in the function `BasicDecomposition::DecomposeBlock()`) will need to be modified. Once development is complete, ALL should be enabled through cmake. After rotation of the geometry (necessary for ALL decomposition), HemeLB and ALL interact through
 
 `points.push_back(p);`
@@ -56,6 +66,7 @@ where
 ```
 
 This is dependant on block weighting (included in `.gmy+` files). To use `BasicDecomposition::DecomposeBlock()`, uncomment the call in `GeometryReader.cc`. Note, geometry rotation is necessary so that layers of sites and partition boundary surfaces are not parallel. Rotation is performed in `BasicDecomposition::RotateAndAllocate`.
+-->
 
 The new shared memory implementation (found in `GeometryReader.cc`) only shares `principalProcForEachBlock`. Further savings can be achieved by sharing other common variables, e.g. `blockInformation`. Also note that only the `MPI_WIN_UNIFIED` memory model is supported (see https://www.mpi-forum.org/docs/mpi-3.1/mpi31-report/node278.htm#Node278). **If the machine in use does not support this, it will not be possible to use this implementation**. EPCC ARCHER seems to have issues with the current implementation. Further investigation is necessary.
 
