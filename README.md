@@ -27,7 +27,7 @@ Inlet/Outlet boundary conditions (compile time):
 * Pressure (Using method of Nash et al (DOI: 10.1103/PhysRevE.89.023303) by default)
   - Sinusoidal profile (constant pressure enabled using)
   - Transient profile
-  - Windkessel (Uses Yang pressure condition, see [here](cases/YangPressureNotes.md) for notes)
+  - Windkessel (two or three element options, can use Yang pressure condition, see [here](cases/YangPressureNotes.md) for notes)
   - Sponge layer (outlets) - Acts on a pressure outlet but modifies the viscosity near the outlet to increase stability of the simulation (defined with collision kernel).
 * Velocity
    - Constant magnitude with parabolic profile for circular inlets
