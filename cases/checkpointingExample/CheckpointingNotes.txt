@@ -1,0 +1,4 @@
+Checkpointing with HemePure:
+- Restarted simulation must be run with the same number of cores as original simulation
+- Checkpoint files must be available - write the restarted simulation to a new results folder
+- Checkpoint files will be very large, be cautious with writing frequency

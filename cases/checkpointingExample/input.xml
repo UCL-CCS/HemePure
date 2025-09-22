@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<hemelbsettings version="3">
+  <simulation>
+    <step_length units="s" value="5e-5"/>
+    <steps units="lattice" value="5000"/>
+    <stresstype value="1"/>
+    <voxel_size units="m" value="66.67e-6"/>
+    <origin units="m" value="(0.0,0.0,0.0)"/>
+  </simulation>
+  <geometry>
+    <datafile path="bifurcation.gmy"/>
+  </geometry>
+  <initialconditions>
+    <pressure>
+      <checkpoint file="results/Extracted/checkpoint.xtr"/>
+    </pressure>
+  </initialconditions>
+  <monitoring>
+    <incompressibility/>
+  </monitoring>
+  <inlets>
+    <inlet>
+      <condition subtype="cosine" type="pressure">
+        <amplitude units="mmHg" value="0.0"/>
+        <mean units="mmHg" value="0.1"/>
+        <phase units="rad" value="0.0"/>
+        <period units="s" value="1"/>
+      </condition>
+      <normal units="dimensionless" value="(1.95124e-12,6.75884e-12,1)"/>
+      <position units="lattice" value="(77.999,18.1515,3)"/>
+    </inlet>
+  </inlets>
+  <outlets>
+    <outlet>
+      <condition subtype="cosine" type="pressure">
+        <amplitude units="mmHg" value="0.0"/>
+        <mean units="mmHg" value="0.0"/>
+        <phase units="rad" value="0.0"/>
+        <period units="s" value="1"/>
+      </condition>
+      <normal units="dimensionless" value="(0.707107,-1.16626e-11,-0.707107)"/>
+      <position units="lattice" value="(13.7137,18.1515,173.351)"/>
+    </outlet>
+    <outlet>
+      <condition subtype="cosine" type="pressure">
+        <amplitude units="mmHg" value="0.0"/>
+        <mean units="mmHg" value="0.0"/>
+        <phase units="rad" value="0.0"/>
+        <period units="s" value="1"/>
+      </condition>
+      <normal units="dimensionless" value="(-0.707107,-2.00453e-11,-0.707107)"/>
+      <position units="lattice" value="(142.284,18.1515,173.351)"/>
+    </outlet>
+  </outlets>
+  <properties>
+   <propertyoutput file="inlet.dat" period="100">
+     <geometry type="inlet" />
+     <field type="velocity" />
+     <field type="pressure" />
+   </propertyoutput>
+   <propertyoutput file="outlet.dat" period="100">
+     <geometry type="outlet" />
+     <field type="velocity" />
+     <field type="pressure" />
+   </propertyoutput>
+   <propertyoutput file="whole.dat" period="200">
+     <geometry type="whole" />
+     <field type="velocity" />
+   </propertyoutput>
+   <propertyoutput file="checkpoint2.xtr" period="1000">
+     <geometry type="whole" />
+     <field type="distributions" />
+   </propertyoutput>
+  </properties>
+</hemelbsettings>
