@@ -47,15 +47,15 @@ Intrinsics for vectorisation, may improve performance on CPU (compile time):
 
 Data output (run time):
 * Extraction of data from the following locations in a domain:
-  - point on surface
-  - line between two points
-  - plane through the domain
-  - inlets
-  - outlets
-  - whole wall surface
-  - surfaces within a defined sphere
-  - all points within a defined sphere
-  - whole domain
+  - Point on surface
+  - Line between two points
+  - Plane through the domain
+  - Inlets
+  - Outlets
+  - Wall surface
+  - Wall surfaces within a defined sphere
+  - All points within a defined sphere
+  - Whole domain
 * Checkpoint restart from written data file
 
 **Pre-processing** - Appropriate STL files can be prepared for simulation with HemePure using the tools available in [HemePure_tools](https://github.com/UCL-CCS/HemePure_tools)
