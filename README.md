@@ -16,7 +16,7 @@ This version of the code was developed from the full HemeLB code in late 2018 an
 * McCullough, J. W. S., Richardson, R. A., Patronis, A., Halver, R., Marshall, R., Ruefenacht, M., Wylie, B. J. N., Odaker, T., Wiedemann, M., Lloyd, B., Neufeld, E., Sutmann, G., Skjellum, A., Kranzlmüller, D., & Coveney, P. V. (2020). Towards blood flow in the virtual human: efficient self-coupling of HemeLB. Journal of the Royal Society Interface Focus 11, 20190119.
 
 ## Features #
-The CPU version of HemePure can be executed with the following functionality. Some must be specified at the compilation of the `hemepure` executable.
+The CPU version of HemePure can be executed with the following functionality. Some must be specified at the compilation of the `hemepure` executable. Simulations are conducted using a D3Q19 lattice stencil. 
 
 Collision kernels (compile time):
 * LBGK - Single relaxation time
@@ -37,6 +37,11 @@ Wall boundary conditions (compile time):
 * BFL - Modified bounceback approach with
 * GZS - Extrapolation based wall condition
 * GZSElastic - Method for approximating the effect of elastic walls
+
+Intrinsics for vectorisation, may improve performance on CPU (compile time):
+* SSE3
+* AVX
+* AVX512
 
 Data output (run time):
 - Extraction of data at point, line, plane, inlets, outlets, wall surface, surfaces within a sphere, whole domain.
