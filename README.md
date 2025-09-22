@@ -24,10 +24,10 @@ Collision kernels (compile time):
 * LBGK + LES - Inclusion of large eddy simulation approximation to assist in higher Re flow modelling.
 
 Inlet/Outlet boundary conditions (compile time):
-* Pressure
+* Pressure (Using method of Nash et al (DOI: 10.1103/PhysRevE.89.023303) by default)
   - Sinusoidal profile (constant pressure enabled using)
   - Transient profile
-  - Windkessel
+  - Windkessel (Uses Yang pressure condition, see [here](cases/YangPressureNotes.md) for notes)
   - Sponge layer (outlets) - Acts on a pressure outlet but modifies the viscosity near the outlet to increase stability of the simulation (defined with collision kernel).
 * Velocity
    - Constant magnitude with parabolic profile for circular inlets
@@ -92,8 +92,8 @@ Further examples provide extra input domains or illustrate extra functionality:
 * Checkpointing - see [here](cases/checkpointingExample) for how to write, and restart from, a checkpoint file
 * Elastic walls - see [here](cases/elasticWallsExample) - for running a simulation with elastic walls enabled
 * Colloids - see [here](cases/colloidsExample) for running a simulation with colloidal tracer particles within the flow
-* LES and sponge layer outlets
-* Windkessel outlets
+* Sponge layer outlets  - see [here](cases/SpongeLayerNotes.md) for implementation notes
+* Windkessel outlets - see [here](cases/WindkesselNotes.md) for implementation notes
   
 ## DEVELOPMENT #
 A few parts of the code are under ongoing development.
