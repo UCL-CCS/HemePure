@@ -1,0 +1,5 @@
+Notes on using elastic walls with HemePure
+- See also: McCullough, J.W.S., Coveney, P.V. An efficient, localised approach for the simulation of elastic blood vessels using the lattice Boltzmann method. Sci Rep 11, 24260 (2021). https://doi.org/10.1038/s41598-021-03584-2
+- Compile HemePure with LADDIOLET inlets, NASHZEROTHORDERPRESSURE outlets, GZSElastic walls and appropriate cross-terms for edge sites. 
+- Input file specifies the elastic stiffness applied to all wall sites
+- inputSimple.xml uses a parabolic velocity profile at the inlet, inputAdvanced.xml uses a solution for Wommersley flow in an elastic pipe.
