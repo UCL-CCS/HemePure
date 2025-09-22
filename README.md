@@ -15,6 +15,33 @@ This version of the code was developed from the full HemeLB code in late 2018 an
 * McCullough, J. W. S. & Coveney, P. V. (2021). High fidelity blood flow in patient-specific arteriovenous fistula. Scientific Reports 11, 22301.
 * McCullough, J. W. S., Richardson, R. A., Patronis, A., Halver, R., Marshall, R., Ruefenacht, M., Wylie, B. J. N., Odaker, T., Wiedemann, M., Lloyd, B., Neufeld, E., Sutmann, G., Skjellum, A., Kranzlmüller, D., & Coveney, P. V. (2020). Towards blood flow in the virtual human: efficient self-coupling of HemeLB. Journal of the Royal Society Interface Focus 11, 20190119.
 
+## Features #
+The CPU version of HemePure can be executed with the following functionality. Some must be specified at the compilation of the `hemepure` executable.
+
+Collision kernels (compile time):
+* LBGK - Single relaxation time
+* TRT - Two relaxation time
+* BGK + LES
+
+Inlet/Outlet boundary conditions (compile time):
+* Pressure
+* Velocity
+   - Constant magnitude with parabolic profile for circular inlets
+   - Transient profile with parabolic profile for circular inlets
+   - Transient profile with Poiseuille-like profile for non-circular inlets
+* Windkessel (outlets)
+* Sponge layer (outlets) - Acts on a pressure outlet but modifies the viscosity near the outlet to increase stability of the simulation (defined with collision kernel).
+
+Wall boundary conditions (compile time):
+* Bounceback - simple rigid walls
+* BFL - Modified bounceback approach with
+* GZS - Extrapolation based wall condition
+* GZSElastic - Method for approximating the effect of elastic walls
+
+Data output (run time):
+- Extraction of data at point, line, plane, inlets, outlets, wall surface, surfaces within a sphere, whole domain.
+- Checkpoint restart from written data file
+
 ## Compilation #
 Build dependencies before attempting to build HemePure. Once dependencies are built, they do not need to be recompiled for (re)compilation of the source code. The following steps can be followed to build the dependency and source code mannually, the FullBuild.sh file collects these into a single location. This file may need to be modified to reflect the settings, defaults and software available on a given machine. This file can be modified to provide alternative functionality and boundary conditions.
 
@@ -34,7 +61,7 @@ For benchmarking, it is recommended to use the SRCbuild_Benchmark function in Fu
 
 ## EXAMPLE CASES #
 The [cases](cases) folder provides some example input files for running jobs with HemePure. Some are simple simulations, some help illustrate the usage of particular features of the code.
-Execution should occur with: `mpirun -np xx <HemePure binary> -in input.xml -out results`, ensure that you are running with enough MPI ranks to satisfy HEMELB_READING_GROUP_SIZE + 1 (by default, at least 3 ranks). (`mpirun` may need to be replaced with an alternative call based on machine settings).
+Execution should occur with: `mpirun -np xx <HemePure binary> -in input.xml -out results`, ensure that you are running with enough MPI ranks to satisfy HEMELB_READING_GROUP_SIZE + 1 (by default, at least 3 ranks). (`mpirun` may need to be replaced with an alternative call based on machine settings). Note that the simulation will not proceed if a `results` folder with the same name already exists in the run directory - delete the existing folder, or specify a new folder in which to store results, prior to execution.
 
 Two simple examples are included:
 * [Pipe](case/pipe): pressure-driven flow in a pipe.
