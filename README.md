@@ -89,9 +89,9 @@ Two simple examples are included:
 
 Further examples provide extra input domains or illustrate extra functionality:
 * Data extraction - see [this](cases/pipe/input_DataOutput.xml) input script in the Pipe example, this script also highlights the use of steady-state convergence criterion to halt a simulation
-* Checkpointing - see [here]/(cases/checkpointingExample) for how to write, and restart from, a checkpoint file
-* Elastic walls - see [here]/(cases/elasticWallsExample) - for running a simulation with elastic walls enabled
-* Colloids - see [here]/(cases/colloidsExample) for running a simulation with colloidal tracer particles within the flow
+* Checkpointing - see [here](cases/checkpointingExample) for how to write, and restart from, a checkpoint file
+* Elastic walls - see [here](cases/elasticWallsExample) - for running a simulation with elastic walls enabled
+* Colloids - see [here](cases/colloidsExample) for running a simulation with colloidal tracer particles within the flow
 * LES and sponge layer outlets
 * Windkessel outlets
   
