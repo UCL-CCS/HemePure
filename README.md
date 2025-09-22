@@ -1,13 +1,30 @@
 # HemePure
-Build dependencies before attempting to build HemePure.
+HemePure is a modified version of the HemeLB code that improved memory usage and scaling behaviour. It makes use of the lattice Boltzmann method to solve macroscopic blood flow in 3D vascular geometries. The CPU version (this repository) has demonstrated strong scaling behaviour to hundreds of thousands of cores with a sufficiently sized simulation domain. The related [HemePure-GPU](https://github.com/UCL-CCS/HemePure-GPU) allows for execution of the code on a variety of GPU architectures with strong scaling shown on tens of thousands of GPU cards.
 
-## DEPENDENCIES #
+This version of the code was developed from the full HemeLB code in late 2018 and has since seen further developments. Publications using some form HemePure:
+* Xue, X., Athawale, T. M., McCullough, J. W. S., Lo, S. C., Zacharoudiou, I., Joo, B., ... & Coveney, P. V. (2025). An Uncertainty Visualization Framework for Large-Scale Cardiovascular Flow Simulations: A Case Study on Aortic Stenosis. arXiv preprint arXiv:2508.15420.
+* Benemerito, I.,  McCullough, J., Narracott, A., Coveney, P. V.  & Marzo, A. (2025). Comparison of Navier-Stokes and lattice Boltzmann solvers for subject-specific modelling of intracranial aneurysms. Computers in Biology and Medicine, Vol. 197 Part B, 111050.
+* Lo, S. C., Zingaro, A., McCullough, J. W. S., Xue, X., Gonzalez-Martin, P., Joo, B., ... & Coveney, P. V. (2025). A multi-component, multi-physics computational model for solving coupled cardiac electromechanics and vascular haemodynamics. Computer Methods in Applied Mechanics and Engineering, 446, 118185.
+* Xue, X., McCullough, J. W. S., Lo, S. C., Zacharoudiou, I., Joó, B., & Coveney, P. V. (2024, June). The lattice Boltzmann based large eddy simulations for the stenosis of the aorta. In International Conference on Computational Science (pp. 408-420). Cham: Springer Nature Switzerland.
+* McCullough, J. W. S. , & Coveney, P. V. (2024). Uncertainty quantification of the lattice Boltzmann method focussing on studies of human-scale vascular blood flow. Nature Scientific Reports 14, 11317.
+* Lo, S. C., McCullough, J. W. S., Xue, X., & Coveney, P. V. (2024). Uncertainty quantification of the impact of peripheral arterial disease on abdominal aortic aneurysms in blood flow simulations. Journal of the Royal Society Interface, 21(213), 20230656.
+* McCullough, J. W. S. & Coveney, P. V. (2023). High resolution simulation of basilar artery infarct and flow within the circle of Willis, Scientific Reports 13, 21665.
+* Zacharoudiou, I., McCullough, J. W. S. & Coveney, P. V. (2023). Development and performance of a HemeLB GPU code for human-scale blood flow simulation. Computer Physics Communications, 282, 108548.
+* Lo, S. C., McCullough, J. W. S. & Coveney, P. V. (2022). Parametric Analysis of an Efficient Boundary Condition to Control Outlet Flow Rates in Large Arterial Networks. Scientific Reports 12, 19092.
+* McCullough, J. W. S. & Coveney, P. V. (2021). An efficient, localised approach for the simulation of elastic blood vessels using the lattice Boltzmann method. Scientific Reports 11, 24260.
+* McCullough, J. W. S. & Coveney, P. V. (2021). High fidelity blood flow in patient-specific arteriovenous fistula. Scientific Reports 11, 22301.
+* McCullough, J. W. S., Richardson, R. A., Patronis, A., Halver, R., Marshall, R., Ruefenacht, M., Wylie, B. J. N., Odaker, T., Wiedemann, M., Lloyd, B., Neufeld, E., Sutmann, G., Skjellum, A., Kranzlmüller, D., & Coveney, P. V. (2020). Towards blood flow in the virtual human: efficient self-coupling of HemeLB. Journal of the Royal Society Interface Focus 11, 20190119.
+
+## Compilation #
+Build dependencies before attempting to build HemePure. Once dependencies are built, they do not need to be recompiled for (re)compilation of the source code. The following steps can be followed to build the code mannually, the FullBuild.sh file collects these into a single location. This file may need to be modified to reflect the settings, defaults and software available on a given machine. 
+
+### DEPENDENCIES #
 1) Create `dep/build/`.
 2) In `dep/build/` run `ccmake -B. -H../' or 'ccmake ..`.
 3) Configure using CMake.
 4) Run `make` in `dep/build/`.
 
-## SOURCE #
+### SOURCE #
 1) Create `src/build/`.
 2) In `src/build/` run `ccmake -B. -H../` or `ccmake ..`.
 3) Configure using CMake.
