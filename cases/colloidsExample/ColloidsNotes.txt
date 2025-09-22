@@ -1,0 +1,3 @@
+Example input file for a simulation with magnetic colloidal particles, see also:  Patronis A, Richardson RA, Schmieschek S, Wylie BJN, Nash RW and Coveney PV (2018) Modeling Patient-Specific Magnetic Drug Targeting Within the Intracranial Vasculature. Front. Physiol. 9:331. doi: 10.3389/fphys.2018.00331
+
+- Should work with the gmy file, switch to gmy+ in the input file if not.

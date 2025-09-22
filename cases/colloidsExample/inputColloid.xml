@@ -1,0 +1,1635 @@
+<?xml version="1.0"?>
+<hemelbsettings version="3">
+  <simulation>
+    <step_length units="s" value="5e-5"/>
+    <steps units="lattice" value="1500"/>
+    <stresstype value="1"/>
+    <voxel_size units="m" value="66.67e-6"/>
+    <origin units="m" value="(0.0,0.0,0.0)"/>
+  </simulation>
+  <geometry>
+    <datafile path="bifurcation.gmy"/>
+  </geometry>
+  <initialconditions>
+    <pressure>
+      <uniform units="mmHg" value="0.1"/>
+    </pressure>
+  </initialconditions>
+  <monitoring>
+    <incompressibility/>
+  </monitoring>
+  <inlets>
+    <inlet>
+      <condition subtype="cosine" type="pressure">
+        <amplitude units="mmHg" value="0.0"/>
+        <mean units="mmHg" value="0.1"/>
+        <phase units="rad" value="0.0"/>
+        <period units="s" value="1"/>
+      </condition>
+      <normal units="dimensionless" value="(1.95124e-12,6.75884e-12,1)"/>
+      <position units="lattice" value="(77.999,18.1515,3)"/>
+    </inlet>
+  </inlets>
+  <outlets>
+    <outlet>
+      <condition subtype="cosine" type="pressure">
+        <amplitude units="mmHg" value="0.0"/>
+        <mean units="mmHg" value="0.0"/>
+        <phase units="rad" value="0.0"/>
+        <period units="s" value="1"/>
+      </condition>
+      <normal units="dimensionless" value="(0.707107,-1.16626e-11,-0.707107)"/>
+      <position units="lattice" value="(13.7137,18.1515,173.351)"/>
+    </outlet>
+    <outlet>
+      <condition subtype="cosine" type="pressure">
+        <amplitude units="mmHg" value="0.0"/>
+        <mean units="mmHg" value="0.0"/>
+        <phase units="rad" value="0.0"/>
+        <period units="s" value="1"/>
+      </condition>
+      <normal units="dimensionless" value="(-0.707107,-2.00453e-11,-0.707107)"/>
+      <position units="lattice" value="(142.284,18.1515,173.351)"/>
+    </outlet>
+  </outlets>
+  <colloids>
+    <particles>
+      <!-- this is the master particle
+      it will be replicated on particle injection  -->
+      <subgridParticle units="lattice" ParticleId="0" Radius="0.01">
+        <initialPosition units="lattice" x="68.0" y="18.1515" z="40.0"/>
+      </subgridParticle>
+      <!-- this is the master particle
+      it will be replicated on particle injection  -->
+      <sphereRadius  units="lattice" value="4.0"/>
+      <sphereCentre  units="lattice" x="77.999" y="18.1515" z="50.0"/>
+      <emissionCount units="dimensionless" value="10"/>
+      <emissionItrvl units="dimensionless" value="100"/>
+      <!-- one sphere -->
+<!--
+      <subgridParticle units="lattice" ParticleId="0" Radius="0.01">
+        <initialPosition units="lattice" x="68.0" y="18.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="1" Radius="0.01">
+        <initialPosition units="lattice" x="69.0" y="16.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="2" Radius="0.01">
+        <initialPosition units="lattice" x="69.0" y="16.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="3" Radius="0.01">
+        <initialPosition units="lattice" x="69.0" y="16.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="4" Radius="0.01">
+        <initialPosition units="lattice" x="69.0" y="17.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="5" Radius="0.01">
+        <initialPosition units="lattice" x="69.0" y="17.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="6" Radius="0.01">
+        <initialPosition units="lattice" x="69.0" y="17.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="7" Radius="0.01">
+        <initialPosition units="lattice" x="69.0" y="17.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="8" Radius="0.01">
+        <initialPosition units="lattice" x="69.0" y="17.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="9" Radius="0.01">
+        <initialPosition units="lattice" x="69.0" y="18.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="10" Radius="0.01">
+        <initialPosition units="lattice" x="69.0" y="18.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="11" Radius="0.01">
+        <initialPosition units="lattice" x="69.0" y="18.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="12" Radius="0.01">
+        <initialPosition units="lattice" x="69.0" y="18.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="13" Radius="0.01">
+        <initialPosition units="lattice" x="69.0" y="18.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="14" Radius="0.01">
+        <initialPosition units="lattice" x="69.0" y="19.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="15" Radius="0.01">
+        <initialPosition units="lattice" x="69.0" y="19.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="16" Radius="0.01">
+        <initialPosition units="lattice" x="69.0" y="19.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="17" Radius="0.01">
+        <initialPosition units="lattice" x="69.0" y="19.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="18" Radius="0.01">
+        <initialPosition units="lattice" x="69.0" y="19.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="19" Radius="0.01">
+        <initialPosition units="lattice" x="69.0" y="20.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="20" Radius="0.01">
+        <initialPosition units="lattice" x="69.0" y="20.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="21" Radius="0.01">
+        <initialPosition units="lattice" x="69.0" y="20.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="22" Radius="0.01">
+        <initialPosition units="lattice" x="70.0" y="15.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="23" Radius="0.01">
+        <initialPosition units="lattice" x="70.0" y="15.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="24" Radius="0.01">
+        <initialPosition units="lattice" x="70.0" y="15.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="25" Radius="0.01">
+        <initialPosition units="lattice" x="70.0" y="16.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="26" Radius="0.01">
+        <initialPosition units="lattice" x="70.0" y="16.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="27" Radius="0.01">
+        <initialPosition units="lattice" x="70.0" y="16.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="28" Radius="0.01">
+        <initialPosition units="lattice" x="70.0" y="16.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="29" Radius="0.01">
+        <initialPosition units="lattice" x="70.0" y="16.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="30" Radius="0.01">
+        <initialPosition units="lattice" x="70.0" y="17.1515" z="37.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="31" Radius="0.01">
+        <initialPosition units="lattice" x="70.0" y="17.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="32" Radius="0.01">
+        <initialPosition units="lattice" x="70.0" y="17.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="33" Radius="0.01">
+        <initialPosition units="lattice" x="70.0" y="17.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="34" Radius="0.01">
+        <initialPosition units="lattice" x="70.0" y="17.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="35" Radius="0.01">
+        <initialPosition units="lattice" x="70.0" y="17.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="36" Radius="0.01">
+        <initialPosition units="lattice" x="70.0" y="17.1515" z="43.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="37" Radius="0.01">
+        <initialPosition units="lattice" x="70.0" y="18.1515" z="37.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="38" Radius="0.01">
+        <initialPosition units="lattice" x="70.0" y="18.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="39" Radius="0.01">
+        <initialPosition units="lattice" x="70.0" y="18.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="40" Radius="0.01">
+        <initialPosition units="lattice" x="70.0" y="18.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="41" Radius="0.01">
+        <initialPosition units="lattice" x="70.0" y="18.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="42" Radius="0.01">
+        <initialPosition units="lattice" x="70.0" y="18.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="43" Radius="0.01">
+        <initialPosition units="lattice" x="70.0" y="18.1515" z="43.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="44" Radius="0.01">
+        <initialPosition units="lattice" x="70.0" y="19.1515" z="37.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="45" Radius="0.01">
+        <initialPosition units="lattice" x="70.0" y="19.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="46" Radius="0.01">
+        <initialPosition units="lattice" x="70.0" y="19.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="47" Radius="0.01">
+        <initialPosition units="lattice" x="70.0" y="19.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="48" Radius="0.01">
+        <initialPosition units="lattice" x="70.0" y="19.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="49" Radius="0.01">
+        <initialPosition units="lattice" x="70.0" y="19.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="50" Radius="0.01">
+        <initialPosition units="lattice" x="70.0" y="19.1515" z="43.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="51" Radius="0.01">
+        <initialPosition units="lattice" x="70.0" y="20.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="52" Radius="0.01">
+        <initialPosition units="lattice" x="70.0" y="20.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="53" Radius="0.01">
+        <initialPosition units="lattice" x="70.0" y="20.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="54" Radius="0.01">
+        <initialPosition units="lattice" x="70.0" y="20.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="55" Radius="0.01">
+        <initialPosition units="lattice" x="70.0" y="20.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="56" Radius="0.01">
+        <initialPosition units="lattice" x="70.0" y="21.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="57" Radius="0.01">
+        <initialPosition units="lattice" x="70.0" y="21.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="58" Radius="0.01">
+        <initialPosition units="lattice" x="70.0" y="21.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="59" Radius="0.01">
+        <initialPosition units="lattice" x="71.0" y="15.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="60" Radius="0.01">
+        <initialPosition units="lattice" x="71.0" y="15.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="61" Radius="0.01">
+        <initialPosition units="lattice" x="71.0" y="15.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="62" Radius="0.01">
+        <initialPosition units="lattice" x="71.0" y="15.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="63" Radius="0.01">
+        <initialPosition units="lattice" x="71.0" y="15.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="64" Radius="0.01">
+        <initialPosition units="lattice" x="71.0" y="16.1515" z="37.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="65" Radius="0.01">
+        <initialPosition units="lattice" x="71.0" y="16.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="66" Radius="0.01">
+        <initialPosition units="lattice" x="71.0" y="16.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="67" Radius="0.01">
+        <initialPosition units="lattice" x="71.0" y="16.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="68" Radius="0.01">
+        <initialPosition units="lattice" x="71.0" y="16.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="69" Radius="0.01">
+        <initialPosition units="lattice" x="71.0" y="16.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="70" Radius="0.01">
+        <initialPosition units="lattice" x="71.0" y="16.1515" z="43.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="71" Radius="0.01">
+        <initialPosition units="lattice" x="71.0" y="17.1515" z="37.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="72" Radius="0.01">
+        <initialPosition units="lattice" x="71.0" y="17.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="73" Radius="0.01">
+        <initialPosition units="lattice" x="71.0" y="17.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="74" Radius="0.01">
+        <initialPosition units="lattice" x="71.0" y="17.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="75" Radius="0.01">
+        <initialPosition units="lattice" x="71.0" y="17.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="76" Radius="0.01">
+        <initialPosition units="lattice" x="71.0" y="17.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="77" Radius="0.01">
+        <initialPosition units="lattice" x="71.0" y="17.1515" z="43.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="78" Radius="0.01">
+        <initialPosition units="lattice" x="71.0" y="18.1515" z="37.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="79" Radius="0.01">
+        <initialPosition units="lattice" x="71.0" y="18.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="80" Radius="0.01">
+        <initialPosition units="lattice" x="71.0" y="18.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="81" Radius="0.01">
+        <initialPosition units="lattice" x="71.0" y="18.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="82" Radius="0.01">
+        <initialPosition units="lattice" x="71.0" y="18.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="83" Radius="0.01">
+        <initialPosition units="lattice" x="71.0" y="18.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="84" Radius="0.01">
+        <initialPosition units="lattice" x="71.0" y="18.1515" z="43.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="85" Radius="0.01">
+        <initialPosition units="lattice" x="71.0" y="19.1515" z="37.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="86" Radius="0.01">
+        <initialPosition units="lattice" x="71.0" y="19.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="87" Radius="0.01">
+        <initialPosition units="lattice" x="71.0" y="19.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="88" Radius="0.01">
+        <initialPosition units="lattice" x="71.0" y="19.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="89" Radius="0.01">
+        <initialPosition units="lattice" x="71.0" y="19.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="90" Radius="0.01">
+        <initialPosition units="lattice" x="71.0" y="19.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="91" Radius="0.01">
+        <initialPosition units="lattice" x="71.0" y="19.1515" z="43.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="92" Radius="0.01">
+        <initialPosition units="lattice" x="71.0" y="20.1515" z="37.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="93" Radius="0.01">
+        <initialPosition units="lattice" x="71.0" y="20.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="94" Radius="0.01">
+        <initialPosition units="lattice" x="71.0" y="20.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="95" Radius="0.01">
+        <initialPosition units="lattice" x="71.0" y="20.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="96" Radius="0.01">
+        <initialPosition units="lattice" x="71.0" y="20.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="97" Radius="0.01">
+        <initialPosition units="lattice" x="71.0" y="20.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="98" Radius="0.01">
+        <initialPosition units="lattice" x="71.0" y="20.1515" z="43.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="99" Radius="0.01">
+        <initialPosition units="lattice" x="71.0" y="21.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="100" Radius="0.01">
+        <initialPosition units="lattice" x="71.0" y="21.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="101" Radius="0.01">
+        <initialPosition units="lattice" x="71.0" y="21.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="102" Radius="0.01">
+        <initialPosition units="lattice" x="71.0" y="21.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="103" Radius="0.01">
+        <initialPosition units="lattice" x="71.0" y="21.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="104" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="14.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="105" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="15.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="106" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="15.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="107" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="15.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="108" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="15.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="109" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="15.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="110" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="16.1515" z="37.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="111" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="16.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="112" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="16.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="113" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="16.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="114" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="16.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="115" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="16.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="116" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="16.1515" z="43.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="117" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="17.1515" z="37.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="118" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="17.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="119" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="17.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="120" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="17.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="121" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="17.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="122" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="17.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="123" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="17.1515" z="43.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="124" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="18.1515" z="36.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="125" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="18.1515" z="37.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="126" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="18.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="127" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="18.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="128" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="18.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="129" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="18.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="130" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="18.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="131" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="18.1515" z="43.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="132" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="18.1515" z="44.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="133" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="19.1515" z="37.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="134" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="19.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="135" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="19.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="136" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="19.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="137" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="19.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="138" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="19.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="139" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="19.1515" z="43.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="140" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="20.1515" z="37.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="141" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="20.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="142" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="20.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="143" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="20.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="144" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="20.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="145" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="20.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="146" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="20.1515" z="43.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="147" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="21.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="148" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="21.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="149" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="21.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="150" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="21.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="151" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="21.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="152" Radius="0.01">
+        <initialPosition units="lattice" x="72.0" y="22.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="153" Radius="0.01">
+        <initialPosition units="lattice" x="73.0" y="15.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="154" Radius="0.01">
+        <initialPosition units="lattice" x="73.0" y="15.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="155" Radius="0.01">
+        <initialPosition units="lattice" x="73.0" y="15.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="156" Radius="0.01">
+        <initialPosition units="lattice" x="73.0" y="15.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="157" Radius="0.01">
+        <initialPosition units="lattice" x="73.0" y="15.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="158" Radius="0.01">
+        <initialPosition units="lattice" x="73.0" y="16.1515" z="37.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="159" Radius="0.01">
+        <initialPosition units="lattice" x="73.0" y="16.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="160" Radius="0.01">
+        <initialPosition units="lattice" x="73.0" y="16.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="161" Radius="0.01">
+        <initialPosition units="lattice" x="73.0" y="16.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="162" Radius="0.01">
+        <initialPosition units="lattice" x="73.0" y="16.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="163" Radius="0.01">
+        <initialPosition units="lattice" x="73.0" y="16.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="164" Radius="0.01">
+        <initialPosition units="lattice" x="73.0" y="16.1515" z="43.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="165" Radius="0.01">
+        <initialPosition units="lattice" x="73.0" y="17.1515" z="37.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="166" Radius="0.01">
+        <initialPosition units="lattice" x="73.0" y="17.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="167" Radius="0.01">
+        <initialPosition units="lattice" x="73.0" y="17.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="168" Radius="0.01">
+        <initialPosition units="lattice" x="73.0" y="17.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="169" Radius="0.01">
+        <initialPosition units="lattice" x="73.0" y="17.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="170" Radius="0.01">
+        <initialPosition units="lattice" x="73.0" y="17.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="171" Radius="0.01">
+        <initialPosition units="lattice" x="73.0" y="17.1515" z="43.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="172" Radius="0.01">
+        <initialPosition units="lattice" x="73.0" y="18.1515" z="37.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="173" Radius="0.01">
+        <initialPosition units="lattice" x="73.0" y="18.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="174" Radius="0.01">
+        <initialPosition units="lattice" x="73.0" y="18.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="175" Radius="0.01">
+        <initialPosition units="lattice" x="73.0" y="18.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="176" Radius="0.01">
+        <initialPosition units="lattice" x="73.0" y="18.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="177" Radius="0.01">
+        <initialPosition units="lattice" x="73.0" y="18.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="178" Radius="0.01">
+        <initialPosition units="lattice" x="73.0" y="18.1515" z="43.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="179" Radius="0.01">
+        <initialPosition units="lattice" x="73.0" y="19.1515" z="37.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="180" Radius="0.01">
+        <initialPosition units="lattice" x="73.0" y="19.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="181" Radius="0.01">
+        <initialPosition units="lattice" x="73.0" y="19.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="182" Radius="0.01">
+        <initialPosition units="lattice" x="73.0" y="19.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="183" Radius="0.01">
+        <initialPosition units="lattice" x="73.0" y="19.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="184" Radius="0.01">
+        <initialPosition units="lattice" x="73.0" y="19.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="185" Radius="0.01">
+        <initialPosition units="lattice" x="73.0" y="19.1515" z="43.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="186" Radius="0.01">
+        <initialPosition units="lattice" x="73.0" y="20.1515" z="37.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="187" Radius="0.01">
+        <initialPosition units="lattice" x="73.0" y="20.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="188" Radius="0.01">
+        <initialPosition units="lattice" x="73.0" y="20.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="189" Radius="0.01">
+        <initialPosition units="lattice" x="73.0" y="20.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="190" Radius="0.01">
+        <initialPosition units="lattice" x="73.0" y="20.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="191" Radius="0.01">
+        <initialPosition units="lattice" x="73.0" y="20.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="192" Radius="0.01">
+        <initialPosition units="lattice" x="73.0" y="20.1515" z="43.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="193" Radius="0.01">
+        <initialPosition units="lattice" x="73.0" y="21.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="194" Radius="0.01">
+        <initialPosition units="lattice" x="73.0" y="21.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="195" Radius="0.01">
+        <initialPosition units="lattice" x="73.0" y="21.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="196" Radius="0.01">
+        <initialPosition units="lattice" x="73.0" y="21.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="197" Radius="0.01">
+        <initialPosition units="lattice" x="73.0" y="21.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="198" Radius="0.01">
+        <initialPosition units="lattice" x="74.0" y="15.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="199" Radius="0.01">
+        <initialPosition units="lattice" x="74.0" y="15.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="200" Radius="0.01">
+        <initialPosition units="lattice" x="74.0" y="15.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="201" Radius="0.01">
+        <initialPosition units="lattice" x="74.0" y="16.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="202" Radius="0.01">
+        <initialPosition units="lattice" x="74.0" y="16.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="203" Radius="0.01">
+        <initialPosition units="lattice" x="74.0" y="16.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="204" Radius="0.01">
+        <initialPosition units="lattice" x="74.0" y="16.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="205" Radius="0.01">
+        <initialPosition units="lattice" x="74.0" y="16.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="206" Radius="0.01">
+        <initialPosition units="lattice" x="74.0" y="17.1515" z="37.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="207" Radius="0.01">
+        <initialPosition units="lattice" x="74.0" y="17.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="208" Radius="0.01">
+        <initialPosition units="lattice" x="74.0" y="17.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="209" Radius="0.01">
+        <initialPosition units="lattice" x="74.0" y="17.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="210" Radius="0.01">
+        <initialPosition units="lattice" x="74.0" y="17.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="211" Radius="0.01">
+        <initialPosition units="lattice" x="74.0" y="17.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="212" Radius="0.01">
+        <initialPosition units="lattice" x="74.0" y="17.1515" z="43.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="213" Radius="0.01">
+        <initialPosition units="lattice" x="74.0" y="18.1515" z="37.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="214" Radius="0.01">
+        <initialPosition units="lattice" x="74.0" y="18.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="215" Radius="0.01">
+        <initialPosition units="lattice" x="74.0" y="18.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="216" Radius="0.01">
+        <initialPosition units="lattice" x="74.0" y="18.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="217" Radius="0.01">
+        <initialPosition units="lattice" x="74.0" y="18.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="218" Radius="0.01">
+        <initialPosition units="lattice" x="74.0" y="18.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="219" Radius="0.01">
+        <initialPosition units="lattice" x="74.0" y="18.1515" z="43.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="220" Radius="0.01">
+        <initialPosition units="lattice" x="74.0" y="19.1515" z="37.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="221" Radius="0.01">
+        <initialPosition units="lattice" x="74.0" y="19.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="222" Radius="0.01">
+        <initialPosition units="lattice" x="74.0" y="19.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="223" Radius="0.01">
+        <initialPosition units="lattice" x="74.0" y="19.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="224" Radius="0.01">
+        <initialPosition units="lattice" x="74.0" y="19.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="225" Radius="0.01">
+        <initialPosition units="lattice" x="74.0" y="19.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="226" Radius="0.01">
+        <initialPosition units="lattice" x="74.0" y="19.1515" z="43.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="227" Radius="0.01">
+        <initialPosition units="lattice" x="74.0" y="20.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="228" Radius="0.01">
+        <initialPosition units="lattice" x="74.0" y="20.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="229" Radius="0.01">
+        <initialPosition units="lattice" x="74.0" y="20.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="230" Radius="0.01">
+        <initialPosition units="lattice" x="74.0" y="20.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="231" Radius="0.01">
+        <initialPosition units="lattice" x="74.0" y="20.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="232" Radius="0.01">
+        <initialPosition units="lattice" x="74.0" y="21.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="233" Radius="0.01">
+        <initialPosition units="lattice" x="74.0" y="21.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="234" Radius="0.01">
+        <initialPosition units="lattice" x="74.0" y="21.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="235" Radius="0.01">
+        <initialPosition units="lattice" x="75.0" y="16.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="236" Radius="0.01">
+        <initialPosition units="lattice" x="75.0" y="16.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="237" Radius="0.01">
+        <initialPosition units="lattice" x="75.0" y="16.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="238" Radius="0.01">
+        <initialPosition units="lattice" x="75.0" y="17.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="239" Radius="0.01">
+        <initialPosition units="lattice" x="75.0" y="17.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="240" Radius="0.01">
+        <initialPosition units="lattice" x="75.0" y="17.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="241" Radius="0.01">
+        <initialPosition units="lattice" x="75.0" y="17.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="242" Radius="0.01">
+        <initialPosition units="lattice" x="75.0" y="17.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="243" Radius="0.01">
+        <initialPosition units="lattice" x="75.0" y="18.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="244" Radius="0.01">
+        <initialPosition units="lattice" x="75.0" y="18.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="245" Radius="0.01">
+        <initialPosition units="lattice" x="75.0" y="18.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="246" Radius="0.01">
+        <initialPosition units="lattice" x="75.0" y="18.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="247" Radius="0.01">
+        <initialPosition units="lattice" x="75.0" y="18.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="248" Radius="0.01">
+        <initialPosition units="lattice" x="75.0" y="19.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="249" Radius="0.01">
+        <initialPosition units="lattice" x="75.0" y="19.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="250" Radius="0.01">
+        <initialPosition units="lattice" x="75.0" y="19.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="251" Radius="0.01">
+        <initialPosition units="lattice" x="75.0" y="19.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="252" Radius="0.01">
+        <initialPosition units="lattice" x="75.0" y="19.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="253" Radius="0.01">
+        <initialPosition units="lattice" x="75.0" y="20.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="254" Radius="0.01">
+        <initialPosition units="lattice" x="75.0" y="20.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="255" Radius="0.01">
+        <initialPosition units="lattice" x="75.0" y="20.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="256" Radius="0.01">
+        <initialPosition units="lattice" x="76.0" y="18.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="257" Radius="0.01">
+        <initialPosition units="lattice" x="80.0" y="18.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="258" Radius="0.01">
+        <initialPosition units="lattice" x="81.0" y="16.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="259" Radius="0.01">
+        <initialPosition units="lattice" x="81.0" y="16.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="260" Radius="0.01">
+        <initialPosition units="lattice" x="81.0" y="16.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="261" Radius="0.01">
+        <initialPosition units="lattice" x="81.0" y="17.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="262" Radius="0.01">
+        <initialPosition units="lattice" x="81.0" y="17.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="263" Radius="0.01">
+        <initialPosition units="lattice" x="81.0" y="17.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="264" Radius="0.01">
+        <initialPosition units="lattice" x="81.0" y="17.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="265" Radius="0.01">
+        <initialPosition units="lattice" x="81.0" y="17.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="266" Radius="0.01">
+        <initialPosition units="lattice" x="81.0" y="18.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="267" Radius="0.01">
+        <initialPosition units="lattice" x="81.0" y="18.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="268" Radius="0.01">
+        <initialPosition units="lattice" x="81.0" y="18.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="269" Radius="0.01">
+        <initialPosition units="lattice" x="81.0" y="18.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="270" Radius="0.01">
+        <initialPosition units="lattice" x="81.0" y="18.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="271" Radius="0.01">
+        <initialPosition units="lattice" x="81.0" y="19.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="272" Radius="0.01">
+        <initialPosition units="lattice" x="81.0" y="19.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="273" Radius="0.01">
+        <initialPosition units="lattice" x="81.0" y="19.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="274" Radius="0.01">
+        <initialPosition units="lattice" x="81.0" y="19.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="275" Radius="0.01">
+        <initialPosition units="lattice" x="81.0" y="19.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="276" Radius="0.01">
+        <initialPosition units="lattice" x="81.0" y="20.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="277" Radius="0.01">
+        <initialPosition units="lattice" x="81.0" y="20.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="278" Radius="0.01">
+        <initialPosition units="lattice" x="81.0" y="20.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="279" Radius="0.01">
+        <initialPosition units="lattice" x="82.0" y="15.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="280" Radius="0.01">
+        <initialPosition units="lattice" x="82.0" y="15.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="281" Radius="0.01">
+        <initialPosition units="lattice" x="82.0" y="15.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="282" Radius="0.01">
+        <initialPosition units="lattice" x="82.0" y="16.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="283" Radius="0.01">
+        <initialPosition units="lattice" x="82.0" y="16.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="284" Radius="0.01">
+        <initialPosition units="lattice" x="82.0" y="16.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="285" Radius="0.01">
+        <initialPosition units="lattice" x="82.0" y="16.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="286" Radius="0.01">
+        <initialPosition units="lattice" x="82.0" y="16.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="287" Radius="0.01">
+        <initialPosition units="lattice" x="82.0" y="17.1515" z="37.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="288" Radius="0.01">
+        <initialPosition units="lattice" x="82.0" y="17.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="289" Radius="0.01">
+        <initialPosition units="lattice" x="82.0" y="17.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="290" Radius="0.01">
+        <initialPosition units="lattice" x="82.0" y="17.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="291" Radius="0.01">
+        <initialPosition units="lattice" x="82.0" y="17.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="292" Radius="0.01">
+        <initialPosition units="lattice" x="82.0" y="17.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="293" Radius="0.01">
+        <initialPosition units="lattice" x="82.0" y="17.1515" z="43.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="294" Radius="0.01">
+        <initialPosition units="lattice" x="82.0" y="18.1515" z="37.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="295" Radius="0.01">
+        <initialPosition units="lattice" x="82.0" y="18.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="296" Radius="0.01">
+        <initialPosition units="lattice" x="82.0" y="18.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="297" Radius="0.01">
+        <initialPosition units="lattice" x="82.0" y="18.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="298" Radius="0.01">
+        <initialPosition units="lattice" x="82.0" y="18.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="299" Radius="0.01">
+        <initialPosition units="lattice" x="82.0" y="18.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="300" Radius="0.01">
+        <initialPosition units="lattice" x="82.0" y="18.1515" z="43.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="301" Radius="0.01">
+        <initialPosition units="lattice" x="82.0" y="19.1515" z="37.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="302" Radius="0.01">
+        <initialPosition units="lattice" x="82.0" y="19.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="303" Radius="0.01">
+        <initialPosition units="lattice" x="82.0" y="19.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="304" Radius="0.01">
+        <initialPosition units="lattice" x="82.0" y="19.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="305" Radius="0.01">
+        <initialPosition units="lattice" x="82.0" y="19.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="306" Radius="0.01">
+        <initialPosition units="lattice" x="82.0" y="19.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="307" Radius="0.01">
+        <initialPosition units="lattice" x="82.0" y="19.1515" z="43.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="308" Radius="0.01">
+        <initialPosition units="lattice" x="82.0" y="20.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="309" Radius="0.01">
+        <initialPosition units="lattice" x="82.0" y="20.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="310" Radius="0.01">
+        <initialPosition units="lattice" x="82.0" y="20.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="311" Radius="0.01">
+        <initialPosition units="lattice" x="82.0" y="20.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="312" Radius="0.01">
+        <initialPosition units="lattice" x="82.0" y="20.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="313" Radius="0.01">
+        <initialPosition units="lattice" x="82.0" y="21.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="314" Radius="0.01">
+        <initialPosition units="lattice" x="82.0" y="21.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="315" Radius="0.01">
+        <initialPosition units="lattice" x="82.0" y="21.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="316" Radius="0.01">
+        <initialPosition units="lattice" x="83.0" y="15.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="317" Radius="0.01">
+        <initialPosition units="lattice" x="83.0" y="15.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="318" Radius="0.01">
+        <initialPosition units="lattice" x="83.0" y="15.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="319" Radius="0.01">
+        <initialPosition units="lattice" x="83.0" y="15.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="320" Radius="0.01">
+        <initialPosition units="lattice" x="83.0" y="15.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="321" Radius="0.01">
+        <initialPosition units="lattice" x="83.0" y="16.1515" z="37.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="322" Radius="0.01">
+        <initialPosition units="lattice" x="83.0" y="16.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="323" Radius="0.01">
+        <initialPosition units="lattice" x="83.0" y="16.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="324" Radius="0.01">
+        <initialPosition units="lattice" x="83.0" y="16.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="325" Radius="0.01">
+        <initialPosition units="lattice" x="83.0" y="16.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="326" Radius="0.01">
+        <initialPosition units="lattice" x="83.0" y="16.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="327" Radius="0.01">
+        <initialPosition units="lattice" x="83.0" y="16.1515" z="43.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="328" Radius="0.01">
+        <initialPosition units="lattice" x="83.0" y="17.1515" z="37.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="329" Radius="0.01">
+        <initialPosition units="lattice" x="83.0" y="17.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="330" Radius="0.01">
+        <initialPosition units="lattice" x="83.0" y="17.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="331" Radius="0.01">
+        <initialPosition units="lattice" x="83.0" y="17.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="332" Radius="0.01">
+        <initialPosition units="lattice" x="83.0" y="17.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="333" Radius="0.01">
+        <initialPosition units="lattice" x="83.0" y="17.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="334" Radius="0.01">
+        <initialPosition units="lattice" x="83.0" y="17.1515" z="43.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="335" Radius="0.01">
+        <initialPosition units="lattice" x="83.0" y="18.1515" z="37.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="336" Radius="0.01">
+        <initialPosition units="lattice" x="83.0" y="18.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="337" Radius="0.01">
+        <initialPosition units="lattice" x="83.0" y="18.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="338" Radius="0.01">
+        <initialPosition units="lattice" x="83.0" y="18.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="339" Radius="0.01">
+        <initialPosition units="lattice" x="83.0" y="18.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="340" Radius="0.01">
+        <initialPosition units="lattice" x="83.0" y="18.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="341" Radius="0.01">
+        <initialPosition units="lattice" x="83.0" y="18.1515" z="43.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="342" Radius="0.01">
+        <initialPosition units="lattice" x="83.0" y="19.1515" z="37.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="343" Radius="0.01">
+        <initialPosition units="lattice" x="83.0" y="19.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="344" Radius="0.01">
+        <initialPosition units="lattice" x="83.0" y="19.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="345" Radius="0.01">
+        <initialPosition units="lattice" x="83.0" y="19.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="346" Radius="0.01">
+        <initialPosition units="lattice" x="83.0" y="19.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="347" Radius="0.01">
+        <initialPosition units="lattice" x="83.0" y="19.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="348" Radius="0.01">
+        <initialPosition units="lattice" x="83.0" y="19.1515" z="43.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="349" Radius="0.01">
+        <initialPosition units="lattice" x="83.0" y="20.1515" z="37.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="350" Radius="0.01">
+        <initialPosition units="lattice" x="83.0" y="20.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="351" Radius="0.01">
+        <initialPosition units="lattice" x="83.0" y="20.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="352" Radius="0.01">
+        <initialPosition units="lattice" x="83.0" y="20.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="353" Radius="0.01">
+        <initialPosition units="lattice" x="83.0" y="20.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="354" Radius="0.01">
+        <initialPosition units="lattice" x="83.0" y="20.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="355" Radius="0.01">
+        <initialPosition units="lattice" x="83.0" y="20.1515" z="43.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="356" Radius="0.01">
+        <initialPosition units="lattice" x="83.0" y="21.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="357" Radius="0.01">
+        <initialPosition units="lattice" x="83.0" y="21.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="358" Radius="0.01">
+        <initialPosition units="lattice" x="83.0" y="21.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="359" Radius="0.01">
+        <initialPosition units="lattice" x="83.0" y="21.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="360" Radius="0.01">
+        <initialPosition units="lattice" x="83.0" y="21.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="361" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="14.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="362" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="15.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="363" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="15.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="364" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="15.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="365" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="15.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="366" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="15.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="367" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="16.1515" z="37.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="368" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="16.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="369" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="16.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="370" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="16.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="371" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="16.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="372" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="16.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="373" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="16.1515" z="43.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="374" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="17.1515" z="37.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="375" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="17.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="376" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="17.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="377" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="17.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="378" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="17.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="379" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="17.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="380" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="17.1515" z="43.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="381" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="18.1515" z="36.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="382" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="18.1515" z="37.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="383" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="18.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="384" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="18.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="385" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="18.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="386" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="18.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="387" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="18.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="388" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="18.1515" z="43.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="389" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="18.1515" z="44.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="390" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="19.1515" z="37.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="391" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="19.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="392" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="19.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="393" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="19.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="394" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="19.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="395" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="19.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="396" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="19.1515" z="43.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="397" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="20.1515" z="37.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="398" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="20.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="399" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="20.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="400" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="20.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="401" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="20.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="402" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="20.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="403" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="20.1515" z="43.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="404" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="21.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="405" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="21.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="406" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="21.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="407" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="21.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="408" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="21.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="409" Radius="0.01">
+        <initialPosition units="lattice" x="84.0" y="22.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="410" Radius="0.01">
+        <initialPosition units="lattice" x="85.0" y="15.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="411" Radius="0.01">
+        <initialPosition units="lattice" x="85.0" y="15.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="412" Radius="0.01">
+        <initialPosition units="lattice" x="85.0" y="15.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="413" Radius="0.01">
+        <initialPosition units="lattice" x="85.0" y="15.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="414" Radius="0.01">
+        <initialPosition units="lattice" x="85.0" y="15.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="415" Radius="0.01">
+        <initialPosition units="lattice" x="85.0" y="16.1515" z="37.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="416" Radius="0.01">
+        <initialPosition units="lattice" x="85.0" y="16.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="417" Radius="0.01">
+        <initialPosition units="lattice" x="85.0" y="16.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="418" Radius="0.01">
+        <initialPosition units="lattice" x="85.0" y="16.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="419" Radius="0.01">
+        <initialPosition units="lattice" x="85.0" y="16.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="420" Radius="0.01">
+        <initialPosition units="lattice" x="85.0" y="16.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="421" Radius="0.01">
+        <initialPosition units="lattice" x="85.0" y="16.1515" z="43.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="422" Radius="0.01">
+        <initialPosition units="lattice" x="85.0" y="17.1515" z="37.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="423" Radius="0.01">
+        <initialPosition units="lattice" x="85.0" y="17.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="424" Radius="0.01">
+        <initialPosition units="lattice" x="85.0" y="17.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="425" Radius="0.01">
+        <initialPosition units="lattice" x="85.0" y="17.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="426" Radius="0.01">
+        <initialPosition units="lattice" x="85.0" y="17.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="427" Radius="0.01">
+        <initialPosition units="lattice" x="85.0" y="17.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="428" Radius="0.01">
+        <initialPosition units="lattice" x="85.0" y="17.1515" z="43.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="429" Radius="0.01">
+        <initialPosition units="lattice" x="85.0" y="18.1515" z="37.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="430" Radius="0.01">
+        <initialPosition units="lattice" x="85.0" y="18.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="431" Radius="0.01">
+        <initialPosition units="lattice" x="85.0" y="18.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="432" Radius="0.01">
+        <initialPosition units="lattice" x="85.0" y="18.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="433" Radius="0.01">
+        <initialPosition units="lattice" x="85.0" y="18.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="434" Radius="0.01">
+        <initialPosition units="lattice" x="85.0" y="18.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="435" Radius="0.01">
+        <initialPosition units="lattice" x="85.0" y="18.1515" z="43.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="436" Radius="0.01">
+        <initialPosition units="lattice" x="85.0" y="19.1515" z="37.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="437" Radius="0.01">
+        <initialPosition units="lattice" x="85.0" y="19.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="438" Radius="0.01">
+        <initialPosition units="lattice" x="85.0" y="19.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="439" Radius="0.01">
+        <initialPosition units="lattice" x="85.0" y="19.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="440" Radius="0.01">
+        <initialPosition units="lattice" x="85.0" y="19.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="441" Radius="0.01">
+        <initialPosition units="lattice" x="85.0" y="19.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="442" Radius="0.01">
+        <initialPosition units="lattice" x="85.0" y="19.1515" z="43.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="443" Radius="0.01">
+        <initialPosition units="lattice" x="85.0" y="20.1515" z="37.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="444" Radius="0.01">
+        <initialPosition units="lattice" x="85.0" y="20.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="445" Radius="0.01">
+        <initialPosition units="lattice" x="85.0" y="20.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="446" Radius="0.01">
+        <initialPosition units="lattice" x="85.0" y="20.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="447" Radius="0.01">
+        <initialPosition units="lattice" x="85.0" y="20.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="448" Radius="0.01">
+        <initialPosition units="lattice" x="85.0" y="20.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="449" Radius="0.01">
+        <initialPosition units="lattice" x="85.0" y="20.1515" z="43.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="450" Radius="0.01">
+        <initialPosition units="lattice" x="85.0" y="21.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="451" Radius="0.01">
+        <initialPosition units="lattice" x="85.0" y="21.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="452" Radius="0.01">
+        <initialPosition units="lattice" x="85.0" y="21.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="453" Radius="0.01">
+        <initialPosition units="lattice" x="85.0" y="21.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="454" Radius="0.01">
+        <initialPosition units="lattice" x="85.0" y="21.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="455" Radius="0.01">
+        <initialPosition units="lattice" x="86.0" y="15.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="456" Radius="0.01">
+        <initialPosition units="lattice" x="86.0" y="15.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="457" Radius="0.01">
+        <initialPosition units="lattice" x="86.0" y="15.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="458" Radius="0.01">
+        <initialPosition units="lattice" x="86.0" y="16.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="459" Radius="0.01">
+        <initialPosition units="lattice" x="86.0" y="16.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="460" Radius="0.01">
+        <initialPosition units="lattice" x="86.0" y="16.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="461" Radius="0.01">
+        <initialPosition units="lattice" x="86.0" y="16.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="462" Radius="0.01">
+        <initialPosition units="lattice" x="86.0" y="16.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="463" Radius="0.01">
+        <initialPosition units="lattice" x="86.0" y="17.1515" z="37.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="464" Radius="0.01">
+        <initialPosition units="lattice" x="86.0" y="17.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="465" Radius="0.01">
+        <initialPosition units="lattice" x="86.0" y="17.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="466" Radius="0.01">
+        <initialPosition units="lattice" x="86.0" y="17.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="467" Radius="0.01">
+        <initialPosition units="lattice" x="86.0" y="17.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="468" Radius="0.01">
+        <initialPosition units="lattice" x="86.0" y="17.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="469" Radius="0.01">
+        <initialPosition units="lattice" x="86.0" y="17.1515" z="43.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="470" Radius="0.01">
+        <initialPosition units="lattice" x="86.0" y="18.1515" z="37.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="471" Radius="0.01">
+        <initialPosition units="lattice" x="86.0" y="18.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="472" Radius="0.01">
+        <initialPosition units="lattice" x="86.0" y="18.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="473" Radius="0.01">
+        <initialPosition units="lattice" x="86.0" y="18.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="474" Radius="0.01">
+        <initialPosition units="lattice" x="86.0" y="18.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="475" Radius="0.01">
+        <initialPosition units="lattice" x="86.0" y="18.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="476" Radius="0.01">
+        <initialPosition units="lattice" x="86.0" y="18.1515" z="43.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="477" Radius="0.01">
+        <initialPosition units="lattice" x="86.0" y="19.1515" z="37.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="478" Radius="0.01">
+        <initialPosition units="lattice" x="86.0" y="19.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="479" Radius="0.01">
+        <initialPosition units="lattice" x="86.0" y="19.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="480" Radius="0.01">
+        <initialPosition units="lattice" x="86.0" y="19.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="481" Radius="0.01">
+        <initialPosition units="lattice" x="86.0" y="19.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="482" Radius="0.01">
+        <initialPosition units="lattice" x="86.0" y="19.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="483" Radius="0.01">
+        <initialPosition units="lattice" x="86.0" y="19.1515" z="43.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="484" Radius="0.01">
+        <initialPosition units="lattice" x="86.0" y="20.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="485" Radius="0.01">
+        <initialPosition units="lattice" x="86.0" y="20.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="486" Radius="0.01">
+        <initialPosition units="lattice" x="86.0" y="20.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="487" Radius="0.01">
+        <initialPosition units="lattice" x="86.0" y="20.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="488" Radius="0.01">
+        <initialPosition units="lattice" x="86.0" y="20.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="489" Radius="0.01">
+        <initialPosition units="lattice" x="86.0" y="21.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="490" Radius="0.01">
+        <initialPosition units="lattice" x="86.0" y="21.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="491" Radius="0.01">
+        <initialPosition units="lattice" x="86.0" y="21.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="492" Radius="0.01">
+        <initialPosition units="lattice" x="87.0" y="16.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="493" Radius="0.01">
+        <initialPosition units="lattice" x="87.0" y="16.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="494" Radius="0.01">
+        <initialPosition units="lattice" x="87.0" y="16.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="495" Radius="0.01">
+        <initialPosition units="lattice" x="87.0" y="17.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="496" Radius="0.01">
+        <initialPosition units="lattice" x="87.0" y="17.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="497" Radius="0.01">
+        <initialPosition units="lattice" x="87.0" y="17.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="498" Radius="0.01">
+        <initialPosition units="lattice" x="87.0" y="17.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="499" Radius="0.01">
+        <initialPosition units="lattice" x="87.0" y="17.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="500" Radius="0.01">
+        <initialPosition units="lattice" x="87.0" y="18.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="501" Radius="0.01">
+        <initialPosition units="lattice" x="87.0" y="18.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="502" Radius="0.01">
+        <initialPosition units="lattice" x="87.0" y="18.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="503" Radius="0.01">
+        <initialPosition units="lattice" x="87.0" y="18.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="504" Radius="0.01">
+        <initialPosition units="lattice" x="87.0" y="18.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="505" Radius="0.01">
+        <initialPosition units="lattice" x="87.0" y="19.1515" z="38.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="506" Radius="0.01">
+        <initialPosition units="lattice" x="87.0" y="19.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="507" Radius="0.01">
+        <initialPosition units="lattice" x="87.0" y="19.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="508" Radius="0.01">
+        <initialPosition units="lattice" x="87.0" y="19.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="509" Radius="0.01">
+        <initialPosition units="lattice" x="87.0" y="19.1515" z="42.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="510" Radius="0.01">
+        <initialPosition units="lattice" x="87.0" y="20.1515" z="39.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="511" Radius="0.01">
+        <initialPosition units="lattice" x="87.0" y="20.1515" z="40.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="512" Radius="0.01">
+        <initialPosition units="lattice" x="87.0" y="20.1515" z="41.0"/>
+      </subgridParticle>
+      <subgridParticle units="lattice" ParticleId="513" Radius="0.01">
+        <initialPosition units="lattice" x="88.0" y="18.1515" z="40.0"/>
+      </subgridParticle>
+-->
+    </particles>
+    <bodyForces>
+<!--
+      <gravitic forceName="gravity">
+        <field units="m/s^2" x="0.0" y="0.0" z="9.81"/>
+      </gravitic>
+-->
+      <magnetic forceName="dipolar">
+        <magneticMoment units="A·m^2" x="0.0" y="0.0" z="50.0"/>
+        <position units="lattice" x="110.0" y="18.1515" z="118.0"/>
+      </magnetic>
+    </bodyForces>
+    <boundaryConditions>
+      <lubrication appliesTo="Wall" effectiveRange="1.0"/>
+      <deletion appliesTo="Ilet" effectiveRange="1.0"/>
+      <deletion appliesTo="Olet" effectiveRange="1.0"/>
+      <spherical appliesTo="Sphr">
+	      <sphereRadius units="lattice" value="0.0"/>
+	      <sphereCentre units="lattice" x="0.0" y="0.0" z="0.0"/>
+      </spherical>
+    </boundaryConditions>
+  </colloids>
+</hemelbsettings>
