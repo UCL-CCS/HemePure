@@ -21,16 +21,18 @@ The CPU version of HemePure can be executed with the following functionality. So
 Collision kernels (compile time):
 * LBGK - Single relaxation time
 * TRT - Two relaxation time
-* BGK + LES
+* LBGK + LES - Inclusion of large eddy simulation approximation to assist in higher Re flow modelling.
 
 Inlet/Outlet boundary conditions (compile time):
 * Pressure
+  - Sinusoidal profile (constant pressure enabled using)
+  - Transient profile
+  - Windkessel
+  - Sponge layer (outlets) - Acts on a pressure outlet but modifies the viscosity near the outlet to increase stability of the simulation (defined with collision kernel).
 * Velocity
    - Constant magnitude with parabolic profile for circular inlets
    - Transient profile with parabolic profile for circular inlets
    - Transient profile with Poiseuille-like profile for non-circular inlets
-* Windkessel (outlets)
-* Sponge layer (outlets) - Acts on a pressure outlet but modifies the viscosity near the outlet to increase stability of the simulation (defined with collision kernel).
 
 Wall boundary conditions (compile time):
 * Bounceback - simple rigid walls
