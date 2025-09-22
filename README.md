@@ -1,7 +1,7 @@
 # HemePure
 HemePure is a modified version of the HemeLB code that improved memory usage and scaling behaviour. It makes use of the lattice Boltzmann method to solve macroscopic blood flow in 3D vascular geometries. The CPU version (this repository) has demonstrated strong scaling behaviour to hundreds of thousands of cores with a sufficiently sized simulation domain. The related [HemePure-GPU](https://github.com/UCL-CCS/HemePure-GPU) allows for execution of the code on a variety of GPU architectures with strong scaling shown on tens of thousands of GPU cards.
 
-This version of the code was developed from the full HemeLB code in late 2018 and has since seen further developments. Publications using some form HemePure:
+This version was developed from the full HemeLB code in late 2018 and has since seen further developments. Publications using some form of HemePure:
 * Xue, X., Athawale, T. M., McCullough, J. W. S., Lo, S. C., Zacharoudiou, I., Joo, B., ... & Coveney, P. V. (2025). An Uncertainty Visualization Framework for Large-Scale Cardiovascular Flow Simulations: A Case Study on Aortic Stenosis. arXiv preprint arXiv:2508.15420.
 * Benemerito, I.,  McCullough, J., Narracott, A., Coveney, P. V.  & Marzo, A. (2025). Comparison of Navier-Stokes and lattice Boltzmann solvers for subject-specific modelling of intracranial aneurysms. Computers in Biology and Medicine, Vol. 197 Part B, 111050.
 * Lo, S. C., Zingaro, A., McCullough, J. W. S., Xue, X., Gonzalez-Martin, P., Joo, B., ... & Coveney, P. V. (2025). A multi-component, multi-physics computational model for solving coupled cardiac electromechanics and vascular haemodynamics. Computer Methods in Applied Mechanics and Engineering, 446, 118185.
@@ -46,8 +46,17 @@ Intrinsics for vectorisation, may improve performance on CPU (compile time):
 * AVX512
 
 Data output (run time):
-- Extraction of data at point, line, plane, inlets, outlets, wall surface, surfaces within a sphere, whole domain.
-- Checkpoint restart from written data file
+* Extraction of data from the following locations in a domain:
+  - point on surface
+  - line between two points
+  - plane through the domain
+  - inlets
+  - outlets
+  - whole wall surface
+  - surfaces within a defined sphere
+  - all points within a defined sphere
+  - whole domain
+* Checkpoint restart from written data file
 
 ## Compilation #
 Build dependencies before attempting to build HemePure. Once dependencies are built, they do not need to be recompiled for (re)compilation of the source code. The following steps can be followed to build the dependency and source code mannually, the FullBuild.sh file collects these into a single location. This file may need to be modified to reflect the settings, defaults and software available on a given machine. This file can be modified to provide alternative functionality and boundary conditions.
@@ -71,18 +80,19 @@ The [cases](cases) folder provides some example input files for running jobs wit
 Execution should occur with: `mpirun -np xx <HemePure binary> -in input.xml -out results`, ensure that you are running with enough MPI ranks to satisfy HEMELB_READING_GROUP_SIZE + 1 (by default, at least 3 ranks). (`mpirun` may need to be replaced with an alternative call based on machine settings). Note that the simulation will not proceed if a `results` folder with the same name already exists in the run directory - delete the existing folder, or specify a new folder in which to store results, prior to execution.
 
 Two simple examples are included:
-* [Pipe](case/pipe): pressure-driven flow in a pipe.
+* [Pipe](cases/pipe): pressure-driven flow in a pipe.
 * [Bifurcation](cases/bifurcation): pressure-driven flow in a Y-bifurcation (provided at two resolutions).
 
 Further examples provide extra input domains or illustrate extra functionality:
-* Data extraction
-* Checkpointing
-* Elastic walls
+* Data extraction - see [this](cases/pipe/input_DataOutput.xml) input script in the Pipe example, this script also highlights the use of steady-state convergence criterion to halt a simulation
+* Checkpointing - see [here]/(cases/checkpointingExample) for how to write, and restart from, a checkpoint file
+* Elastic walls - see [here]/(cases/elasticWallsExample) - for running a simulation with elastic walls enabled
+* Colloids - see [here]/(cases/colloidsExample) for running a simulation with colloidal tracer particles within the flow
 * LES and sponge layer outlets
 * Windkessel outlets
   
 ## DEVELOPMENT #
-A few parts of the code are under heavy development.
+A few parts of the code are under ongoing development.
 
 <!--
 Although the current version of ALL has been fully incorporated, ALL itself is undergoing development. As a result, it is likely that the implementation in `src/geometry/decomposition/BasicDecomposition.cc` (in the function `BasicDecomposition::DecomposeBlock()`) will need to be modified. Once development is complete, ALL should be enabled through cmake. After rotation of the geometry (necessary for ALL decomposition), HemeLB and ALL interact through
