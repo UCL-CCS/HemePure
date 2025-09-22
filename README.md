@@ -58,8 +58,9 @@ Data output (run time):
   - whole domain
 * Checkpoint restart from written data file
 
-Pre-processing - Appropriate STL files can be prepared for simulation with HemePure using the tools available in [HemePure_tools](https://github.com/UCL-CCS/HemePure_tools)
-Post-processing - The binary files written by HemePure can be converted to human-readable form using [hemeXtract](https://github.com/UCL-CCS/hemeXtract). These can be further processed using (e.g.) Python scripts, some examples of these are in the [cases](cases) folder.
+**Pre-processing** - Appropriate STL files can be prepared for simulation with HemePure using the tools available in [HemePure_tools](https://github.com/UCL-CCS/HemePure_tools)
+
+**Post-processing** - The binary files written by HemePure can be converted to human-readable form using [hemeXtract](https://github.com/UCL-CCS/hemeXtract). These can be further processed using (e.g.) Python scripts, some examples of these are in the [cases](cases) folder.
 
 ## Compilation #
 Build dependencies before attempting to build HemePure. Once dependencies are built, they do not need to be recompiled for (re)compilation of the source code. The following steps can be followed to build the dependency and source code mannually, the FullBuild.sh file collects these into a single location. This file may need to be modified to reflect the settings, defaults and software available on a given machine. This file can be modified to provide alternative functionality and boundary conditions.
