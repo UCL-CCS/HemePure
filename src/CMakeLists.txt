@@ -73,9 +73,21 @@ if(HEMELB_USE_ALL_WARNINGS_GNU)
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
 endif()
 
+# if(HEMELB_OPTIMISATION)
+# 	set(CMAKE_CXX_FLAGS_RELEASE ${HEMELB_OPTIMISATION})
+# 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${HEMELB_OPTIMISATION}")
+# endif()
 if(HEMELB_OPTIMISATION)
-	set(CMAKE_CXX_FLAGS_RELEASE ${HEMELB_OPTIMISATION})
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${HEMELB_OPTIMISATION}")
+    # Check if user provided GCC-style flag but we are on MSVC
+    if(MSVC AND HEMELB_OPTIMISATION MATCHES "-O")
+        # Map -O3 to /O2 for MSVC, or just warn user
+        string(REPLACE "-O3" "/O2" HEMELB_OPTIMISATION_MSVC "${HEMELB_OPTIMISATION}")
+        set(CMAKE_CXX_FLAGS_RELEASE ${HEMELB_OPTIMISATION_MSVC})
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${HEMELB_OPTIMISATION_MSVC}")
+    else()
+        set(CMAKE_CXX_FLAGS_RELEASE ${HEMELB_OPTIMISATION})
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${HEMELB_OPTIMISATION}")
+    endif()
 endif()
 
 add_definitions(-DHEMELB_CODE)
@@ -103,25 +115,83 @@ if(HEMELB_TRACER_PARTICLES)
 	add_definitions(-DHEMELB_TRACER_PARTICLES)
 endif()
 
+# if(HEMELB_USE_SSE3)
+# 	add_definitions(-DHEMELB_USE_SSE3)
+# 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse3")
+# 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -msse3")
+# 	set(CMAKE_CXX_FLAGS_RELEASE "${HEMELB_OPTIMISATION} -msse3")
+# endif()
+
+# if(HEMELB_USE_AVX2)
+#         add_definitions(-DHEMELB_USE_AVX2)
+#         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=core-avx2")
+#         set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -march=core-avx2")
+#         set(CMAKE_CXX_FLAGS_RELEASE "${HEMELB_OPTIMISATION} -march=core-avx2")
+# endif()
+
+# if(HEMELB_USE_AVX512)
+#         add_definitions(-DHEMELB_USE_AVX512)
+#         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -xCORE-AVX512")
+#         set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -xCORE-AVX512")
+#         set(CMAKE_CXX_FLAGS_RELEASE "${HEMELB_OPTIMISATION} -xCORE-AVX512") #-march=skylake-avx512
+# endif()
+
 if(HEMELB_USE_SSE3)
-	add_definitions(-DHEMELB_USE_SSE3)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse3")
-	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -msse3")
-	set(CMAKE_CXX_FLAGS_RELEASE "${HEMELB_OPTIMISATION} -msse3")
+    add_definitions(-DHEMELB_USE_SSE3)
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        set(SIMD_FLAGS "-msse3")
+    elseif(CMAKE_CXX_COMPILER_ID MATCHES "Intel")
+        set(SIMD_FLAGS "-msse3") # Intel on Linux usually accepts this, or /arch:SSE3 on Windows
+    elseif(MSVC)
+        # MSVC enables SSE2 by default on x64. SSE3 is usually implicit.
+        # optional: set(SIMD_FLAGS "/arch:AVX")
+    endif()
+
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SIMD_FLAGS}")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${SIMD_FLAGS}")
+    set(CMAKE_CXX_FLAGS_RELEASE "${HEMELB_OPTIMISATION} ${SIMD_FLAGS}")
 endif()
 
 if(HEMELB_USE_AVX2)
-        add_definitions(-DHEMELB_USE_AVX2)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=core-avx2")
-        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -march=core-avx2")
-        set(CMAKE_CXX_FLAGS_RELEASE "${HEMELB_OPTIMISATION} -march=core-avx2")
+    add_definitions(-DHEMELB_USE_AVX2)
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        set(SIMD_FLAGS "-march=core-avx2") # Or simply -mavx2 -mfma
+    elseif(CMAKE_CXX_COMPILER_ID MATCHES "Intel")
+        # Intel classic compiler (icc) uses -xCORE-AVX2
+        # Intel oneAPI (icx) behaves like Clang
+        if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 2021)
+             set(SIMD_FLAGS "-xCORE-AVX2")
+        else()
+             set(SIMD_FLAGS "-march=core-avx2")
+        endif()
+    elseif(MSVC)
+        set(SIMD_FLAGS "/arch:AVX2")
+    endif()
+
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SIMD_FLAGS}")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${SIMD_FLAGS}")
+    set(CMAKE_CXX_FLAGS_RELEASE "${HEMELB_OPTIMISATION} ${SIMD_FLAGS}")
 endif()
 
 if(HEMELB_USE_AVX512)
-        add_definitions(-DHEMELB_USE_AVX512)
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -xCORE-AVX512")
-        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -xCORE-AVX512")
-        set(CMAKE_CXX_FLAGS_RELEASE "${HEMELB_OPTIMISATION} -xCORE-AVX512") #-march=skylake-avx512
+    add_definitions(-DHEMELB_USE_AVX512)
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        # GCC/Clang standard flag
+        set(SIMD_FLAGS "-march=skylake-avx512")
+    elseif(CMAKE_CXX_COMPILER_ID MATCHES "Intel")
+        # Intel specific optimization flag
+        if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 2021)
+             set(SIMD_FLAGS "-xCORE-AVX512")
+        else()
+             set(SIMD_FLAGS "-xCORE-AVX512") # oneAPI icx supports -x
+        endif()
+    elseif(MSVC)
+        set(SIMD_FLAGS "/arch:AVX512") # Requires recent VS2019+
+    endif()
+
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${SIMD_FLAGS}")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${SIMD_FLAGS}")
+    set(CMAKE_CXX_FLAGS_RELEASE "${HEMELB_OPTIMISATION} ${SIMD_FLAGS}")
 endif()
 
 if(HEMELB_USE_VELOCITY_WEIGHTS_FILE)
